@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { StorageKey } from '@/types';
+import { useState, useEffect, useCallback } from "react";
+
+import type { StorageKey } from "@/types";
 
 /**
  * React hook for syncing state with Chrome storage
@@ -35,26 +36,27 @@ export function useStorage<T>(
   // Listen for storage changes
   useEffect(() => {
     const handleChange = (
-      changes: { [key: string]: chrome.storage.StorageChange },
+      changes: Record<string, chrome.storage.StorageChange>,
       areaName: string
     ) => {
-      if (areaName === 'local' && changes[key]) {
+      if (areaName === "local" && changes[key]) {
         setValue(changes[key].newValue ?? defaultValue);
       }
     };
 
     chrome.storage.onChanged.addListener(handleChange);
-    return () => chrome.storage.onChanged.removeListener(handleChange);
+    return () => {
+      chrome.storage.onChanged.removeListener(handleChange);
+    };
   }, [key, defaultValue]);
 
   // Set value in state and storage
   const setStoredValue = useCallback(
     async (newValue: T | ((prev: T) => T)) => {
       try {
-        const valueToStore = typeof newValue === 'function'
-          ? (newValue as (prev: T) => T)(value)
-          : newValue;
-        
+        const valueToStore =
+          typeof newValue === "function" ? (newValue as (prev: T) => T)(value) : newValue;
+
         setValue(valueToStore);
         await chrome.storage.local.set({ [key]: valueToStore });
       } catch (error) {
@@ -73,22 +75,23 @@ export function useStorage<T>(
  * @returns Cleanup function
  */
 export function useStorageListener(
-  callback: (changes: { [key: string]: chrome.storage.StorageChange }) => void
+  callback: (changes: Record<string, chrome.storage.StorageChange>) => void
 ): void {
   useEffect(() => {
     const handleChange = (
-      changes: { [key: string]: chrome.storage.StorageChange },
+      changes: Record<string, chrome.storage.StorageChange>,
       areaName: string
     ) => {
-      if (areaName === 'local') {
+      if (areaName === "local") {
         callback(changes);
       }
     };
 
     chrome.storage.onChanged.addListener(handleChange);
-    return () => chrome.storage.onChanged.removeListener(handleChange);
+    return () => {
+      chrome.storage.onChanged.removeListener(handleChange);
+    };
   }, [callback]);
 }
 
 export default useStorage;
-

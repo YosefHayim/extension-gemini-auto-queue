@@ -1,0 +1,25 @@
+# Build outputs
+.output/
+.wxt/
+dist/
+node_modules/
+
+# Generated files
+*.d.ts
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Taskmaster and workspace
+.taskmaster/
+.cursor/
+.clinerules/
+.github/
+.gemini/
+
+# Scripts
+scripts/
+
+# Misc
+*.log
+*.md

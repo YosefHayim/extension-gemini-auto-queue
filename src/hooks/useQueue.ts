@@ -1,7 +1,14 @@
-import type { AppSettings, QueueItem } from "@/types";
-import { MessageType, QueueStatus, STORAGE_KEYS } from "@/types";
-import { getQueue, getSettings, onStorageChange, setQueue } from "@/services/storageService";
 import { useCallback, useEffect, useState } from "react";
+
+import { getQueue, getSettings, onStorageChange, setQueue } from "@/services/storageService";
+import {
+  type GeminiTool,
+  MessageType,
+  QueueStatus,
+  STORAGE_KEYS,
+  type AppSettings,
+  type QueueItem,
+} from "@/types";
 
 interface UseQueueReturn {
   queue: QueueItem[];
@@ -74,7 +81,9 @@ export function useQueue(): UseQueueReturn {
     };
 
     chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
   }, []);
 
   const addToQueue = useCallback(
@@ -155,12 +164,18 @@ export function constructFinalPrompt(
 /**
  * Helper function to create queue items from prompts
  */
-export function createQueueItems(prompts: string[], settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives">, images?: string[]): QueueItem[] {
+export function createQueueItems(
+  prompts: string[],
+  settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives" | "globalNegativesEnabled">,
+  images?: string[],
+  tool?: GeminiTool
+): QueueItem[] {
   return prompts.map((prompt) => ({
     id: Math.random().toString(36).substr(2, 9),
     originalPrompt: prompt,
     finalPrompt: constructFinalPrompt(prompt, settings),
     status: QueueStatus.IDLE,
+    tool,
     images: images && images.length > 0 ? [...images] : undefined,
   }));
 }

@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-import { FileText, Info, Download, Upload, X } from 'lucide-react';
+import { FileText, Info, Download, Upload, X } from "lucide-react";
+import React, { useRef } from "react";
 
 interface CsvDialogProps {
   isOpen: boolean;
   isDark: boolean;
   onClose: () => void;
-  onUpload: (items: Array<{ prompt: string; modifier?: string }>) => void;
+  onUpload: (items: { prompt: string; modifier?: string }[]) => void;
 }
 
 export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, onUpload }) => {
@@ -13,13 +13,13 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
 
   const downloadTemplate = () => {
     const csvContent =
-      'Prompt,Template Modifier\nA cyberpunk city,hyper-realistic 8k resolution\nA majestic dragon,anime studio ghibli style\nA cozy cabin,winter forest background';
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+      "Prompt,Template Modifier\nA cyberpunk city,hyper-realistic 8k resolution\nA majestic dragon,anime studio ghibli style\nA cozy cabin,winter forest background";
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'nano_flow_template.csv');
-    link.style.visibility = 'hidden';
+    link.setAttribute("href", url);
+    link.setAttribute("download", "nano_flow_template.csv");
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -33,15 +33,15 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const rows = text.split('\n');
-      const items: Array<{ prompt: string; modifier?: string }> = [];
+      const rows = text.split("\n");
+      const items: { prompt: string; modifier?: string }[] = [];
 
       rows.forEach((row) => {
-        const columns = row.split(',');
+        const columns = row.split(",");
         const prompt = columns[0]?.trim();
         const modifier = columns[1]?.trim();
 
-        if (prompt && prompt.toLowerCase() !== 'prompt') {
+        if (prompt && prompt.toLowerCase() !== "prompt") {
           items.push({ prompt, modifier });
         }
       });
@@ -52,17 +52,17 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
     reader.readAsText(file);
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 backdrop-blur-md p-2">
+    <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
       <div
-        className={`max-w-md w-full p-2 rounded-md border shadow-2xl ${
-          isDark ? 'glass-panel border-white/10' : 'bg-white border-slate-200'
+        className={`w-full max-w-md rounded-md border p-2 shadow-2xl ${
+          isDark ? "glass-panel border-white/10" : "border-slate-200 bg-white"
         }`}
       >
         <div className="flex items-center justify-between p-2">
@@ -70,37 +70,32 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
             <FileText size={18} className="text-blue-500" />
             <h2 className="text-sm font-black">Import Batch</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-white/5 rounded-md transition-all"
-          >
+          <button onClick={onClose} className="rounded-md p-1 transition-all hover:bg-white/5">
             <X size={18} />
           </button>
         </div>
-        <div className="p-2 space-y-2">
+        <div className="space-y-2 p-2">
           <div
-            className={`p-2 rounded-md border text-[10px] leading-tight ${
-              isDark
-                ? 'bg-white/5 border-white/5 opacity-70'
-                : 'bg-slate-50 border-slate-100'
+            className={`rounded-md border p-2 text-[10px] leading-tight ${
+              isDark ? "border-white/5 bg-white/5 opacity-70" : "border-slate-100 bg-slate-50"
             }`}
           >
-            <div className="flex items-center gap-1 font-black uppercase tracking-widest mb-1">
+            <div className="mb-1 flex items-center gap-1 font-black uppercase tracking-widest">
               <Info size={10} /> CSV Guide
             </div>
             Format: Prompt, Modifiers (Optional).
           </div>
           <button
             onClick={downloadTemplate}
-            className={`w-full p-2 rounded-md font-black text-xs flex items-center justify-center gap-2 border ${
-              isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'
+            className={`flex w-full items-center justify-center gap-2 rounded-md border p-2 text-xs font-black ${
+              isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white"
             }`}
           >
             <Download size={16} /> Get Template
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md font-black text-xs flex items-center justify-center gap-2 shadow-lg"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 p-2 text-xs font-black text-white shadow-lg hover:bg-blue-500"
           >
             <Upload size={16} /> Upload CSV
           </button>
@@ -118,4 +113,3 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
 };
 
 export default CsvDialog;
-

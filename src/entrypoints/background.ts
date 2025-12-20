@@ -1,8 +1,16 @@
-import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
-import { MessageType, QueueStatus } from "@/types";
-import { getFolders, getQueue, getSettings, setFolders, setQueue, setSettings, updateQueueItem } from "@/services/storageService";
-
 import { generateImage } from "@/services/geminiService";
+import {
+  getFolders,
+  getQueue,
+  getSettings,
+  setFolders,
+  setQueue,
+  setSettings,
+  updateQueueItem,
+} from "@/services/storageService";
+import { GeminiTool, MessageType, QueueStatus } from "@/types";
+
+import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
 
 export default defineBackground(() => {
   console.log("[Nano Flow] Background script loaded");
@@ -25,7 +33,8 @@ export default defineBackground(() => {
   // Enable side panel on supported sites and track Gemini tabs
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url) {
-      const isGeminiSite = tab.url.includes("gemini.google.com") || tab.url.includes("aistudio.google.com");
+      const isGeminiSite =
+        tab.url.includes("gemini.google.com") || tab.url.includes("aistudio.google.com");
 
       if (isGeminiSite) {
         await chrome.sidePanel.setOptions({
@@ -55,9 +64,15 @@ export default defineBackground(() => {
 
   // Handle messages from sidepanel and content scripts
   chrome.runtime.onMessage.addListener(
-    (message: ExtensionMessage, sender: chrome.runtime.MessageSender, sendResponse: (response: ExtensionResponse) => void) => {
+    (
+      message: ExtensionMessage,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response: ExtensionResponse) => void
+    ) => {
       handleMessage(message, sender)
-        .then((response) => sendResponse(response))
+        .then((response) => {
+          sendResponse(response);
+        })
         .catch((error) => {
           console.error("[Nano Flow] Message handling error:", error);
           sendResponse({
@@ -71,7 +86,10 @@ export default defineBackground(() => {
     }
   );
 
-  async function handleMessage(message: ExtensionMessage, sender?: chrome.runtime.MessageSender): Promise<ExtensionResponse> {
+  async function handleMessage(
+    message: ExtensionMessage,
+    sender?: chrome.runtime.MessageSender
+  ): Promise<ExtensionResponse> {
     switch (message.type) {
       case MessageType.GET_QUEUE: {
         const queue = await getQueue();
@@ -244,15 +262,32 @@ export default defineBackground(() => {
       });
 
       try {
-        console.log("[Nano Flow] Processing item:", nextItem.id, nextItem.finalPrompt.substring(0, 50));
-        console.log("[Nano Flow] Item has images:", nextItem.images?.length || 0);
+        // Determine which tool to use
+        const settings = await getSettings();
+        let tool = nextItem.tool || settings.defaultTool || GeminiTool.IMAGE;
+
+        // If using tool sequence, calculate which tool to use based on queue position
+        if (settings.useToolSequence && settings.toolSequence.length > 0) {
+          const queueData = await getQueue();
+          const itemIndex = queueData.findIndex((item) => item.id === nextItem.id);
+          if (itemIndex >= 0) {
+            tool = settings.toolSequence[itemIndex % settings.toolSequence.length];
+          }
+        }
+
+        console.log(
+          "[Nano Flow] Processing item:",
+          nextItem.id,
+          nextItem.finalPrompt.substring(0, 50)
+        );
+        console.log("[Nano Flow] Using tool:", tool, "| Images:", nextItem.images?.length || 0);
 
         // Send prompt to content script for web automation
         const response = await sendToContentScript({
           type: MessageType.PASTE_PROMPT,
           payload: {
             prompt: nextItem.finalPrompt,
-            enableImages: true,
+            tool,
             images: nextItem.images || [],
           },
         });
@@ -276,10 +311,8 @@ export default defineBackground(() => {
           throw new Error(response.error || "Web automation failed");
         }
 
-        // Get settings for drip feed
-        const settings = await getSettings();
-
         // Wait between items (longer for web automation)
+        // Note: settings already loaded earlier for tool selection
         const waitTime = settings.dripFeed
           ? 15000 + Math.random() * 10000 // 15-25 seconds with drip feed
           : 8000 + Math.random() * 4000; // 8-12 seconds normally

@@ -1,27 +1,31 @@
-import { MessageType } from '@/types';
+import { MessageType } from "@/types";
 
 export default defineContentScript({
-  matches: ['https://aistudio.google.com/*'],
-  runAt: 'document_idle',
+  matches: ["https://aistudio.google.com/*"],
+  runAt: "document_idle",
 
   main() {
-    console.log('Gemini Nano Flow: Content script loaded on aistudio.google.com');
+    console.log("Gemini Nano Flow: Content script loaded on aistudio.google.com");
 
     // Notify background that we're on AI Studio
-    chrome.runtime.sendMessage({
-      type: MessageType.OPEN_SIDE_PANEL
-    }).catch(() => {
-      // Ignore errors - side panel might already be open
-    });
+    chrome.runtime
+      .sendMessage({
+        type: MessageType.OPEN_SIDE_PANEL,
+      })
+      .catch(() => {
+        // Ignore errors - side panel might already be open
+      });
 
     // Add keyboard shortcut to open side panel
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener("keydown", (e) => {
       // Ctrl/Cmd + Shift + G to toggle side panel
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'g') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "g") {
         e.preventDefault();
-        chrome.runtime.sendMessage({
-          type: MessageType.OPEN_SIDE_PANEL
-        }).catch(console.error);
+        chrome.runtime
+          .sendMessage({
+            type: MessageType.OPEN_SIDE_PANEL,
+          })
+          .catch(console.error);
       }
     });
 
@@ -30,7 +34,7 @@ export default defineContentScript({
       // AI Studio may expose API key UI elements we could detect
       const apiKeyElements = document.querySelectorAll('[data-apikey], [aria-label*="API"]');
       if (apiKeyElements.length > 0) {
-        console.log('Gemini Nano Flow: AI Studio API key UI detected');
+        console.log("Gemini Nano Flow: AI Studio API key UI detected");
       }
     };
 
@@ -44,13 +48,12 @@ export default defineContentScript({
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
 
     // Cleanup on navigation
     return () => {
       observer.disconnect();
     };
-  }
+  },
 });
-

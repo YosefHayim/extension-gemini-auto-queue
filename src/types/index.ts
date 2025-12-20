@@ -1,3 +1,14 @@
+import {
+  Camera,
+  GraduationCap,
+  LayoutGrid,
+  type LucideIcon,
+  MessageCircle,
+  PenTool,
+  Search,
+  Video,
+} from "lucide-react";
+
 export enum QueueStatus {
   IDLE = "IDLE",
   PROCESSING = "PROCESSING",
@@ -17,6 +28,7 @@ export interface QueueItem {
   originalPrompt: string;
   finalPrompt: string;
   status: QueueStatus;
+  tool?: GeminiTool; // Which Gemini tool to use for this prompt
   startTime?: number;
   endTime?: number;
   images?: string[];
@@ -36,6 +48,51 @@ export enum GeminiModel {
   FLASH = "gemini-2.0-flash-preview-image-generation",
   PRO = "imagen-3.0-generate-002",
 }
+
+// Available Gemini tools that can be selected
+export enum GeminiTool {
+  NONE = "none", // No specific tool - regular chat
+  IMAGE = "image", // Image creation
+  VIDEO = "video", // Video creation (Veo 3.1)
+  CANVAS = "canvas", // Canvas mode
+  DEEP_RESEARCH = "deep_research", // Deep Research
+  LEARNING = "learning", // Personalized Learning
+  VISUAL_LAYOUT = "visual_layout", // Visual Layout (Labs)
+}
+
+// Tool display info for UI
+export const GEMINI_TOOL_INFO: Record<
+  GeminiTool,
+  { label: string; icon: LucideIcon; description: string }
+> = {
+  [GeminiTool.NONE]: {
+    label: "Chat Only",
+    icon: MessageCircle,
+    description: "Regular conversation without tools",
+  },
+  [GeminiTool.IMAGE]: { label: "Image", icon: Camera, description: "Generate images with Imagen" },
+  [GeminiTool.VIDEO]: { label: "Video", icon: Video, description: "Create videos with Veo 3.1" },
+  [GeminiTool.CANVAS]: {
+    label: "Canvas",
+    icon: PenTool,
+    description: "Collaborative writing canvas",
+  },
+  [GeminiTool.DEEP_RESEARCH]: {
+    label: "Research",
+    icon: Search,
+    description: "Deep research mode",
+  },
+  [GeminiTool.LEARNING]: {
+    label: "Learning",
+    icon: GraduationCap,
+    description: "Personalized learning",
+  },
+  [GeminiTool.VISUAL_LAYOUT]: {
+    label: "Layout",
+    icon: LayoutGrid,
+    description: "Visual layout (Labs)",
+  },
+};
 
 export interface PromptTemplate {
   id: string;
@@ -59,6 +116,30 @@ export enum ThemeMode {
   DARK = "DARK",
 }
 
+// AI Providers for prompt optimization
+export enum AIProvider {
+  GEMINI = "gemini",
+  OPENAI = "openai",
+  ANTHROPIC = "anthropic",
+}
+
+// AI Provider display info for UI
+export const AI_PROVIDER_INFO: Record<AIProvider, { label: string; description: string }> = {
+  [AIProvider.GEMINI]: { label: "Google Gemini", description: "Google's Gemini AI models" },
+  [AIProvider.OPENAI]: { label: "OpenAI", description: "GPT models from OpenAI" },
+  [AIProvider.ANTHROPIC]: {
+    label: "Anthropic Claude",
+    description: "Claude models from Anthropic",
+  },
+};
+
+// Type for storing API keys per provider
+export interface AIApiKeys {
+  gemini?: string;
+  openai?: string;
+  anthropic?: string;
+}
+
 export interface AppSettings {
   prefix: string;
   suffix: string;
@@ -69,7 +150,15 @@ export interface AppSettings {
   globalNegatives: string;
   globalNegativesEnabled: boolean;
   theme: ThemeMode;
+  /** @deprecated Use aiApiKeys.gemini instead */
   apiKey?: string;
+  // Tool settings
+  defaultTool: GeminiTool; // Default tool for new prompts
+  toolSequence: GeminiTool[]; // Sequence pattern for cycling tools (e.g., [IMAGE, VIDEO, CANVAS])
+  useToolSequence: boolean; // Whether to use the sequence pattern
+  // AI Provider settings for prompt optimization
+  aiApiKeys: AIApiKeys; // API keys for each supported AI provider
+  preferredAIProvider: AIProvider; // Which AI provider to use for prompt optimization
 }
 
 // Chrome Extension Message Types

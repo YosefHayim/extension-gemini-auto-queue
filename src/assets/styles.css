@@ -18,11 +18,11 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply border border-white/10 bg-white/5 backdrop-blur-xl;
   }
 
   .glass-card {
-    @apply bg-white/[0.08] backdrop-blur-lg border border-white/10;
+    @apply border border-white/10 bg-white/[0.08] backdrop-blur-lg;
   }
 
   .no-scrollbar::-webkit-scrollbar {

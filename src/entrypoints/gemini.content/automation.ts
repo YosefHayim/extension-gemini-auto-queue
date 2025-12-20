@@ -1,6 +1,6 @@
-import type { ExtensionMessage, ExtensionResponse } from "@/types";
+import { GeminiTool, MessageType } from "@/types";
 
-import { MessageType } from "@/types";
+import type { ExtensionMessage, ExtensionResponse } from "@/types";
 
 // Selectors for Gemini UI elements (based on actual Gemini web interface)
 const SELECTORS = {
@@ -14,10 +14,6 @@ const SELECTORS = {
   toolboxButtonAlt: "button.toolbox-drawer-button",
   toolboxButtonAlt2: ".toolbox-drawer-button-with-label",
   toolboxButtonAlt3: 'button[aria-label="Tools"]',
-  // Image creation button (יצירת תמונות / Image creation)
-  imageCreationButton: 'button[jf-ext-button-ct="יצירת תמונות"]',
-  imageCreationButtonAlt: ".toolbox-drawer-item-list-button",
-  imageCreationButtonAlt2: 'button[jf-ext-button-ct="Image creation"]',
   // Submit button (שליחת הנחיה / Send prompt)
   submitButton: 'button[aria-label="שליחת הנחיה"]',
   submitButtonAlt: 'button[aria-label="Submit prompt"]',
@@ -40,6 +36,44 @@ const SELECTORS = {
   processingState: ".processing-state_container--processing",
   processingButton: ".processing-state_button--processing",
 } as const;
+
+// Tool button selectors - maps GeminiTool to button identifiers
+const TOOL_SELECTORS: Record<
+  GeminiTool,
+  { jfExtHebrew: string; jfExtEnglish: string; textPatterns: string[] }
+> = {
+  [GeminiTool.NONE]: { jfExtHebrew: "", jfExtEnglish: "", textPatterns: [] },
+  [GeminiTool.IMAGE]: {
+    jfExtHebrew: "יצירת תמונות",
+    jfExtEnglish: "Image creation",
+    textPatterns: ["יצירת תמונות", "Image creation", "Create image", "Generate image"],
+  },
+  [GeminiTool.VIDEO]: {
+    jfExtHebrew: "יצירת סרטונים",
+    jfExtEnglish: "Video creation",
+    textPatterns: ["יצירת סרטונים", "Video creation", "Veo", "Create video"],
+  },
+  [GeminiTool.CANVAS]: {
+    jfExtHebrew: "canvas",
+    jfExtEnglish: "canvas",
+    textPatterns: ["Canvas", "canvas"],
+  },
+  [GeminiTool.DEEP_RESEARCH]: {
+    jfExtHebrew: "deep research",
+    jfExtEnglish: "deep research",
+    textPatterns: ["Deep Research", "deep research", "מחקר מעמיק"],
+  },
+  [GeminiTool.LEARNING]: {
+    jfExtHebrew: "למידה מותאמת אישית",
+    jfExtEnglish: "personalized learning",
+    textPatterns: ["למידה מותאמת אישית", "Personalized learning", "Learning"],
+  },
+  [GeminiTool.VISUAL_LAYOUT]: {
+    jfExtHebrew: "פריסה חזותית",
+    jfExtEnglish: "visual layout",
+    textPatterns: ["פריסה חזותית", "Visual layout", "Layout"],
+  },
+};
 
 // Helper to find element with multiple selectors
 function findElement(...selectors: string[]): Element | null {
@@ -66,7 +100,7 @@ function sleep(ms: number): Promise<void> {
 function base64ToFile(base64: string, filename: string): File {
   // Handle data URL format
   const parts = base64.split(",");
-  const mimeMatch = parts[0].match(/:(.*?);/);
+  const mimeMatch = /:(.*?);/.exec(parts[0]);
   const mime = mimeMatch ? mimeMatch[1] : "image/png";
   const data = parts.length > 1 ? parts[1] : parts[0];
 
@@ -88,11 +122,18 @@ async function uploadImages(images: string[]): Promise<boolean> {
   console.log("[Nano Flow] Uploading", images.length, "image(s)...");
 
   // Find the upload button
-  let uploadBtn = findElement(SELECTORS.uploadButton, SELECTORS.uploadButtonAlt, SELECTORS.uploadButtonAlt2, SELECTORS.uploadButtonAlt3);
+  let uploadBtn = findElement(
+    SELECTORS.uploadButton,
+    SELECTORS.uploadButtonAlt,
+    SELECTORS.uploadButtonAlt2,
+    SELECTORS.uploadButtonAlt3
+  );
 
   // Fallback: find by icon
   if (!uploadBtn) {
-    const addIcons = document.querySelectorAll('mat-icon[fonticon="add_2"], mat-icon[fonticon="add"], mat-icon[data-mat-icon-name="add"]');
+    const addIcons = document.querySelectorAll(
+      'mat-icon[fonticon="add_2"], mat-icon[fonticon="add"], mat-icon[data-mat-icon-name="add"]'
+    );
     for (const icon of addIcons) {
       const btn = icon.closest("button");
       if (btn) {
@@ -108,7 +149,12 @@ async function uploadImages(images: string[]): Promise<boolean> {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
       const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
-      if (ariaLabel.includes("upload") || ariaLabel.includes("file") || ariaLabel.includes("העלא") || ariaLabel.includes("קובץ")) {
+      if (
+        ariaLabel.includes("upload") ||
+        ariaLabel.includes("file") ||
+        ariaLabel.includes("העלא") ||
+        ariaLabel.includes("קובץ")
+      ) {
         uploadBtn = btn;
         console.log("[Nano Flow] Found upload button by aria-label:", ariaLabel);
         break;
@@ -125,7 +171,7 @@ async function uploadImages(images: string[]): Promise<boolean> {
   }
 
   // Find the file input
-  let fileInput = document.querySelector(SELECTORS.fileInput) as HTMLInputElement;
+  let fileInput = document.querySelector(SELECTORS.fileInput)!;
 
   // Sometimes the input is hidden or in a different location
   if (!fileInput) {
@@ -175,11 +221,19 @@ async function uploadImages(images: string[]): Promise<boolean> {
 async function pastePromptToInput(prompt: string): Promise<boolean> {
   console.log("[Nano Flow] Pasting prompt:", prompt.substring(0, 50) + "...");
 
-  const editor = findElement(SELECTORS.textInput, SELECTORS.textInputAlt, SELECTORS.textInputAlt2, SELECTORS.textInputAlt3);
+  const editor = findElement(
+    SELECTORS.textInput,
+    SELECTORS.textInputAlt,
+    SELECTORS.textInputAlt2,
+    SELECTORS.textInputAlt3
+  );
 
   if (!editor) {
     console.error("[Nano Flow] Text input not found. Available elements:");
-    console.log("[Nano Flow] contenteditable elements:", document.querySelectorAll('[contenteditable="true"]'));
+    console.log(
+      "[Nano Flow] contenteditable elements:",
+      document.querySelectorAll('[contenteditable="true"]')
+    );
     console.log("[Nano Flow] textbox elements:", document.querySelectorAll('[role="textbox"]'));
     return false;
   }
@@ -232,7 +286,10 @@ async function pastePromptToInput(prompt: string): Promise<boolean> {
   // Remove the "blank" class if present (Quill uses this for empty state)
   editorEl.classList.remove("ql-blank");
 
-  console.log("[Nano Flow] Prompt pasted successfully. Editor content:", editorEl.textContent?.substring(0, 50));
+  console.log(
+    "[Nano Flow] Prompt pasted successfully. Editor content:",
+    editorEl.textContent?.substring(0, 50)
+  );
   return true;
 }
 
@@ -241,7 +298,12 @@ async function openToolbox(): Promise<boolean> {
   console.log("[Nano Flow] Opening toolbox...");
 
   // Try multiple selectors
-  let toolboxBtn = findElement(SELECTORS.toolboxButton, SELECTORS.toolboxButtonAlt, SELECTORS.toolboxButtonAlt2, SELECTORS.toolboxButtonAlt3);
+  let toolboxBtn = findElement(
+    SELECTORS.toolboxButton,
+    SELECTORS.toolboxButtonAlt,
+    SELECTORS.toolboxButtonAlt2,
+    SELECTORS.toolboxButtonAlt3
+  );
 
   // Fallback: find by aria-label containing "כלים" or "Tools"
   if (!toolboxBtn) {
@@ -249,7 +311,11 @@ async function openToolbox(): Promise<boolean> {
     for (const btn of buttons) {
       const ariaLabel = btn.getAttribute("aria-label") || "";
       const className = btn.className || "";
-      if (ariaLabel.includes("כלים") || ariaLabel.includes("Tools") || className.includes("toolbox-drawer-button")) {
+      if (
+        ariaLabel.includes("כלים") ||
+        ariaLabel.includes("Tools") ||
+        className.includes("toolbox-drawer-button")
+      ) {
         toolboxBtn = btn;
         console.log("[Nano Flow] Found toolbox by fallback search");
         break;
@@ -282,68 +348,82 @@ async function openToolbox(): Promise<boolean> {
   return true;
 }
 
-// Click the image creation option
-async function enableImageCreation(): Promise<boolean> {
-  console.log("[Nano Flow] Enabling image creation...");
+// Select a specific Gemini tool
+async function selectTool(tool: GeminiTool): Promise<boolean> {
+  // If NONE, skip tool selection
+  if (tool === GeminiTool.NONE) {
+    console.log("[Nano Flow] No tool selected, using regular chat");
+    return true;
+  }
+
+  console.log("[Nano Flow] Selecting tool:", tool);
 
   // First open the toolbox
   const toolboxOpened = await openToolbox();
   if (!toolboxOpened) {
-    console.warn("[Nano Flow] Failed to open toolbox, trying to find image button directly");
+    console.warn("[Nano Flow] Failed to open toolbox, trying to find tool button directly");
   }
 
   await sleep(500); // Wait longer for drawer animation
 
-  // Try multiple methods to find the image creation button
-  let imageBtn: HTMLElement | null = null;
+  const toolConfig = TOOL_SELECTORS[tool];
+  let toolBtn: HTMLElement | null = null;
 
-  // Method 1: Find by jf-ext-button-ct attribute
-  imageBtn = document.querySelector('button[jf-ext-button-ct="יצירת תמונות"]') as HTMLElement;
-  if (!imageBtn) {
-    imageBtn = document.querySelector('button[jf-ext-button-ct="Image creation"]') as HTMLElement;
+  // Method 1: Find by jf-ext-button-ct attribute (Hebrew)
+  toolBtn = document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtHebrew}" i]`)!;
+
+  // Method 2: Find by jf-ext-button-ct attribute (English)
+  if (!toolBtn && toolConfig.jfExtEnglish) {
+    toolBtn = document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtEnglish}" i]`)!;
   }
 
-  // Method 2: Find by text content in buttons
-  if (!imageBtn) {
+  // Method 3: Find by text content in buttons
+  if (!toolBtn) {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
-      const text = btn.textContent?.trim() || "";
-      if (text.includes("יצירת תמונות") || text.includes("Image creation") || text.includes("Create image") || text.includes("Generate image")) {
-        imageBtn = btn as HTMLElement;
-        console.log("[Nano Flow] Found image button by text:", text.substring(0, 30));
-        break;
+      const text = btn.textContent?.trim().toLowerCase() || "";
+      for (const pattern of toolConfig.textPatterns) {
+        if (text.includes(pattern.toLowerCase())) {
+          toolBtn = btn as HTMLElement;
+          console.log("[Nano Flow] Found tool button by text:", text.substring(0, 30));
+          break;
+        }
       }
+      if (toolBtn) break;
     }
   }
 
-  // Method 3: Find by class
-  if (!imageBtn) {
+  // Method 4: Find by class in toolbox drawer
+  if (!toolBtn) {
     const listButtons = document.querySelectorAll(".toolbox-drawer-item-list-button");
     for (const btn of listButtons) {
-      const text = btn.textContent?.trim() || "";
-      if (text.includes("תמונות") || text.includes("image") || text.includes("Image")) {
-        imageBtn = btn as HTMLElement;
-        console.log("[Nano Flow] Found image button by class:", text.substring(0, 30));
-        break;
+      const text = btn.textContent?.trim().toLowerCase() || "";
+      for (const pattern of toolConfig.textPatterns) {
+        if (text.includes(pattern.toLowerCase())) {
+          toolBtn = btn as HTMLElement;
+          console.log("[Nano Flow] Found tool button by class:", text.substring(0, 30));
+          break;
+        }
       }
+      if (toolBtn) break;
     }
   }
 
-  // Method 4: Find by image icon src
-  if (!imageBtn) {
+  // Special case for image: find by image icon src
+  if (!toolBtn && tool === GeminiTool.IMAGE) {
     const imgs = document.querySelectorAll('img[src*="image"], img[src*="boq-bard"]');
     for (const img of imgs) {
       const btn = img.closest("button");
       if (btn) {
-        imageBtn = btn as HTMLElement;
+        toolBtn = btn as HTMLElement;
         console.log("[Nano Flow] Found image button by img src");
         break;
       }
     }
   }
 
-  if (!imageBtn) {
-    console.error("[Nano Flow] Image creation button not found after all attempts");
+  if (!toolBtn) {
+    console.error("[Nano Flow] Tool button not found for:", tool);
     // List all buttons for debugging
     const allButtons = document.querySelectorAll("button");
     console.log("[Nano Flow] Available buttons:", allButtons.length);
@@ -355,11 +435,16 @@ async function enableImageCreation(): Promise<boolean> {
     return false;
   }
 
-  imageBtn.click();
+  toolBtn.click();
   await sleep(400);
 
-  console.log("[Nano Flow] Image creation enabled");
+  console.log("[Nano Flow] Tool selected:", tool);
   return true;
+}
+
+// Legacy function for backwards compatibility
+async function enableImageCreation(): Promise<boolean> {
+  return selectTool(GeminiTool.IMAGE);
 }
 
 // Submit the prompt
@@ -377,7 +462,9 @@ async function submitPrompt(): Promise<boolean> {
 
   // Method 1: Find by mat-icon with send icon
   if (!submitBtn) {
-    const icons = document.querySelectorAll('mat-icon[fonticon="send"], mat-icon[data-mat-icon-name="send"]');
+    const icons = document.querySelectorAll(
+      'mat-icon[fonticon="send"], mat-icon[data-mat-icon-name="send"]'
+    );
     for (const icon of icons) {
       const btn = icon.closest("button");
       if (btn && !btn.disabled) {
@@ -393,7 +480,12 @@ async function submitPrompt(): Promise<boolean> {
     const buttons = document.querySelectorAll("button:not([disabled])");
     for (const btn of buttons) {
       const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
-      if (ariaLabel.includes("send") || ariaLabel.includes("submit") || ariaLabel.includes("שליחה") || ariaLabel.includes("הנחיה")) {
+      if (
+        ariaLabel.includes("send") ||
+        ariaLabel.includes("submit") ||
+        ariaLabel.includes("שליחה") ||
+        ariaLabel.includes("הנחיה")
+      ) {
         submitBtn = btn;
         console.log("[Nano Flow] Found submit by aria-label:", ariaLabel);
         break;
@@ -417,7 +509,12 @@ async function submitPrompt(): Promise<boolean> {
   // Method 4: Press Enter key as fallback
   if (!submitBtn) {
     console.log("[Nano Flow] Submit button not found, trying Enter key...");
-    const editor = findElement(SELECTORS.textInput, SELECTORS.textInputAlt, SELECTORS.textInputAlt2, SELECTORS.textInputAlt3);
+    const editor = findElement(
+      SELECTORS.textInput,
+      SELECTORS.textInputAlt,
+      SELECTORS.textInputAlt2,
+      SELECTORS.textInputAlt3
+    );
     if (editor) {
       (editor as HTMLElement).focus();
 
@@ -526,14 +623,18 @@ async function waitForGenerationComplete(timeout = 180000): Promise<boolean> {
 
       if (!isGeminiThinking()) {
         // Check if images appeared in the response
-        const responseImages = document.querySelectorAll(".response-container img, .generated-image, img[alt*='Generated'], img[src*='blob:']");
+        const responseImages = document.querySelectorAll(
+          ".response-container img, .generated-image, img[alt*='Generated'], img[src*='blob:']"
+        );
         if (responseImages.length > 0) {
           console.log("[Nano Flow] Generation complete - images found:", responseImages.length);
           return true;
         }
 
         // Check if text response appeared
-        const textResponse = document.querySelector(".model-response-text, .response-text, .response-content");
+        const textResponse = document.querySelector(
+          ".model-response-text, .response-text, .response-content"
+        );
         if (textResponse && textResponse.textContent && textResponse.textContent.length > 20) {
           console.log("[Nano Flow] Generation complete - response text found");
           return true;
@@ -550,22 +651,30 @@ async function waitForGenerationComplete(timeout = 180000): Promise<boolean> {
     await sleep(1000);
   }
 
-  console.log("[Nano Flow] Generation timeout reached after", Math.round(timeout / 1000), "seconds");
+  console.log(
+    "[Nano Flow] Generation timeout reached after",
+    Math.round(timeout / 1000),
+    "seconds"
+  );
   return true; // Return true anyway to continue with next item
 }
 
 // Process a single prompt through the UI
-async function processPromptThroughUI(prompt: string, enableImages: boolean, images?: string[]): Promise<boolean> {
+async function processPromptThroughUI(
+  prompt: string,
+  tool: GeminiTool = GeminiTool.IMAGE,
+  images?: string[]
+): Promise<boolean> {
   try {
-    // Step 1: Enable image creation if needed
-    if (enableImages) {
-      const imageEnabled = await enableImageCreation();
-      if (!imageEnabled) {
-        console.warn("[Nano Flow] Could not enable image creation, continuing anyway...");
+    // Step 1: Select the appropriate tool
+    if (tool !== GeminiTool.NONE) {
+      const toolSelected = await selectTool(tool);
+      if (!toolSelected) {
+        console.warn("[Nano Flow] Could not select tool:", tool, "- continuing anyway...");
       }
     }
 
-    // Step 2: Upload reference images if provided
+    // Step 2: Upload reference images if provided (mainly for image tool)
     if (images && images.length > 0) {
       console.log("[Nano Flow] Uploading reference images:", images.length);
       const uploaded = await uploadImages(images);
@@ -612,42 +721,61 @@ export const automationModule = {
       });
 
     // Handle messages from background script
-    chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse: (response: ExtensionResponse) => void) => {
-      console.log("[Nano Flow] Received message:", message.type);
+    chrome.runtime.onMessage.addListener(
+      (message: ExtensionMessage, _sender, sendResponse: (response: ExtensionResponse) => void) => {
+        console.log("[Nano Flow] Received message:", message.type);
 
-      const handleAsync = async () => {
-        switch (message.type) {
-          case MessageType.PASTE_PROMPT: {
-            const payload = message.payload as { prompt: string; enableImages?: boolean; images?: string[] };
-            console.log("[Nano Flow] Processing prompt with", payload.images?.length || 0, "images");
-            const success = await processPromptThroughUI(payload.prompt, payload.enableImages ?? true, payload.images);
-            return { success };
+        const handleAsync = async () => {
+          switch (message.type) {
+            case MessageType.PASTE_PROMPT: {
+              const payload = message.payload as {
+                prompt: string;
+                tool?: GeminiTool;
+                images?: string[];
+              };
+              console.log(
+                "[Nano Flow] Processing prompt with tool:",
+                payload.tool || GeminiTool.IMAGE,
+                "and",
+                payload.images?.length || 0,
+                "images"
+              );
+              const success = await processPromptThroughUI(
+                payload.prompt,
+                payload.tool || GeminiTool.IMAGE,
+                payload.images
+              );
+              return { success };
+            }
+
+            case MessageType.ENABLE_IMAGE_CREATION: {
+              const success = await selectTool(GeminiTool.IMAGE);
+              return { success };
+            }
+
+            case MessageType.SUBMIT_PROMPT: {
+              const success = await submitPrompt();
+              return { success };
+            }
+
+            default:
+              return { success: false, error: "Unknown message type" };
           }
+        };
 
-          case MessageType.ENABLE_IMAGE_CREATION: {
-            const success = await enableImageCreation();
-            return { success };
-          }
+        handleAsync()
+          .then(sendResponse)
+          .catch((error) => {
+            console.error("[Nano Flow] Message handler error:", error);
+            sendResponse({
+              success: false,
+              error: error instanceof Error ? error.message : "Unknown error",
+            });
+          });
 
-          case MessageType.SUBMIT_PROMPT: {
-            const success = await submitPrompt();
-            return { success };
-          }
-
-          default:
-            return { success: false, error: "Unknown message type" };
-        }
-      };
-
-      handleAsync()
-        .then(sendResponse)
-        .catch((error) => {
-          console.error("[Nano Flow] Message handler error:", error);
-          sendResponse({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
-        });
-
-      return true; // Indicates async response
-    });
+        return true; // Indicates async response
+      }
+    );
 
     // Add keyboard shortcut to toggle sidebar
     document.addEventListener("keydown", (e) => {

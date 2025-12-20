@@ -1,5 +1,24 @@
-import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, PromptTemplate, QueueItem } from "@/types";
-import { BookMarked, Clock, Cpu, Download, Pause, Play, Settings as SettingsIcon, Sparkles, Trash2, X } from "lucide-react";
+import {
+  BookMarked,
+  Clock,
+  Cpu,
+  Download,
+  Info,
+  Pause,
+  Play,
+  Settings as SettingsIcon,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+
+import { ApiKeyDialog } from "@/components/ApiKeyDialog";
+import { CsvDialog } from "@/components/CsvDialog";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { QueuePanel } from "@/components/QueuePanel";
+import { SettingsPanel } from "@/components/SettingsPanel";
+import { TemplatesPanel } from "@/components/TemplatesPanel";
+import { improvePrompt } from "@/services/geminiService";
 import {
   DEFAULT_SETTINGS,
   getFolders,
@@ -12,16 +31,20 @@ import {
   setQueue,
   setSettings,
 } from "@/services/storageService";
-import { GeminiModel, MessageType, QueueStatus, STORAGE_KEYS, ThemeMode } from "@/types";
-import React, { useCallback, useEffect, useState } from "react";
-
-import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { CsvDialog } from "@/components/CsvDialog";
-import { OnboardingModal } from "@/components/OnboardingModal";
-import { QueuePanel } from "@/components/QueuePanel";
-import { SettingsPanel } from "@/components/SettingsPanel";
-import { TemplatesPanel } from "@/components/TemplatesPanel";
-import { improvePrompt } from "@/services/geminiService";
+import {
+  GeminiModel,
+  type GeminiTool,
+  MessageType,
+  QueueStatus,
+  STORAGE_KEYS,
+  ThemeMode,
+  type AppSettings,
+  type ExtensionMessage,
+  type ExtensionResponse,
+  type Folder,
+  type PromptTemplate,
+  type QueueItem,
+} from "@/types";
 
 type TabType = "queue" | "templates" | "settings";
 
@@ -41,7 +64,12 @@ export default function App() {
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
-      const [queueData, settingsData, foldersData, onboardingDone] = await Promise.all([getQueue(), getSettings(), getFolders(), isOnboardingComplete()]);
+      const [queueData, settingsData, foldersData, onboardingDone] = await Promise.all([
+        getQueue(),
+        getSettings(),
+        getFolders(),
+        isOnboardingComplete(),
+      ]);
 
       setQueueState(queueData);
       setSettingsState(settingsData);
@@ -82,18 +110,24 @@ export default function App() {
     };
 
     chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage);
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
   }, []);
 
   // Active timer
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isProcessing) {
-      interval = setInterval(() => setActiveTimer((t) => t + 100), 100);
+      interval = setInterval(() => {
+        setActiveTimer((t) => t + 100);
+      }, 100);
     } else {
       setActiveTimer(0);
     }
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [isProcessing]);
 
   // Helper function to send messages to background
@@ -114,7 +148,7 @@ export default function App() {
   );
 
   const handleAddToQueue = useCallback(
-    async (text?: string, templateText?: string, images?: string[]) => {
+    async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
       const sourceText = text || "";
       const lines = sourceText
         .split(/[,\n]/)
@@ -128,6 +162,7 @@ export default function App() {
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
           status: QueueStatus.IDLE,
+          tool: tool || settings.defaultTool,
           images: images && images.length > 0 ? [...images] : undefined,
         };
       });
@@ -136,7 +171,7 @@ export default function App() {
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
     },
-    [queue, constructFinalPrompt]
+    [queue, constructFinalPrompt, settings.defaultTool]
   );
 
   const handleRemoveFromQueue = useCallback(
@@ -155,7 +190,7 @@ export default function App() {
   }, [queue]);
 
   const handleCsvUpload = useCallback(
-    async (items: Array<{ prompt: string; modifier?: string }>) => {
+    async (items: { prompt: string; modifier?: string }[]) => {
       const newItems: QueueItem[] = items.map((item) => {
         const combined = item.modifier ? `${item.prompt} ${item.modifier}` : item.prompt;
         return {
@@ -249,7 +284,9 @@ export default function App() {
 
   const handleDeleteTemplate = useCallback(
     async (folderId: string, templateId: string) => {
-      const updatedFolders = folders.map((f) => (f.id === folderId ? { ...f, templates: f.templates.filter((t) => t.id !== templateId) } : f));
+      const updatedFolders = folders.map((f) =>
+        f.id === folderId ? { ...f, templates: f.templates.filter((t) => t.id !== templateId) } : f
+      );
       setFoldersState(updatedFolders);
       await setFolders(updatedFolders);
     },
@@ -297,7 +334,9 @@ export default function App() {
           f.id === folderId
             ? {
                 ...f,
-                templates: f.templates.map((t) => (t.id === templateId ? { ...t, text: improvedText, lastEditedAt: Date.now() } : t)),
+                templates: f.templates.map((t) =>
+                  t.id === templateId ? { ...t, text: improvedText, lastEditedAt: Date.now() } : t
+                ),
               }
             : f
         );
@@ -320,7 +359,9 @@ export default function App() {
         })
       );
 
-      const updatedFolders = folders.map((f) => (f.id === folderId ? { ...f, templates: improvedTemplates } : f));
+      const updatedFolders = folders.map((f) =>
+        f.id === folderId ? { ...f, templates: improvedTemplates } : f
+      );
       setFoldersState(updatedFolders);
       await setFolders(updatedFolders);
     },
@@ -335,7 +376,7 @@ export default function App() {
 
   return (
     <div
-      className={`flex flex-col h-screen w-full overflow-hidden transition-colors duration-500 ${
+      className={`flex h-screen w-full flex-col overflow-hidden transition-colors duration-500 ${
         isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
       }`}
     >
@@ -343,63 +384,107 @@ export default function App() {
       {showOnboarding && <OnboardingModal onComplete={handleCompleteOnboarding} isDark={isDark} />}
 
       {/* CSV Dialog */}
-      <CsvDialog isOpen={showCsvDialog} isDark={isDark} onClose={() => setShowCsvDialog(false)} onUpload={handleCsvUpload} />
+      <CsvDialog
+        isOpen={showCsvDialog}
+        isDark={isDark}
+        onClose={() => {
+          setShowCsvDialog(false);
+        }}
+        onUpload={handleCsvUpload}
+      />
 
       {/* API Key Dialog */}
       <ApiKeyDialog
         isOpen={showApiKeyDialog}
         isDark={isDark}
         currentKey={settings.apiKey}
-        onClose={() => setShowApiKeyDialog(false)}
+        onClose={() => {
+          setShowApiKeyDialog(false);
+        }}
         onSave={handleSaveApiKey}
       />
 
       {/* Header */}
-      <div className={`p-2 flex items-center justify-between border-b ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}>
+      <div
+        className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
+      >
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-blue-600 shadow-lg shadow-blue-600/20">
+          <div className="rounded-md bg-blue-600 p-1 shadow-lg shadow-blue-600/20">
             <Sparkles size={16} className="text-white" />
           </div>
           <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
         </div>
         {isProcessing && (
-          <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-            <Clock size={10} className="text-blue-500 animate-spin" />
-            <span className="text-[10px] font-black text-blue-500">{(activeTimer / 1000).toFixed(1)}s</span>
+          <div className="flex items-center gap-1 rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5">
+            <Clock size={10} className="animate-spin text-blue-500" />
+            <span className="text-[10px] font-black text-blue-500">
+              {(activeTimer / 1000).toFixed(1)}s
+            </span>
           </div>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className={`flex border-b overflow-hidden ${isDark ? "border-white/5 bg-white/2" : "border-slate-100"}`}>
+      <nav
+        className={`flex overflow-hidden border-b ${isDark ? "bg-white/2 border-white/5" : "border-slate-100"}`}
+      >
         {[
-          { id: "queue" as const, icon: Cpu, label: "Queue" },
-          { id: "templates" as const, icon: BookMarked, label: "Templates" },
-          { id: "settings" as const, icon: SettingsIcon, label: "Settings" },
+          {
+            id: "queue" as const,
+            icon: Cpu,
+            label: "Queue",
+            tooltip: "Add prompts and process them in batch through Gemini",
+          },
+          {
+            id: "templates" as const,
+            icon: BookMarked,
+            label: "Templates",
+            tooltip: "Save your favorite prompts and improve them with AI",
+          },
+          {
+            id: "settings" as const,
+            icon: SettingsIcon,
+            label: "Settings",
+            tooltip: "Configure API key, prefixes, negatives, and more",
+          },
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-3 text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-1 transition-all relative ${
+            onClick={() => {
+              setActiveTab(tab.id);
+            }}
+            className={`group relative flex flex-1 flex-col items-center gap-1 py-3 text-[8px] font-black uppercase tracking-widest transition-all ${
               activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
             }`}
           >
-            <tab.icon size={14} />
-            <span className="truncate w-full text-center px-1">{tab.label}</span>
-            {activeTab === tab.id && <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-500 rounded-t-md" />}
+            <div className="flex items-center gap-0.5">
+              <tab.icon size={14} />
+              <Info
+                size={8}
+                className="opacity-0 transition-opacity group-hover:opacity-50"
+                title={tab.tooltip}
+              />
+            </div>
+            <span className="w-full truncate px-1 text-center">{tab.label}</span>
+            {activeTab === tab.id && (
+              <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-t-md bg-blue-500" />
+            )}
           </button>
         ))}
       </nav>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-2">
+      <div className="no-scrollbar flex-1 overflow-y-auto p-2">
         {activeTab === "queue" && (
           <QueuePanel
             queue={queue}
             isDark={isDark}
+            defaultTool={settings.defaultTool}
             onAddToQueue={handleAddToQueue}
             onRemoveFromQueue={handleRemoveFromQueue}
-            onOpenCsvDialog={() => setShowCsvDialog(true)}
+            onOpenCsvDialog={() => {
+              setShowCsvDialog(true);
+            }}
           />
         )}
 
@@ -424,43 +509,57 @@ export default function App() {
             isDark={isDark}
             hasApiKey={!!settings.apiKey}
             onUpdateSettings={handleUpdateSettings}
-            onOpenApiKeyDialog={() => setShowApiKeyDialog(true)}
+            onOpenApiKeyDialog={() => {
+              setShowApiKeyDialog(true);
+            }}
           />
         )}
       </div>
 
       {/* Footer Controls */}
-      <div className={`p-2 border-t space-y-2 ${isDark ? "bg-black/80 border-white/10 backdrop-blur-xl" : "bg-slate-50 border-slate-200"}`}>
+      <div
+        className={`space-y-2 border-t p-2 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
+      >
         <div className="flex gap-2">
           <button
             onClick={handleClearCompleted}
-            className="flex-1 p-2 rounded-md border text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all border-white/10"
+            title="Clear completed items"
+            className="flex-1 rounded-md border border-white/10 p-2 text-[10px] font-black uppercase transition-all hover:bg-red-500 hover:text-white"
           >
             <Trash2 size={14} className="mx-auto" />
           </button>
           <button
             onClick={toggleProcessing}
             disabled={queue.length === 0}
-            className={`flex-[4] p-2 rounded-md flex items-center justify-center gap-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
+            title={isProcessing ? "Stop processing queue" : "Start processing queue"}
+            className={`flex flex-[4] items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
               isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
             } text-white disabled:opacity-30`}
           >
-            {isProcessing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+            {isProcessing ? (
+              <Pause size={16} fill="currentColor" />
+            ) : (
+              <Play size={16} fill="currentColor" />
+            )}
             {isProcessing ? "Stop" : "Start"}
           </button>
         </div>
 
         {/* Results Preview */}
         {queue.filter((item) => item.status === QueueStatus.COMPLETED).length > 0 && (
-          <div className="flex gap-1 overflow-x-auto no-scrollbar py-1">
+          <div className="no-scrollbar flex gap-1 overflow-x-auto py-1">
             {queue
               .filter((item) => item.status === QueueStatus.COMPLETED)
               .slice(-5)
               .map((item) => {
                 const resultUrl = item.results?.flash?.url || item.results?.pro?.url;
                 return resultUrl ? (
-                  <div key={item.id} className="relative group shrink-0">
-                    <img src={resultUrl} className="w-12 h-12 rounded-md object-cover border border-white/10" alt="Result" />
+                  <div key={item.id} className="group relative shrink-0">
+                    <img
+                      src={resultUrl}
+                      className="h-12 w-12 rounded-md border border-white/10 object-cover"
+                      alt="Result"
+                    />
                     <button
                       onClick={() => {
                         const link = document.createElement("a");
@@ -468,7 +567,8 @@ export default function App() {
                         link.download = `nano_flow_${item.id}.png`;
                         link.click();
                       }}
-                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center rounded-md"
+                      title="Download image"
+                      className="absolute inset-0 flex items-center justify-center rounded-md bg-black/60 opacity-0 transition-all group-hover:opacity-100"
                     >
                       <Download size={12} className="text-white" />
                     </button>

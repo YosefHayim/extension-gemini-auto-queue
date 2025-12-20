@@ -5,7 +5,21 @@
 /* Ensure our sidebar doesn't affect the page */
 :host {
   all: initial;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: inherit;
+}
+
+/* Ensure the shadow root container allows content to display */
+:host > * {
+  display: block;
 }
 
 /* Animation utilities */
@@ -75,7 +89,13 @@
 
 /* Sidebar positioning */
 .nano-flow-sidebar {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   box-sizing: border-box;
 }
 
@@ -87,5 +107,11 @@
 
 /* Collapsed button */
 .nano-flow-collapsed {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }

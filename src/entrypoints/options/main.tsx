@@ -1,8 +1,9 @@
 import "@/assets/styles.css";
 
-import Options from "./Options";
 import React from "react";
 import ReactDOM from "react-dom/client";
+
+import Options from "./Options";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

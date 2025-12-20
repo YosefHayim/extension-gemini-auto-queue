@@ -1,10 +1,23 @@
-import { CheckCircle, ExternalLink, Eye, EyeOff, Key, Moon, RefreshCw, Save, Sparkles, Sun, XCircle } from "lucide-react";
-import { DEFAULT_SETTINGS, getSettings, setSettings } from "@/services/storageService";
-import { GeminiModel, ThemeMode } from "@/types";
+import {
+  CheckCircle,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Key,
+  Moon,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Sun,
+  XCircle,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import type { AppSettings } from "@/types";
 import { validateApiKey } from "@/services/geminiService";
+import { DEFAULT_SETTINGS, getSettings, setSettings } from "@/services/storageService";
+import { GeminiModel, ThemeMode } from "@/types";
+
+import type { AppSettings } from "@/types";
 
 export default function Options() {
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -50,7 +63,9 @@ export default function Options() {
       await setSettings(updatedSettings);
       setSettingsState(updatedSettings);
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 2000);
     } catch (error) {
       console.error("Failed to save settings:", error);
     } finally {
@@ -66,11 +81,13 @@ export default function Options() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}>
-      <div className="max-w-2xl mx-auto p-8">
+    <div
+      className={`min-h-screen transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}
+    >
+      <div className="mx-auto max-w-2xl p-8">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 rounded-lg bg-blue-600 shadow-lg shadow-blue-600/20">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="rounded-lg bg-blue-600 p-2 shadow-lg shadow-blue-600/20">
             <Sparkles size={24} className="text-white" />
           </div>
           <div>
@@ -79,29 +96,35 @@ export default function Options() {
           </div>
           <button
             onClick={handleThemeToggle}
-            className={`ml-auto p-2 rounded-lg transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}
+            className={`ml-auto rounded-lg p-2 transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}
           >
-            {isDark ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-blue-500" />}
+            {isDark ? (
+              <Sun size={20} className="text-amber-400" />
+            ) : (
+              <Moon size={20} className="text-blue-500" />
+            )}
           </button>
         </div>
 
         {/* API Key Section */}
-        <div className={`p-6 rounded-xl border mb-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-          <div className="flex items-center gap-2 mb-4">
+        <div
+          className={`mb-6 rounded-xl border p-6 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"}`}
+        >
+          <div className="mb-4 flex items-center gap-2">
             <Key size={20} className="text-blue-500" />
             <h2 className="text-lg font-bold">API Key Configuration</h2>
           </div>
 
-          <p className={`text-sm mb-4 ${isDark ? "opacity-60" : "text-slate-600"}`}>
-            Your Gemini API key is required for image generation. Get your key from Google AI Studio. The key is stored securely in your browser and never
-            shared.
+          <p className={`mb-4 text-sm ${isDark ? "opacity-60" : "text-slate-600"}`}>
+            Your Gemini API key is required for image generation. Get your key from Google AI
+            Studio. The key is stored securely in your browser and never shared.
           </p>
 
           <a
             href="https://aistudio.google.com/apikey"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-blue-500 hover:underline mb-4"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-blue-500 hover:underline"
           >
             Get API Key from AI Studio <ExternalLink size={14} />
           </a>
@@ -116,19 +139,27 @@ export default function Options() {
                   setValidationResult(null);
                 }}
                 placeholder="AIzaSy..."
-                className={`w-full p-3 pr-24 rounded-lg border font-mono text-sm outline-none transition-all ${
-                  isDark ? "bg-black/40 border-white/10 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 focus:border-blue-500"
+                className={`w-full rounded-lg border p-3 pr-24 font-mono text-sm outline-none transition-all ${
+                  isDark
+                    ? "border-white/10 bg-black/40 focus:border-blue-500/50"
+                    : "border-slate-200 bg-slate-50 focus:border-blue-500"
                 }`}
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="p-2 opacity-40 hover:opacity-100 transition-all">
+              <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowApiKey(!showApiKey);
+                  }}
+                  className="p-2 opacity-40 transition-all hover:opacity-100"
+                >
                   {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
                 <button
                   type="button"
                   onClick={handleValidateKey}
                   disabled={!apiKey || isValidating}
-                  className={`p-2 rounded-md transition-all ${isValidating ? "opacity-50" : "opacity-40 hover:opacity-100 hover:bg-blue-500/20"}`}
+                  className={`rounded-md p-2 transition-all ${isValidating ? "opacity-50" : "opacity-40 hover:bg-blue-500/20 hover:opacity-100"}`}
                 >
                   <RefreshCw size={16} className={isValidating ? "animate-spin" : ""} />
                 </button>
@@ -137,8 +168,10 @@ export default function Options() {
 
             {validationResult !== null && (
               <div
-                className={`flex items-center gap-2 text-sm p-3 rounded-lg ${
-                  validationResult ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                className={`flex items-center gap-2 rounded-lg p-3 text-sm ${
+                  validationResult
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : "bg-red-500/10 text-red-500"
                 }`}
               >
                 {validationResult ? (
@@ -156,18 +189,22 @@ export default function Options() {
         </div>
 
         {/* Model Selection */}
-        <div className={`p-6 rounded-xl border mb-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-          <h2 className="text-lg font-bold mb-4">Default Model</h2>
+        <div
+          className={`mb-6 rounded-xl border p-6 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"}`}
+        >
+          <h2 className="mb-4 text-lg font-bold">Default Model</h2>
           <select
             value={settings.primaryModel}
-            onChange={(e) =>
+            onChange={(e) => {
               setSettingsState((prev) => ({
                 ...prev,
                 primaryModel: e.target.value as GeminiModel,
-              }))
-            }
-            className={`w-full p-3 rounded-lg border text-sm font-bold outline-none transition-all appearance-none ${
-              isDark ? "bg-black/40 border-white/10 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 focus:border-blue-500"
+              }));
+            }}
+            className={`w-full appearance-none rounded-lg border p-3 text-sm font-bold outline-none transition-all ${
+              isDark
+                ? "border-white/10 bg-black/40 focus:border-blue-500/50"
+                : "border-slate-200 bg-slate-50 focus:border-blue-500"
             }`}
           >
             <option value={GeminiModel.FLASH}>Flash 2.0 (High Speed)</option>
@@ -176,43 +213,57 @@ export default function Options() {
         </div>
 
         {/* Prompt Settings */}
-        <div className={`p-6 rounded-xl border mb-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-          <h2 className="text-lg font-bold mb-4">Default Prompt Settings</h2>
+        <div
+          className={`mb-6 rounded-xl border p-6 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"}`}
+        >
+          <h2 className="mb-4 text-lg font-bold">Default Prompt Settings</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-bold opacity-60 block mb-2">Global Prefix</label>
+              <label className="mb-2 block text-sm font-bold opacity-60">Global Prefix</label>
               <input
                 value={settings.prefix}
-                onChange={(e) => setSettingsState((prev) => ({ ...prev, prefix: e.target.value }))}
+                onChange={(e) => {
+                  setSettingsState((prev) => ({ ...prev, prefix: e.target.value }));
+                }}
                 placeholder="Text to prepend to all prompts..."
-                className={`w-full p-3 rounded-lg border text-sm outline-none transition-all ${
-                  isDark ? "bg-black/40 border-white/10 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 focus:border-blue-500"
+                className={`w-full rounded-lg border p-3 text-sm outline-none transition-all ${
+                  isDark
+                    ? "border-white/10 bg-black/40 focus:border-blue-500/50"
+                    : "border-slate-200 bg-slate-50 focus:border-blue-500"
                 }`}
               />
             </div>
 
             <div>
-              <label className="text-sm font-bold opacity-60 block mb-2">Global Suffix</label>
+              <label className="mb-2 block text-sm font-bold opacity-60">Global Suffix</label>
               <input
                 value={settings.suffix}
-                onChange={(e) => setSettingsState((prev) => ({ ...prev, suffix: e.target.value }))}
+                onChange={(e) => {
+                  setSettingsState((prev) => ({ ...prev, suffix: e.target.value }));
+                }}
                 placeholder="Text to append to all prompts..."
-                className={`w-full p-3 rounded-lg border text-sm outline-none transition-all ${
-                  isDark ? "bg-black/40 border-white/10 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 focus:border-blue-500"
+                className={`w-full rounded-lg border p-3 text-sm outline-none transition-all ${
+                  isDark
+                    ? "border-white/10 bg-black/40 focus:border-blue-500/50"
+                    : "border-slate-200 bg-slate-50 focus:border-blue-500"
                 }`}
               />
             </div>
 
             <div>
-              <label className="text-sm font-bold opacity-60 block mb-2">Negative Prompts</label>
+              <label className="mb-2 block text-sm font-bold opacity-60">Negative Prompts</label>
               <textarea
                 value={settings.globalNegatives}
-                onChange={(e) => setSettingsState((prev) => ({ ...prev, globalNegatives: e.target.value }))}
+                onChange={(e) => {
+                  setSettingsState((prev) => ({ ...prev, globalNegatives: e.target.value }));
+                }}
                 placeholder="Things to avoid in generations..."
                 rows={3}
-                className={`w-full p-3 rounded-lg border text-sm outline-none transition-all resize-none ${
-                  isDark ? "bg-black/40 border-white/10 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 focus:border-blue-500"
+                className={`w-full resize-none rounded-lg border p-3 text-sm outline-none transition-all ${
+                  isDark
+                    ? "border-white/10 bg-black/40 focus:border-blue-500/50"
+                    : "border-slate-200 bg-slate-50 focus:border-blue-500"
                 }`}
               />
             </div>
@@ -220,19 +271,27 @@ export default function Options() {
         </div>
 
         {/* Advanced Settings */}
-        <div className={`p-6 rounded-xl border mb-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-          <h2 className="text-lg font-bold mb-4">Advanced Settings</h2>
+        <div
+          className={`mb-6 rounded-xl border p-6 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"}`}
+        >
+          <h2 className="mb-4 text-lg font-bold">Advanced Settings</h2>
 
-          <div className="flex items-center justify-between py-3 border-b border-white/5">
+          <div className="flex items-center justify-between border-b border-white/5 py-3">
             <div>
               <p className="font-bold">Drip Feed Mode</p>
-              <p className="text-sm opacity-40">Add random delays between generations to avoid rate limiting</p>
+              <p className="text-sm opacity-40">
+                Add random delays between generations to avoid rate limiting
+              </p>
             </div>
             <button
-              onClick={() => setSettingsState((prev) => ({ ...prev, dripFeed: !prev.dripFeed }))}
-              className={`w-12 h-6 rounded-full transition-all relative ${settings.dripFeed ? "bg-blue-600" : "bg-white/10"}`}
+              onClick={() => {
+                setSettingsState((prev) => ({ ...prev, dripFeed: !prev.dripFeed }));
+              }}
+              className={`relative h-6 w-12 rounded-full transition-all ${settings.dripFeed ? "bg-blue-600" : "bg-white/10"}`}
             >
-              <div className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all shadow-md ${settings.dripFeed ? "left-6" : "left-0.5"}`} />
+              <div
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all ${settings.dripFeed ? "left-6" : "left-0.5"}`}
+              />
             </button>
           </div>
         </div>
@@ -241,8 +300,10 @@ export default function Options() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className={`w-full p-4 rounded-xl font-black text-white flex items-center justify-center gap-2 transition-all ${
-            saveSuccess ? "bg-emerald-600" : "bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20"
+          className={`flex w-full items-center justify-center gap-2 rounded-xl p-4 font-black text-white transition-all ${
+            saveSuccess
+              ? "bg-emerald-600"
+              : "bg-blue-600 shadow-lg shadow-blue-600/20 hover:bg-blue-500"
           }`}
         >
           {saveSuccess ? (
@@ -257,7 +318,9 @@ export default function Options() {
         </button>
 
         {/* Footer */}
-        <p className="text-center text-sm opacity-40 mt-8">Gemini Nano Flow v1.0.0 - Built with WXT</p>
+        <p className="mt-8 text-center text-sm opacity-40">
+          Gemini Nano Flow v1.0.0 - Built with WXT
+        </p>
       </div>
     </div>
   );

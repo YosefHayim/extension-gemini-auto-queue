@@ -4,6 +4,7 @@ declare global {
   const ApiKeyDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ApiKeyDialog')['default']
   const ContentScriptContext: typeof import('wxt/client')['ContentScriptContext']
   const CsvDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/CsvDialog')['default']
+  const InfoTooltip: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/InfoTooltip')['default']
   const InvalidMatchPattern: typeof import('wxt/sandbox')['InvalidMatchPattern']
   const MatchPattern: typeof import('wxt/sandbox')['MatchPattern']
   const MigrationError: typeof import('wxt/storage')['MigrationError']
