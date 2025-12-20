@@ -150,7 +150,6 @@ export async function improvePrompt(text: string, settings: AppSettings): Promis
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`AI Prompt Improvement Error (${String(provider)}):`, error);
 
     if (errorMessage.includes("quota") || errorMessage.includes("rate")) {
       throw new Error(`${String(provider)} API quota exceeded. Please try again later.`);

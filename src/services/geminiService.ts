@@ -76,7 +76,6 @@ export async function generateImage(options: GenerateImageOptions): Promise<stri
     throw new Error("No image data found in response.");
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`Gemini (${model}) Generation Error:`, error);
 
     if (errorMessage.includes("Requested entity was not found")) {
       throw new Error("API Key configuration error. Please verify your key.");
@@ -111,7 +110,6 @@ export async function improvePrompt(text: string): Promise<string> {
 
     return response.text ?? text;
   } catch (error) {
-    console.error("AI Prompt Improvement Error:", error);
     throw error;
   }
 }

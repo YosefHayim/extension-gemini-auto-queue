@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { StorageKey } from "@/types";
 
@@ -23,8 +23,8 @@ export function useStorage<T>(
         if (result[key] !== undefined) {
           setValue(result[key] as T);
         }
-      } catch (error) {
-        console.error(`Error loading ${key} from storage:`, error);
+      } catch {
+        // Error loading from storage
       } finally {
         setIsLoading(false);
       }
@@ -59,8 +59,8 @@ export function useStorage<T>(
 
         setValue(valueToStore);
         await chrome.storage.local.set({ [key]: valueToStore }).catch(() => {});
-      } catch (error) {
-        console.error(`Error setting ${key} in storage:`, error);
+      } catch {
+        // Error setting in storage
       }
     },
     [key, value]

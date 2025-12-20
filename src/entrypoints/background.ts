@@ -13,8 +13,6 @@ import {
 import { generateImage } from "@/services/geminiService";
 
 export default defineBackground(() => {
-  console.log("[Nano Flow] Background script loaded");
-
   let isProcessing = false;
   let processingController: AbortController | null = null;
   let activeGeminiTabId: number | null = null;
@@ -24,8 +22,8 @@ export default defineBackground(() => {
     if (tab.id && tab.url?.includes("gemini.google.com")) {
       try {
         await chrome.tabs.sendMessage(tab.id, { type: MessageType.TOGGLE_SIDEBAR });
-      } catch (error) {
-        console.error("[Nano Flow] Failed to toggle sidebar:", error);
+      } catch {
+        // Failed to toggle sidebar
       }
     } else {
       // If not on Gemini, maybe open a popup or redirect?
@@ -48,7 +46,6 @@ export default defineBackground(() => {
         });
         // Track this tab as potential target for automation
         activeGeminiTabId = tabId;
-        console.log("[Nano Flow] Gemini tab detected:", tabId);
       }
     }
   });
@@ -59,7 +56,6 @@ export default defineBackground(() => {
       const tab = await chrome.tabs.get(activeInfo.tabId);
       if (tab.url?.includes("gemini.google.com")) {
         activeGeminiTabId = activeInfo.tabId;
-        console.log("[Nano Flow] Active Gemini tab:", activeGeminiTabId);
       }
     } catch {
       // Tab might not exist
@@ -78,7 +74,6 @@ export default defineBackground(() => {
           sendResponse(response);
         })
         .catch((error) => {
-          console.error("[Nano Flow] Message handling error:", error);
           sendResponse({
             success: false,
             error: error instanceof Error ? error.message : "Unknown error",
@@ -168,8 +163,8 @@ export default defineBackground(() => {
           if (activeTab?.id) {
             await chrome.sidePanel.open({ tabId: activeTab.id });
           }
-        } catch (error) {
-          console.error("[Nano Flow] Failed to open side panel:", error);
+        } catch {
+          // Failed to open side panel
         }
         return { success: true };
       }
@@ -178,7 +173,6 @@ export default defineBackground(() => {
         // Content script is ready - update active tab
         if (sender?.tab?.id) {
           activeGeminiTabId = sender.tab.id;
-          console.log("[Nano Flow] Content script ready in tab:", activeGeminiTabId);
         }
         return { success: true };
       }
@@ -219,7 +213,6 @@ export default defineBackground(() => {
       throw new Error("No Gemini tab found. Please open gemini.google.com");
     }
 
-    console.log("[Nano Flow] Sending to content script:", message.type);
     return chrome.tabs.sendMessage(tabId, message);
   }
 
@@ -233,13 +226,10 @@ export default defineBackground(() => {
     // Check if we have a Gemini tab
     const tabId = await findGeminiTab();
     if (!tabId) {
-      console.error("[Nano Flow] No Gemini tab found");
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
       isProcessing = false;
       return;
     }
-
-    console.log("[Nano Flow] Starting queue processing via web automation");
 
     while (isProcessing) {
       const queue = await getQueue();
@@ -247,7 +237,6 @@ export default defineBackground(() => {
 
       if (!nextItem) {
         // No more items to process
-        console.log("[Nano Flow] Queue empty, stopping processing");
         isProcessing = false;
         break;
       }
@@ -279,13 +268,6 @@ export default defineBackground(() => {
           }
         }
 
-        console.log(
-          "[Nano Flow] Processing item:",
-          nextItem.id,
-          nextItem.finalPrompt.substring(0, 50)
-        );
-        console.log("[Nano Flow] Using tool:", tool, "| Images:", nextItem.images?.length ?? 0);
-
         // Send prompt to content script for web automation
         const response = await sendToContentScript({
           type: MessageType.PASTE_PROMPT,
@@ -312,11 +294,6 @@ export default defineBackground(() => {
               },
             },
           });
-          console.log(
-            "[Nano Flow] Item completed:",
-            nextItem.id,
-            `(${completionTimeSeconds?.toFixed(1)}s)`
-          );
         } else {
           throw new Error(response.error || "Web automation failed");
         }
@@ -327,10 +304,8 @@ export default defineBackground(() => {
           ? 15000 + Math.random() * 10000 // 15-25 seconds with drip feed
           : 8000 + Math.random() * 4000; // 8-12 seconds normally
 
-        console.log("[Nano Flow] Waiting", Math.round(waitTime / 1000), "seconds before next item");
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {
-        console.error("[Nano Flow] Processing error:", error);
         await updateQueueItem(nextItem.id, {
           status: QueueStatus.FAILED,
           error: error instanceof Error ? error.message : "Generation failed",
@@ -346,11 +321,9 @@ export default defineBackground(() => {
 
     // Notify that processing stopped
     broadcastMessage({ type: MessageType.STOP_PROCESSING });
-    console.log("[Nano Flow] Processing stopped");
   }
 
   function stopProcessing(): void {
-    console.log("[Nano Flow] Stop processing requested");
     isProcessing = false;
     if (processingController) {
       processingController.abort();

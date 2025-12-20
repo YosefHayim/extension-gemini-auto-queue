@@ -5,8 +5,6 @@ export default defineContentScript({
   runAt: "document_idle",
 
   main() {
-    console.log("Gemini Nano Flow: Content script loaded on aistudio.google.com");
-
     // Notify background that we're on AI Studio
     chrome.runtime
       .sendMessage({
@@ -25,7 +23,9 @@ export default defineContentScript({
           .sendMessage({
             type: MessageType.OPEN_SIDE_PANEL,
           })
-          .catch(console.error);
+          .catch(() => {
+            // Ignore errors
+          });
       }
     });
 
@@ -34,7 +34,7 @@ export default defineContentScript({
       // AI Studio may expose API key UI elements we could detect
       const apiKeyElements = document.querySelectorAll('[data-apikey], [aria-label*="API"]');
       if (apiKeyElements.length > 0) {
-        console.log("Gemini Nano Flow: AI Studio API key UI detected");
+        // API key UI detected
       }
     };
 

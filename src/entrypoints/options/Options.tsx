@@ -11,13 +11,12 @@ import {
   Sun,
   XCircle,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-
-import { validateApiKey } from "@/services/geminiService";
 import { DEFAULT_SETTINGS, getSettings, setSettings } from "@/services/storageService";
 import { GeminiModel, ThemeMode } from "@/types";
+import React, { useEffect, useState } from "react";
 
 import type { AppSettings } from "@/types";
+import { validateApiKey } from "@/services/geminiService";
 
 export default function Options() {
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -66,8 +65,8 @@ export default function Options() {
       setTimeout(() => {
         setSaveSuccess(false);
       }, 2000);
-    } catch (error) {
-      console.error("Failed to save settings:", error);
+    } catch {
+      // Failed to save settings
     } finally {
       setIsSaving(false);
     }

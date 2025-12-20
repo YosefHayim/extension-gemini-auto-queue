@@ -42,8 +42,8 @@ export function useQueue(): UseQueueReturn {
         // Check if any items are processing
         const hasProcessing = queueData.some((item) => item.status === QueueStatus.PROCESSING);
         setIsProcessing(hasProcessing);
-      } catch (error) {
-        console.error("Error loading queue:", error);
+      } catch {
+        // Error loading queue
       } finally {
         setIsLoading(false);
       }

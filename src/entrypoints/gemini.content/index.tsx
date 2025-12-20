@@ -694,8 +694,6 @@ export default defineContentScript({
   cssInjectionMode: "ui",
 
   async main(ctx) {
-    console.log("[Nano Flow] Content script with UI loaded on gemini.google.com");
-
     // Initialize automation module
     automationModule.init();
 
@@ -725,7 +723,5 @@ export default defineContentScript({
 
     // Mount the UI
     ui.mount();
-
-    console.log("[Nano Flow] Sidebar UI injected into page");
   },
 });

@@ -52,8 +52,7 @@ export async function getSettings(): Promise<AppSettings> {
         ...stored.aiApiKeys,
       },
     };
-  } catch (error) {
-    console.error("Error getting settings:", error);
+  } catch {
     return DEFAULT_SETTINGS;
   }
 }
@@ -74,7 +73,6 @@ export async function setSettings(updates: Partial<AppSettings>): Promise<void> 
     };
     await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: merged });
   } catch (error) {
-    console.error("Error setting settings:", error);
     throw error;
   }
 }
@@ -86,8 +84,7 @@ export async function getQueue(): Promise<QueueItem[]> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.QUEUE);
     return (result[STORAGE_KEYS.QUEUE] as QueueItem[]) ?? [];
-  } catch (error) {
-    console.error("Error getting queue:", error);
+  } catch {
     return [];
   }
 }
@@ -99,7 +96,6 @@ export async function setQueue(queue: QueueItem[]): Promise<void> {
   try {
     await chrome.storage.local.set({ [STORAGE_KEYS.QUEUE]: queue });
   } catch (error) {
-    console.error("Error setting queue:", error);
     throw error;
   }
 }
@@ -116,7 +112,6 @@ export async function updateQueueItem(id: string, updates: Partial<QueueItem>): 
       await setQueue(queue);
     }
   } catch (error) {
-    console.error("Error updating queue item:", error);
     throw error;
   }
 }
@@ -128,8 +123,7 @@ export async function getFolders(): Promise<Folder[]> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.FOLDERS);
     return (result[STORAGE_KEYS.FOLDERS] as Folder[]) ?? [];
-  } catch (error) {
-    console.error("Error getting folders:", error);
+  } catch {
     return [];
   }
 }
@@ -141,7 +135,6 @@ export async function setFolders(folders: Folder[]): Promise<void> {
   try {
     await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: folders });
   } catch (error) {
-    console.error("Error setting folders:", error);
     throw error;
   }
 }
@@ -153,8 +146,7 @@ export async function isOnboardingComplete(): Promise<boolean> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.ONBOARDING_COMPLETE);
     return (result[STORAGE_KEYS.ONBOARDING_COMPLETE] as boolean) ?? false;
-  } catch (error) {
-    console.error("Error checking onboarding status:", error);
+  } catch {
     return false;
   }
 }
@@ -166,7 +158,6 @@ export async function setOnboardingComplete(complete: boolean): Promise<void> {
   try {
     await chrome.storage.local.set({ [STORAGE_KEYS.ONBOARDING_COMPLETE]: complete });
   } catch (error) {
-    console.error("Error setting onboarding status:", error);
     throw error;
   }
 }
@@ -217,8 +208,7 @@ export async function getAIApiKey(provider: AIProvider): Promise<string | undefi
     }
 
     return undefined;
-  } catch (error) {
-    console.error("Error getting AI API key:", error);
+  } catch {
     return undefined;
   }
 }
