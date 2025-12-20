@@ -1,10 +1,8 @@
-import { GoogleGenAI } from "@google/genai";
-
-import { AIProvider } from "@/types";
-
 import { getPreferredAIKey, hasAnyAIKey } from "./storageService";
 
+import { AIProvider } from "@/types";
 import type { AppSettings } from "@/types";
+import { GoogleGenAI } from "@google/genai";
 
 // System prompt for all providers
 const SYSTEM_PROMPT = `You are a professional prompt engineer. Your task is to take a simple image generation prompt and expand it to be more precise, descriptive, and high-quality, ensuring it yields better results in models like Midjourney or Gemini. Keep the core intent but add stylistic details, lighting, and composition. Return ONLY the improved prompt text, nothing else.`;

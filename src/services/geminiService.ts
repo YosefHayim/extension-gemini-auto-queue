@@ -1,9 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
-
-import { getAIApiKey } from "./storageService";
 import { AIProvider } from "@/types";
-
 import type { GeminiModel } from "@/types";
+import { GoogleGenAI } from "@google/genai";
+import { getAIApiKey } from "./storageService";
 
 interface GenerateImageOptions {
   prompt: string;
