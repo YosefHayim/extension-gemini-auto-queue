@@ -231,6 +231,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       {/* Model Selection */}
       <div
+        data-onboarding="model-selector"
         className={`space-y-2 rounded-md border p-2 ${isDark ? "bg-white/2 border-white/5" : "border-slate-100 bg-slate-50"}`}
       >
         <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">

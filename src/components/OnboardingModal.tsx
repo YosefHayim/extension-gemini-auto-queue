@@ -256,11 +256,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   useEffect(() => {
     if (currentStep.action && step === steps.length - 1) {
       // Only run action on the last step (demo)
-      currentStep.action().catch(console.error);
+      const actionResult = currentStep.action();
+      if (actionResult instanceof Promise) {
+        actionResult.catch(console.error);
+      }
     }
-  }, [step, currentStep.action]);
+  }, [step, currentStep, steps.length]);
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (step < steps.length - 1) {
       setStep((s) => s + 1);
     } else {
@@ -348,7 +351,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               {currentStep.example && (
                 <div
                   className={`rounded-md border p-3 ${
-                    isDark ? "border-purple-500/20 bg-purple-500/5" : "border-purple-200 bg-purple-50"
+                    isDark
+                      ? "border-purple-500/20 bg-purple-500/5"
+                      : "border-purple-200 bg-purple-50"
                   }`}
                 >
                   <div className="mb-1 flex items-center gap-2">

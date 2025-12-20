@@ -320,7 +320,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
       </div>
 
       {/* Tool Selector */}
-      <div className="flex flex-wrap gap-1">
+      <div data-onboarding="tool-selector" className="flex flex-wrap gap-1">
         {Object.entries(GEMINI_TOOL_INFO)
           .filter(([tool]) => (tool as GeminiTool) !== GeminiTool.NONE)
           .map(([tool, info]) => {
@@ -349,6 +349,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
 
       <div className="relative">
         <textarea
+          data-onboarding="queue-textarea"
           ref={textareaRef}
           value={bulkInput}
           onChange={(e) => {
