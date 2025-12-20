@@ -3,6 +3,12 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   srcDir: "src",
   modules: ["@wxt-dev/module-react"],
+  imports: {
+    // Exclude barrel files to prevent duplicate export warnings
+    dirsScanOptions: {
+      filePatterns: ["*.ts", "*.tsx", "!index.ts", "!index.tsx"],
+    },
+  },
   manifest: {
     name: "Gemini Nano Flow",
     description: "A bulk image generation and automation tool for Gemini and AI Studio",
