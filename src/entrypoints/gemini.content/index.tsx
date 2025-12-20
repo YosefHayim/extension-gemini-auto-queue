@@ -91,14 +91,14 @@ function InjectableSidebar() {
   // Listen for storage changes
   useEffect(() => {
     const cleanup = onStorageChange((changes) => {
-      if (STORAGE_KEYS.QUEUE in changes && changes[STORAGE_KEYS.QUEUE]) {
-        setQueueState(changes[STORAGE_KEYS.QUEUE].newValue ?? []);
+      if (changes[STORAGE_KEYS.QUEUE].newValue) {
+        setQueueState(changes[STORAGE_KEYS.QUEUE].newValue as QueueItem[]);
       }
-      if (STORAGE_KEYS.SETTINGS in changes && changes[STORAGE_KEYS.SETTINGS]) {
-        setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue ?? DEFAULT_SETTINGS);
+      if (changes[STORAGE_KEYS.SETTINGS].newValue) {
+        setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue as AppSettings);
       }
-      if (STORAGE_KEYS.FOLDERS in changes && changes[STORAGE_KEYS.FOLDERS]) {
-        setFoldersState(changes[STORAGE_KEYS.FOLDERS].newValue ?? []);
+      if (changes[STORAGE_KEYS.FOLDERS].newValue) {
+        setFoldersState(changes[STORAGE_KEYS.FOLDERS].newValue as Folder[]);
       }
     });
 
@@ -175,7 +175,7 @@ function InjectableSidebar() {
         // Only split by commas if they appear to be explicit list separators
         // (comma followed by space and capital letter, indicating start of new item)
         // or if there are multiple commas suggesting a list format
-        const hasMultipleCommas = (trimmed.match(/,/g) || []).length > 1;
+        const hasMultipleCommas = (trimmed.match(/,/g) ?? []).length > 1;
         const commaBeforeCapital = /,\s+[A-Z]/;
 
         if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
@@ -197,7 +197,7 @@ function InjectableSidebar() {
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
           status: QueueStatus.IDLE,
-          tool: tool || settings.defaultTool,
+          tool: tool ?? settings.defaultTool,
           images: images && images.length > 0 ? [...images] : undefined,
         };
       });
