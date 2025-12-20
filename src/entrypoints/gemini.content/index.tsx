@@ -14,7 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 
 import { CsvDialog } from "@/components/CsvDialog";
@@ -64,6 +64,7 @@ function InjectableSidebar() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   const isDark = settings.theme === ThemeMode.DARK;
   const isLeft = settings.position === SidebarPosition.LEFT;
@@ -113,6 +114,8 @@ function InjectableSidebar() {
         setIsProcessing(false);
       } else if (message.type === MessageType.UPDATE_QUEUE) {
         setQueueState(message.payload as QueueItem[]);
+      } else if (message.type === MessageType.TOGGLE_SIDEBAR) {
+        setIsVisible((prev) => !prev);
       }
     };
 
@@ -369,6 +372,8 @@ function InjectableSidebar() {
     setShowOnboarding(false);
   }, []);
 
+  if (!isVisible) return null;
+
   // Collapsed state - show only toggle button
   if (isCollapsed) {
     return (
@@ -520,11 +525,9 @@ function InjectableSidebar() {
             >
               <div className="flex items-center gap-0.5">
                 <tab.icon size={14} />
-                <Info
-                  size={8}
-                  className="opacity-0 transition-opacity group-hover:opacity-50"
-                  title={tab.tooltip}
-                />
+                <span title={tab.tooltip} className="opacity-0 transition-opacity group-hover:opacity-50">
+                  <Info size={8} />
+                </span>
               </div>
               <span className="w-full truncate px-1 text-center">{tab.label}</span>
               {activeTab === tab.id && (
@@ -647,7 +650,7 @@ function InjectableSidebar() {
 
 // Content script definition
 export default defineContentScript({
-  matches: ["https://gemini.google.com/*"],
+  matches: ["*://gemini.google.com/*"],
   runAt: "document_idle",
   cssInjectionMode: "ui",
 
@@ -664,12 +667,13 @@ export default defineContentScript({
       onMount: (container) => {
         // Ensure the container fills the viewport for fixed positioning to work
         container.style.position = "fixed";
-        container.style.top = "0";
+        container.style.display = "block";
+        container.style.top = "0px";
         container.style.left = "0";
         container.style.right = "0";
         container.style.bottom = "0";
         container.style.pointerEvents = "none";
-        container.style.zIndex = "999998";
+        container.style.zIndex = "2147483647";
 
         const root = ReactDOM.createRoot(container);
         root.render(<InjectableSidebar />);

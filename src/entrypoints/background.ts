@@ -21,12 +21,16 @@ export default defineBackground(() => {
 
   // Handle extension icon click - open side panel
   chrome.action.onClicked.addListener(async (tab) => {
-    if (tab.id) {
+    if (tab.id && tab.url?.includes("gemini.google.com")) {
       try {
-        await chrome.sidePanel.open({ tabId: tab.id });
+        await chrome.tabs.sendMessage(tab.id, { type: MessageType.TOGGLE_SIDEBAR });
       } catch (error) {
-        console.error("[Nano Flow] Failed to open side panel:", error);
+        console.error("[Nano Flow] Failed to toggle sidebar:", error);
       }
+    } else {
+      // If not on Gemini, maybe open a popup or redirect?
+      // For now, let's open Gemini in a new tab if not there
+      chrome.tabs.create({ url: "https://gemini.google.com/" });
     }
   });
 

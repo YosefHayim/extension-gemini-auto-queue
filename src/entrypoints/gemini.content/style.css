@@ -4,7 +4,8 @@
 
 /* Ensure our sidebar doesn't affect the page */
 :host {
-  all: initial;
+  all: unset;
+  display: block;
   font-family:
     system-ui,
     -apple-system,

@@ -8,7 +8,7 @@ export default defineConfig({
     description: "A bulk image generation and automation tool for Gemini and AI Studio",
     version: "1.0.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs"],
-    host_permissions: ["https://gemini.google.com/*", "https://aistudio.google.com/*"],
+    host_permissions: ["*://gemini.google.com/*", "*://aistudio.google.com/*"],
     side_panel: {
       default_path: "sidepanel.html",
     },
