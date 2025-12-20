@@ -14,24 +14,24 @@ export default defineConfig({
     description: "A bulk image generation and automation tool for Gemini and AI Studio",
     version: "1.0.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs"],
-    host_permissions: ["https://gemini.google.com/*", "https://aistudio.google.com/*", "https://generativelanguage.googleapis.com/*"],
+    host_permissions: ["https://gemini.google.com/*", "https://aistudio.google.com/*"],
     side_panel: {
       default_path: "sidepanel.html",
     },
     action: {
       default_title: "Gemini Nano Flow",
       default_icon: {
-        "16": "icons/icon-16.svg",
-        "32": "icons/icon-32.svg",
-        "48": "icons/icon-48.svg",
-        "128": "icons/icon-128.svg",
+        "16": "icons/icon-16.png",
+        "32": "icons/icon-32.png",
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png",
       },
     },
     icons: {
-      "16": "icons/icon-16.svg",
-      "32": "icons/icon-32.svg",
-      "48": "icons/icon-48.svg",
-      "128": "icons/icon-128.svg",
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png",
     },
   },
   runner: {
