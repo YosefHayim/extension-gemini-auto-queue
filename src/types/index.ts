@@ -182,6 +182,8 @@ export enum MessageType {
   GENERATION_COMPLETE = "GENERATION_COMPLETE",
   CONTENT_SCRIPT_READY = "CONTENT_SCRIPT_READY",
   TOGGLE_SIDEBAR = "TOGGLE_SIDEBAR",
+  GET_EXTENSION_ENABLED = "GET_EXTENSION_ENABLED",
+  SET_EXTENSION_ENABLED = "SET_EXTENSION_ENABLED",
 }
 
 export interface ExtensionMessage<T = unknown> {
@@ -201,6 +203,7 @@ export const STORAGE_KEYS = {
   SETTINGS: "nano_flow_settings",
   FOLDERS: "nano_flow_folders",
   ONBOARDING_COMPLETE: "nano_flow_onboarding_complete",
+  EXTENSION_ENABLED: "nano_flow_extension_enabled",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

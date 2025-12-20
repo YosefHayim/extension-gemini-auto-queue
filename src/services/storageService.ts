@@ -236,7 +236,7 @@ export function getPreferredAIKey(
 
   // Fallback: try to find any configured key
   for (const [provider, keyName] of Object.entries(keyMap)) {
-    const apiKey = aiApiKeys?.[keyName as keyof AIApiKeys];
+    const apiKey = aiApiKeys?.[keyName];
     if (apiKey) {
       return { provider: provider as AIProvider, key: apiKey };
     }
@@ -265,4 +265,27 @@ export function hasAnyAIKey(settings: AppSettings): boolean {
 
   // Fallback to deprecated apiKey
   return Boolean(apiKey);
+}
+
+/**
+ * Get extension enabled state
+ */
+export async function isExtensionEnabled(): Promise<boolean> {
+  try {
+    const result = chrome.storage.local.get(STORAGE_KEYS.EXTENSION_ENABLED);
+    return (result[STORAGE_KEYS.EXTENSION_ENABLED] as boolean) ?? true; // Default to enabled
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Set extension enabled state
+ */
+export async function setExtensionEnabled(enabled: boolean): Promise<void> {
+  try {
+    await chrome.storage.local.set({ [STORAGE_KEYS.EXTENSION_ENABLED]: enabled });
+  } catch (error) {
+    throw error;
+  }
 }

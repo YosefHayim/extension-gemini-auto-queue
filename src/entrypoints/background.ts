@@ -4,6 +4,8 @@ import {
   getFolders,
   getQueue,
   getSettings,
+  isExtensionEnabled,
+  setExtensionEnabled,
   setFolders,
   setQueue,
   setSettings,
@@ -17,20 +19,9 @@ export default defineBackground(() => {
   let processingController: AbortController | null = null;
   let activeGeminiTabId: number | null = null;
 
-  // Handle extension icon click - open side panel
-  chrome.action.onClicked.addListener(async (tab) => {
-    if (tab.id && tab.url?.includes("gemini.google.com")) {
-      try {
-        await chrome.tabs.sendMessage(tab.id, { type: MessageType.TOGGLE_SIDEBAR });
-      } catch {
-        // Failed to toggle sidebar
-      }
-    } else {
-      // If not on Gemini, maybe open a popup or redirect?
-      // For now, let's open Gemini in a new tab if not there
-      chrome.tabs.create({ url: "https://gemini.google.com/" });
-    }
-  });
+  // Note: chrome.action.onClicked is not fired when a popup is defined
+  // The popup will handle the UI, but we can still listen for clicks if popup is removed
+  // For now, the popup handles the toggle UI
 
   // Enable side panel on supported sites and track Gemini tabs
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -177,6 +168,17 @@ export default defineBackground(() => {
         return { success: true };
       }
 
+      case MessageType.GET_EXTENSION_ENABLED: {
+        const enabled = await isExtensionEnabled();
+        return { success: true, data: enabled };
+      }
+
+      case MessageType.SET_EXTENSION_ENABLED: {
+        const enabled = message.payload as boolean;
+        await setExtensionEnabled(enabled);
+        return { success: true };
+      }
+
       default:
         return { success: false, error: "Unknown message type" };
     }
@@ -217,6 +219,13 @@ export default defineBackground(() => {
   }
 
   async function startProcessing(): Promise<void> {
+    // Check if extension is enabled
+    const enabled = await isExtensionEnabled();
+    if (!enabled) {
+      broadcastMessage({ type: MessageType.STOP_PROCESSING });
+      return;
+    }
+
     isProcessing = true;
     processingController = new AbortController();
 
