@@ -155,10 +155,40 @@ function InjectableSidebar() {
   const handleAddToQueue = useCallback(
     async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
       const sourceText = text ?? "";
-      const lines = sourceText
-        .split(/[,\n]/)
-        .map((line) => line.trim())
-        .filter((line) => line !== "");
+
+      // Smart parsing: prioritize newlines, only split by commas when they appear to be list separators
+      // Detect numbered patterns (e.g., "Prompt 1:", "1.", "1)") to preserve full prompts
+      const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
+
+      // Split by newlines first
+      const newlineSplit = sourceText.split(/\n/);
+      const lines = newlineSplit.flatMap((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return [];
+
+        // If line starts with a numbered pattern, treat entire line as one prompt
+        // This handles cases like "Prompt 1: ..." or "1. ..."
+        if (numberedPattern.test(trimmed)) {
+          return [trimmed];
+        }
+
+        // Only split by commas if they appear to be explicit list separators
+        // (comma followed by space and capital letter, indicating start of new item)
+        // or if there are multiple commas suggesting a list format
+        const hasMultipleCommas = (trimmed.match(/,/g) || []).length > 1;
+        const commaBeforeCapital = /,\s+[A-Z]/;
+
+        if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
+          // Split on commas that are followed by space and capital letter
+          return trimmed
+            .split(/,\s+(?=[A-Z])/)
+            .map((item) => item.trim())
+            .filter((item) => item !== "");
+        }
+
+        // Otherwise, treat the entire line as one prompt
+        return [trimmed];
+      });
 
       const newItems: QueueItem[] = lines.map((line) => {
         const combinedPrompt = templateText ? `${line} ${templateText}` : line;
@@ -187,6 +217,11 @@ function InjectableSidebar() {
     },
     [queue]
   );
+
+  const handleClearAll = useCallback(async () => {
+    setQueueState([]);
+    await setQueue([]);
+  }, []);
 
   const handleClearCompleted = useCallback(async () => {
     const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
@@ -525,7 +560,10 @@ function InjectableSidebar() {
             >
               <div className="flex items-center gap-0.5">
                 <tab.icon size={14} />
-                <span title={tab.tooltip} className="opacity-0 transition-opacity group-hover:opacity-50">
+                <span
+                  title={tab.tooltip}
+                  className="opacity-0 transition-opacity group-hover:opacity-50"
+                >
                   <Info size={8} />
                 </span>
               </div>
@@ -546,6 +584,7 @@ function InjectableSidebar() {
               defaultTool={settings.defaultTool}
               onAddToQueue={handleAddToQueue}
               onRemoveFromQueue={handleRemoveFromQueue}
+              onClearAll={handleClearAll}
               onOpenCsvDialog={() => {
                 setShowCsvDialog(true);
               }}

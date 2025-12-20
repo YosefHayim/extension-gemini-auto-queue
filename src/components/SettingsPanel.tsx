@@ -25,14 +25,33 @@ import {
 } from "@/types";
 
 // Inline info icon component for settings
-const SettingInfo: React.FC<{ text: string }> = ({ text }) => (
-  <span
-    title={text}
-    className="ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
-  >
-    <Info size={10} />
-  </span>
-);
+const SettingInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark = false }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <span
+      className="relative ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Info size={10} />
+      {isHovered && (
+        <div
+          className={`absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-1 text-xs shadow-lg ${
+            isDark ? "border border-white/10 bg-gray-800 text-white" : "bg-gray-900 text-white"
+          }`}
+        >
+          {text}
+          <div
+            className={`absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent ${
+              isDark ? "border-t-gray-800" : "border-t-gray-900"
+            }`}
+          />
+        </div>
+      )}
+    </span>
+  );
+};
 
 interface SettingsPanelProps {
   settings: AppSettings;
@@ -85,7 +104,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <label className="flex cursor-pointer items-center text-[9px] font-black uppercase tracking-widest opacity-40">
             <Key size={10} className="mr-1" />
             AI Providers
-            <SettingInfo text="Configure API keys for AI-powered features like prompt optimization" />
+            <SettingInfo
+              text="Configure API keys for AI-powered features like prompt optimization"
+              isDark={isDark}
+            />
           </label>
           <div className="flex items-center gap-2">
             <span
@@ -184,7 +206,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         <div className="flex items-center justify-between px-1">
           <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
             Interface Theme
-            <SettingInfo text="Switch between dark and light appearance" />
+            <SettingInfo text="Switch between dark and light appearance" isDark={isDark} />
           </label>
           <button
             onClick={() => {
@@ -213,7 +235,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       >
         <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           Active Synthesis Model
-          <SettingInfo text="Flash 2.0 is faster, Imagen 3 produces higher quality images" />
+          <SettingInfo
+            text="Flash 2.0 is faster, Imagen 3 produces higher quality images"
+            isDark={isDark}
+          />
         </label>
         <select
           value={settings.primaryModel}
@@ -237,7 +262,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       >
         <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           Default Tool
-          <SettingInfo text="The Gemini tool to use for new prompts (Image, Video, Canvas, etc.)" />
+          <SettingInfo
+            text="The Gemini tool to use for new prompts (Image, Video, Canvas, etc.)"
+            isDark={isDark}
+          />
         </label>
         <select
           value={settings.defaultTool || GeminiTool.IMAGE}
@@ -252,7 +280,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         >
           {Object.entries(GEMINI_TOOL_INFO).map(([tool, info]) => (
             <option key={tool} value={tool}>
-              {info.icon} {info.label} - {info.description}
+              {info.label} - {info.description}
             </option>
           ))}
         </select>
@@ -266,7 +294,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div>
             <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
               Tool Sequence
-              <SettingInfo text="Cycle through different tools for each prompt (e.g., Image → Video → Canvas → repeat)" />
+              <SettingInfo
+                text="Cycle through different tools for each prompt (e.g., Image → Video → Canvas → repeat)"
+                isDark={isDark}
+              />
             </label>
           </div>
           <button
@@ -297,7 +328,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-600"
               }`}
             >
-              <span>{GEMINI_TOOL_INFO[tool]?.icon || "?"}</span>
+              <span>
+                {GEMINI_TOOL_INFO[tool]?.icon
+                  ? React.createElement(GEMINI_TOOL_INFO[tool].icon, { size: 12 })
+                  : "?"}
+              </span>
               <span>{GEMINI_TOOL_INFO[tool]?.label || tool}</span>
               {settings.useToolSequence && (
                 <button
@@ -341,7 +376,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       : "bg-slate-100 hover:bg-slate-200"
                   }`}
                 >
-                  {info.icon}
+                  {React.createElement(info.icon, { size: 14 })}
                 </button>
               ))}
           </div>
@@ -354,7 +389,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       >
         <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           Global Prefix
-          <SettingInfo text="Text automatically added before every prompt (e.g., 'High quality, detailed')" />
+          <SettingInfo
+            text="Text automatically added before every prompt (e.g., 'High quality, detailed')"
+            isDark={isDark}
+          />
         </label>
         <input
           value={settings.prefix}
@@ -371,7 +409,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       >
         <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           Global Suffix
-          <SettingInfo text="Text automatically added after every prompt (e.g., '4K resolution, cinematic')" />
+          <SettingInfo
+            text="Text automatically added after every prompt (e.g., '4K resolution, cinematic')"
+            isDark={isDark}
+          />
         </label>
         <input
           value={settings.suffix}
@@ -391,7 +432,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div>
             <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
               Sidebar Position
-              <SettingInfo text="Choose which side of the screen to show the Nano Flow panel" />
+              <SettingInfo
+                text="Choose which side of the screen to show the Nano Flow panel"
+                isDark={isDark}
+              />
             </label>
           </div>
           <button
@@ -430,7 +474,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div>
             <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
               Negative Prompts
-              <SettingInfo text="Elements to avoid in images: blurry, extra fingers, watermarks, etc." />
+              <SettingInfo
+                text="Elements to avoid in images: blurry, extra fingers, watermarks, etc."
+                isDark={isDark}
+              />
             </label>
           </div>
           <button
@@ -470,7 +517,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div>
             <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
               Drip Feed Mode
-              <SettingInfo text="Adds random delays between prompts to avoid rate limiting" />
+              <SettingInfo
+                text="Adds random delays between prompts to avoid rate limiting"
+                isDark={isDark}
+              />
             </label>
           </div>
           <button

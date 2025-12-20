@@ -1,4 +1,5 @@
-import { generateImage } from "@/services/geminiService";
+import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
+import { GeminiTool, MessageType, QueueStatus } from "@/types";
 import {
   getFolders,
   getQueue,
@@ -8,9 +9,8 @@ import {
   setSettings,
   updateQueueItem,
 } from "@/services/storageService";
-import { GeminiTool, MessageType, QueueStatus } from "@/types";
 
-import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
+import { generateImage } from "@/services/geminiService";
 
 export default defineBackground(() => {
   console.log("[Nano Flow] Background script loaded");
@@ -297,11 +297,13 @@ export default defineBackground(() => {
         });
 
         const endTime = Date.now();
+        const completionTimeSeconds = startTime ? (endTime - startTime) / 1000 : undefined;
 
         if (response.success) {
           await updateQueueItem(nextItem.id, {
             status: QueueStatus.COMPLETED,
             endTime,
+            completionTimeSeconds,
             results: {
               flash: {
                 url: "", // No URL from web automation
@@ -310,7 +312,11 @@ export default defineBackground(() => {
               },
             },
           });
-          console.log("[Nano Flow] Item completed:", nextItem.id);
+          console.log(
+            "[Nano Flow] Item completed:",
+            nextItem.id,
+            `(${completionTimeSeconds?.toFixed(1)}s)`
+          );
         } else {
           throw new Error(response.error || "Web automation failed");
         }

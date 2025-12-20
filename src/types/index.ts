@@ -31,6 +31,7 @@ export interface QueueItem {
   tool?: GeminiTool; // Which Gemini tool to use for this prompt
   startTime?: number;
   endTime?: number;
+  completionTimeSeconds?: number; // Time taken to complete in seconds
   images?: string[];
   results?: {
     flash?: ModelResult;

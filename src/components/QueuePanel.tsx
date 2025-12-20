@@ -1,21 +1,154 @@
-import { Camera, Cpu, Info, Maximize2, Trash2, TrendingUp, Type, Upload, X } from "lucide-react";
-import React, { useRef, useState } from "react";
+import {
+  Camera,
+  Clock,
+  Cpu,
+  Info,
+  Maximize2,
+  RefreshCw,
+  Trash2,
+  TrendingUp,
+  Type,
+  Upload,
+  X,
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { GEMINI_TOOL_INFO, GeminiTool } from "@/types";
+import { GEMINI_TOOL_INFO, GeminiTool, QueueStatus, type QueueItem } from "@/types";
 
 import { StatusBadge } from "./StatusBadge";
 
-import type { QueueItem } from "@/types";
-
 // Inline info icon for queue panel
-const QueueInfo: React.FC<{ text: string }> = ({ text }) => (
-  <span
-    title={text}
-    className="ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
-  >
-    <Info size={10} />
-  </span>
-);
+const QueueInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark = false }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <span
+      className="relative ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Info size={10} />
+      {isHovered && (
+        <div
+          className={`pointer-events-none absolute bottom-full left-1/2 z-[9999] mb-2 w-64 -translate-x-1/2 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
+            isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
+          }`}
+          style={{ maxWidth: "calc(100vw - 2rem)" }}
+        >
+          <div className="break-words">{text}</div>
+          <div
+            className={`absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent ${
+              isDark ? "border-t-gray-800" : "border-t-gray-900"
+            }`}
+          />
+        </div>
+      )}
+    </span>
+  );
+};
+
+// Queue message item with hover tooltip for truncated text
+const QueueMessageItem: React.FC<{
+  item: QueueItem;
+  toolInfo: (typeof GEMINI_TOOL_INFO)[GeminiTool];
+  isDark: boolean;
+  onRemoveFromQueue: (id: string) => void;
+  onRetryQueueItem: (id: string) => void;
+}> = ({ item, toolInfo, isDark, onRemoveFromQueue, onRetryQueueItem }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    // Check if text is truncated by comparing scrollHeight with clientHeight
+    if (textRef.current) {
+      const isOverflowing = textRef.current.scrollHeight > textRef.current.clientHeight;
+      setIsTruncated(isOverflowing);
+    }
+  }, [item.originalPrompt]);
+
+  return (
+    <div
+      className={`group rounded-md border p-2 transition-all ${isDark ? "bg-white/2 border-white/5" : "border-slate-100 bg-white shadow-sm"}`}
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <StatusBadge status={item.status} />
+          <span
+            title={toolInfo.description || "Tool"}
+            className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[8px] font-bold ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-600"}`}
+          >
+            {React.createElement(toolInfo.icon, { size: 10 })} {toolInfo.label}
+          </span>
+          {item.status === QueueStatus.COMPLETED && item.completionTimeSeconds !== undefined && (
+            <span
+              title="Completion time"
+              className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[8px] font-bold ${isDark ? "bg-green-500/20 text-green-400" : "bg-green-100 text-green-700"}`}
+            >
+              <Clock size={10} /> {item.completionTimeSeconds.toFixed(1)}s
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              onRetryQueueItem(item.id);
+            }}
+            title="Retry this prompt"
+            className="p-1 text-blue-500/40 opacity-0 transition-all hover:text-blue-500 group-hover:opacity-100"
+          >
+            <RefreshCw size={12} />
+          </button>
+          <button
+            onClick={() => {
+              onRemoveFromQueue(item.id);
+            }}
+            title="Remove from queue"
+            className="p-1 text-red-500/40 opacity-0 transition-all hover:text-red-500 group-hover:opacity-100"
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      </div>
+      <div
+        className={`relative ${isTruncated ? "cursor-help" : ""}`}
+        onMouseEnter={() => isTruncated && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <p ref={textRef} className="line-clamp-2 text-[10px] font-medium leading-tight opacity-80">
+          "{item.originalPrompt}"
+        </p>
+        {isHovered && isTruncated && (
+          <div
+            className={`pointer-events-none absolute bottom-full left-0 z-[9999] mb-2 w-64 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
+              isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
+            }`}
+            style={{ maxWidth: "calc(100vw - 2rem)" }}
+          >
+            <div className="break-words">"{item.originalPrompt}"</div>
+            <div
+              className={`absolute left-6 top-full border-4 border-transparent ${
+                isDark ? "border-t-gray-800" : "border-t-gray-900"
+              }`}
+            />
+          </div>
+        )}
+      </div>
+      {item.images && item.images.length > 0 && (
+        <div className="mt-2 flex gap-1">
+          {item.images.slice(0, 4).map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              className="h-6 w-6 rounded-md border border-white/5 object-cover"
+              alt="ref"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface QueuePanelProps {
   queue: QueueItem[];
@@ -28,6 +161,8 @@ interface QueuePanelProps {
     tool?: GeminiTool
   ) => void;
   onRemoveFromQueue: (id: string) => void;
+  onRetryQueueItem: (id: string) => void;
+  onClearAll?: () => void;
   onOpenCsvDialog: () => void;
 }
 
@@ -43,15 +178,45 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   defaultTool,
   onAddToQueue,
   onRemoveFromQueue,
+  onRetryQueueItem,
+  onClearAll,
   onOpenCsvDialog,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selection, setSelection] = useState<TextSelection | null>(null);
-  const [selectedTool, setSelectedTool] = useState<GeminiTool>(defaultTool || GeminiTool.IMAGE);
+  const [selectedTool, setSelectedTool] = useState<GeminiTool>(defaultTool ?? GeminiTool.IMAGE);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync selectedTool with defaultTool prop changes
+  useEffect(() => {
+    if (defaultTool) {
+      setSelectedTool(defaultTool);
+    }
+  }, [defaultTool]);
+
+  // Auto-select tool if all queue items have the same tool type
+  useEffect(() => {
+    if (queue.length > 0) {
+      // Get all tool types from queue items (excluding undefined)
+      const toolTypes = queue
+        .map((item) => item.tool)
+        .filter((tool): tool is GeminiTool => tool !== undefined);
+
+      if (toolTypes.length > 0) {
+        // Check if all items have the same tool type
+        const firstTool = toolTypes[0];
+        const allSameTool = toolTypes.every((tool) => tool === firstTool);
+
+        if (allSameTool) {
+          // Auto-select the tool that all queue items are using
+          setSelectedTool(firstTool);
+        }
+      }
+    }
+  }, [queue]);
 
   const handleTextSelection = () => {
     if (textareaRef.current) {
@@ -117,7 +282,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
       <div className="flex items-center justify-between px-1">
         <span className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           New Prompt
-          <QueueInfo text="Enter your image description. Use line breaks to create multiple prompts at once." />
+          <QueueInfo
+            text="Enter prompts: one per line, comma-separated, or numbered list. Each line or comma-separated item creates a separate prompt."
+            isDark={isDark}
+          />
         </span>
         <div className="flex gap-1">
           <button
@@ -154,26 +322,29 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
       {/* Tool Selector */}
       <div className="flex flex-wrap gap-1">
         {Object.entries(GEMINI_TOOL_INFO)
-          .filter(([tool]) => tool !== GeminiTool.NONE)
-          .map(([tool, info]) => (
-            <button
-              key={tool}
-              onClick={() => {
-                setSelectedTool(tool as GeminiTool);
-              }}
-              title={info.description}
-              className={`flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-bold transition-all ${
-                selectedTool === tool
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                  : isDark
-                    ? "border border-white/10 bg-white/5 hover:bg-white/10"
-                    : "border border-slate-200 bg-slate-100 hover:bg-slate-200"
-              }`}
-            >
-              <span>{info.icon}</span>
-              <span className="hidden sm:inline">{info.label}</span>
-            </button>
-          ))}
+          .filter(([tool]) => (tool as GeminiTool) !== GeminiTool.NONE)
+          .map(([tool, info]) => {
+            const toolEnum = tool as GeminiTool;
+            return (
+              <button
+                key={tool}
+                onClick={() => {
+                  setSelectedTool(toolEnum);
+                }}
+                title={info.description}
+                className={`flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-bold transition-all ${
+                  selectedTool === toolEnum
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                    : isDark
+                      ? "border border-white/10 bg-white/5 hover:bg-white/10"
+                      : "border border-slate-200 bg-slate-100 hover:bg-slate-200"
+                }`}
+              >
+                <span>{React.createElement(info.icon, { size: 14 })}</span>
+                <span className="hidden sm:inline">{info.label}</span>
+              </button>
+            );
+          })}
       </div>
 
       <div className="relative">
@@ -184,7 +355,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
             setBulkInput(e.target.value);
           }}
           onSelect={handleTextSelection}
-          placeholder="Enter image instructions..."
+          placeholder="Enter prompts: one per line, comma-separated, or numbered list (1. 2. 3.). Each line/comma creates a separate prompt."
           className={`no-scrollbar min-h-[140px] w-full rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
             isDark
               ? "border-white/10 bg-black/40 focus:border-blue-500/50"
@@ -268,53 +439,39 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
             <span className="text-[10px] font-black uppercase tracking-widest">Queue Empty</span>
           </div>
         ) : (
-          queue.map((item) => {
-            const toolInfo = item.tool
-              ? GEMINI_TOOL_INFO[item.tool]
-              : GEMINI_TOOL_INFO[GeminiTool.IMAGE];
-            return (
-              <div
-                key={item.id}
-                className={`group rounded-md border p-2 transition-all ${isDark ? "bg-white/2 border-white/5" : "border-slate-100 bg-white shadow-sm"}`}
-              >
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <StatusBadge status={item.status} />
-                    <span
-                      title={toolInfo?.description || "Tool"}
-                      className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-600"}`}
-                    >
-                      {toolInfo?.icon} {toolInfo?.label}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      onRemoveFromQueue(item.id);
-                    }}
-                    title="Remove from queue"
-                    className="p-1 text-red-500/40 opacity-0 transition-all hover:text-red-500 group-hover:opacity-100"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-                <p className="line-clamp-2 text-[10px] font-medium leading-tight opacity-80">
-                  "{item.originalPrompt}"
-                </p>
-                {item.images && item.images.length > 0 && (
-                  <div className="mt-2 flex gap-1">
-                    {item.images.slice(0, 4).map((img, i) => (
-                      <img
-                        key={i}
-                        src={img}
-                        className="h-6 w-6 rounded-md border border-white/5 object-cover"
-                        alt="ref"
-                      />
-                    ))}
-                  </div>
-                )}
+          <>
+            {onClearAll && (
+              <div className="mb-2 flex items-center justify-end">
+                <button
+                  onClick={onClearAll}
+                  title="Delete all queue items"
+                  className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider transition-all ${
+                    isDark
+                      ? "border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-500/50 hover:bg-red-500/20"
+                      : "border-red-300 bg-red-50 text-red-600 hover:border-red-400 hover:bg-red-100"
+                  }`}
+                >
+                  <Trash2 size={12} />
+                  <span>Clear All</span>
+                </button>
               </div>
-            );
-          })
+            )}
+            {queue.map((item) => {
+              const toolInfo = item.tool
+                ? GEMINI_TOOL_INFO[item.tool]
+                : GEMINI_TOOL_INFO[GeminiTool.IMAGE];
+              return (
+                <QueueMessageItem
+                  key={item.id}
+                  item={item}
+                  toolInfo={toolInfo}
+                  isDark={isDark}
+                  onRemoveFromQueue={onRemoveFromQueue}
+                  onRetryQueueItem={onRetryQueueItem}
+                />
+              );
+            })}
+          </>
         )}
       </div>
     </div>

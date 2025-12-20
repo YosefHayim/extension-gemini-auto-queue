@@ -1,11 +1,11 @@
-import { FileText, Info, Download, Upload, X } from "lucide-react";
+import { Download, FileText, Info, Upload, X } from "lucide-react";
 import React, { useRef } from "react";
 
 interface CsvDialogProps {
   isOpen: boolean;
   isDark: boolean;
   onClose: () => void;
-  onUpload: (items: { prompt: string; modifier?: string }[]) => void;
+  onUpload: (items: { prompt: string; tool?: string; images?: string[] }[]) => void;
 }
 
 export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, onUpload }) => {
@@ -13,7 +13,7 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
 
   const downloadTemplate = () => {
     const csvContent =
-      "Prompt,Template Modifier\nA cyberpunk city,hyper-realistic 8k resolution\nA majestic dragon,anime studio ghibli style\nA cozy cabin,winter forest background";
+      "Prompt,Type,Image\nA cyberpunk city,image,\nA majestic dragon,canvas,\nA cozy cabin,image,https://example.com/image.jpg";
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -34,15 +34,40 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
     reader.onload = (event) => {
       const text = event.target?.result as string;
       const rows = text.split("\n");
-      const items: { prompt: string; modifier?: string }[] = [];
+      const items: { prompt: string; tool?: string; images?: string[] }[] = [];
 
       rows.forEach((row) => {
-        const columns = row.split(",");
+        // Handle CSV parsing more robustly (handles quoted values with commas)
+        const columns: string[] = [];
+        let current = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < row.length; i++) {
+          const char = row[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === "," && !inQuotes) {
+            columns.push(current.trim());
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        columns.push(current.trim());
+
         const prompt = columns[0]?.trim();
-        const modifier = columns[1]?.trim();
+        const tool = columns[1]?.trim();
+        const imageUrl = columns[2]?.trim();
 
         if (prompt && prompt.toLowerCase() !== "prompt") {
-          items.push({ prompt, modifier });
+          const item: { prompt: string; tool?: string; images?: string[] } = { prompt };
+          if (tool) {
+            item.tool = tool;
+          }
+          if (imageUrl) {
+            item.images = [imageUrl];
+          }
+          items.push(item);
         }
       });
 
@@ -83,7 +108,8 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
             <div className="mb-1 flex items-center gap-1 font-black uppercase tracking-widest">
               <Info size={10} /> CSV Guide
             </div>
-            Format: Prompt, Modifiers (Optional).
+            Format: Column A = Prompt text, Column B = Type (image/canvas/video/etc), Column C =
+            Image URL (optional).
           </div>
           <button
             onClick={downloadTemplate}

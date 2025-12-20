@@ -1,6 +1,5 @@
-import { GeminiTool, MessageType } from "@/types";
-
 import type { ExtensionMessage, ExtensionResponse } from "@/types";
+import { GeminiTool, MessageType } from "@/types";
 
 // Selectors for Gemini UI elements (based on actual Gemini web interface)
 const SELECTORS = {
@@ -81,7 +80,6 @@ function findElement(...selectors: string[]): Element | null {
     try {
       const element = document.querySelector(selector);
       if (element) {
-        console.log("[Nano Flow] Found element with selector:", selector);
         return element;
       }
     } catch {
@@ -119,7 +117,6 @@ async function uploadImages(images: string[]): Promise<boolean> {
     return true; // No images to upload
   }
 
-  console.log("[Nano Flow] Uploading", images.length, "image(s)...");
 
   // Find the upload button
   let uploadBtn = findElement(
@@ -138,7 +135,6 @@ async function uploadImages(images: string[]): Promise<boolean> {
       const btn = icon.closest("button");
       if (btn) {
         uploadBtn = btn;
-        console.log("[Nano Flow] Found upload button by add icon");
         break;
       }
     }
@@ -156,14 +152,13 @@ async function uploadImages(images: string[]): Promise<boolean> {
         ariaLabel.includes("קובץ")
       ) {
         uploadBtn = btn;
-        console.log("[Nano Flow] Found upload button by aria-label:", ariaLabel);
         break;
       }
     }
   }
 
   if (!uploadBtn) {
-    console.error("[Nano Flow] Upload button not found, trying to find file input directly");
+    // Upload button not found, trying to find file input directly
   } else {
     // Click to open upload menu
     (uploadBtn as HTMLElement).click();
@@ -181,14 +176,12 @@ async function uploadImages(images: string[]): Promise<boolean> {
       const accept = input.getAttribute("accept") ?? "";
       if (accept.includes("image") || accept === "*/*" || !accept) {
         fileInput = input as HTMLInputElement;
-        console.log("[Nano Flow] Found file input with accept:", accept);
         break;
       }
     }
   }
 
   if (!fileInput) {
-    console.error("[Nano Flow] File input not found");
     return false;
   }
 
@@ -213,14 +206,11 @@ async function uploadImages(images: string[]): Promise<boolean> {
   // Wait for upload to process
   await sleep(1000);
 
-  console.log("[Nano Flow] Images uploaded successfully");
   return true;
 }
 
 // Paste text into the Quill editor
 async function pastePromptToInput(prompt: string): Promise<boolean> {
-  console.log("[Nano Flow] Pasting prompt:", prompt.substring(0, 50) + "...");
-
   const editor = findElement(
     SELECTORS.textInput,
     SELECTORS.textInputAlt,
@@ -229,12 +219,6 @@ async function pastePromptToInput(prompt: string): Promise<boolean> {
   );
 
   if (!editor) {
-    console.error("[Nano Flow] Text input not found. Available elements:");
-    console.log(
-      "[Nano Flow] contenteditable elements:",
-      document.querySelectorAll('[contenteditable="true"]')
-    );
-    console.log("[Nano Flow] textbox elements:", document.querySelectorAll('[role="textbox"]'));
     return false;
   }
 
@@ -277,8 +261,8 @@ async function pastePromptToInput(prompt: string): Promise<boolean> {
 
     // Use insertText command
     document.execCommand("insertText", false, prompt);
-  } catch (e) {
-    console.log("[Nano Flow] execCommand fallback failed:", e);
+  } catch {
+    // execCommand fallback failed
   }
 
   await sleep(200);
@@ -286,17 +270,11 @@ async function pastePromptToInput(prompt: string): Promise<boolean> {
   // Remove the "blank" class if present (Quill uses this for empty state)
   editorEl.classList.remove("ql-blank");
 
-  console.log(
-    "[Nano Flow] Prompt pasted successfully. Editor content:",
-    editorEl.textContent?.substring(0, 50)
-  );
   return true;
 }
 
 // Click the toolbox button to open the menu
 async function openToolbox(): Promise<boolean> {
-  console.log("[Nano Flow] Opening toolbox...");
-
   // Try multiple selectors
   let toolboxBtn = findElement(
     SELECTORS.toolboxButton,
@@ -317,7 +295,6 @@ async function openToolbox(): Promise<boolean> {
         className.includes("toolbox-drawer-button")
       ) {
         toolboxBtn = btn;
-        console.log("[Nano Flow] Found toolbox by fallback search");
         break;
       }
     }
@@ -330,21 +307,18 @@ async function openToolbox(): Promise<boolean> {
       const btn = icon.closest("button");
       if (btn) {
         toolboxBtn = btn;
-        console.log("[Nano Flow] Found toolbox by icon");
         break;
       }
     }
   }
 
   if (!toolboxBtn) {
-    console.error("[Nano Flow] Toolbox button not found");
     return false;
   }
 
   (toolboxBtn as HTMLElement).click();
   await sleep(600); // Wait for menu animation
 
-  console.log("[Nano Flow] Toolbox opened");
   return true;
 }
 
@@ -352,16 +326,13 @@ async function openToolbox(): Promise<boolean> {
 async function selectTool(tool: GeminiTool): Promise<boolean> {
   // If NONE, skip tool selection
   if (tool === GeminiTool.NONE) {
-    console.log("[Nano Flow] No tool selected, using regular chat");
     return true;
   }
-
-  console.log("[Nano Flow] Selecting tool:", tool);
 
   // First open the toolbox
   const toolboxOpened = await openToolbox();
   if (!toolboxOpened) {
-    console.warn("[Nano Flow] Failed to open toolbox, trying to find tool button directly");
+    // Failed to open toolbox, trying to find tool button directly
   }
 
   await sleep(500); // Wait longer for drawer animation
@@ -563,6 +534,306 @@ async function submitPrompt(): Promise<boolean> {
   return true;
 }
 
+// Check if video is currently being generated
+function isVideoGenerating(): boolean {
+  // Check for async-processing-chip with video-related text
+  const asyncChips = document.querySelectorAll("async-processing-chip");
+  for (const chip of asyncChips) {
+    const text = chip.textContent?.toLowerCase() ?? "";
+    // Check for Hebrew text "יוצר את הסרטון" or English "creating video" or "generating video"
+    const hasVideoText =
+      text.includes("יוצר את הסרטון") ||
+      text.includes("creating video") ||
+      text.includes("generating video") ||
+      text.includes("generating your video") ||
+      text.includes("creating your video") ||
+      (text.includes("video") && (text.includes("creating") || text.includes("generating"))) ||
+      (text.includes("סרטון") && text.includes("יוצר"));
+
+    if (hasVideoText) {
+      // Check if there's a spinner/loading indicator inside
+      const spinner = chip.querySelector(
+        ".spinner, lottie-animation, [class*='spinner'], svg[viewBox*='32']"
+      );
+      // Also check for movie icon (video generation indicator)
+      const movieIcon = chip.querySelector(
+        'mat-icon[fonticon="movie"], mat-icon[data-mat-icon-name="movie"]'
+      );
+      if (spinner || movieIcon) {
+        console.log("[Nano Flow] Video generation in progress - async-processing-chip found");
+        return true;
+      }
+    }
+  }
+
+  // Check for video generation messages in response elements
+  const responseElements = document.querySelectorAll("response-element");
+  for (const element of responseElements) {
+    const text = element.textContent?.toLowerCase() ?? "";
+    if (
+      text.includes("generating your video") ||
+      text.includes("creating your video") ||
+      text.includes("this could take a few minutes") ||
+      text.includes("יוצר את הסרטון") ||
+      text.includes("זה יכול לקחת כמה דקות")
+    ) {
+      // Check if there's still a processing indicator
+      const processingChip = element.querySelector("async-processing-chip");
+      if (processingChip) {
+        console.log(
+          "[Nano Flow] Video generation in progress - response element with processing chip"
+        );
+        return true;
+      }
+    }
+  }
+
+  // Check for video generation message in markdown content
+  const markdownElements = document.querySelectorAll(
+    '.markdown, [class*="markdown"], [id*="model-response-message-content"]'
+  );
+  for (const element of markdownElements) {
+    const text = element.textContent?.toLowerCase() ?? "";
+    if (
+      text.includes("generating your video") ||
+      text.includes("this could take a few minutes") ||
+      text.includes("check back to see when your video is ready")
+    ) {
+      // Check if there's an async-processing-chip nearby
+      const processingChip = element.querySelector("async-processing-chip");
+      if (processingChip) {
+        console.log("[Nano Flow] Video generation in progress - markdown with processing chip");
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// Check if video generation is complete
+function isVideoGenerationComplete(): boolean {
+  // Check if video element exists in the response
+  const videoElements = document.querySelectorAll(
+    "video, iframe[src*='video'], video[src], video[controls], video[preload]"
+  );
+  if (videoElements.length > 0) {
+    // Verify the video element has a valid source
+    for (const video of videoElements) {
+      if (video.tagName === "VIDEO") {
+        const videoEl = video as HTMLVideoElement;
+        if (videoEl.src || videoEl.currentSrc) {
+          console.log("[Nano Flow] Video generation complete - video element with source found");
+          return true;
+        }
+      } else if (video.tagName === "IFRAME") {
+        const iframeEl = video as HTMLIFrameElement;
+        if (iframeEl.src) {
+          console.log("[Nano Flow] Video generation complete - iframe with video source found");
+          return true;
+        }
+      }
+    }
+  }
+
+  // Check if async-processing-chip for video has disappeared (video is ready)
+  const asyncChips = document.querySelectorAll("async-processing-chip");
+  let hasVideoProcessing = false;
+  for (const chip of asyncChips) {
+    const text = chip.textContent?.toLowerCase() ?? "";
+    const hasVideoText =
+      text.includes("יוצר את הסרטון") ||
+      text.includes("creating video") ||
+      text.includes("generating video") ||
+      text.includes("generating your video") ||
+      (text.includes("video") && (text.includes("creating") || text.includes("generating")));
+    if (hasVideoText) {
+      // Check if spinner is still present
+      const spinner = chip.querySelector(
+        ".spinner, lottie-animation, [class*='spinner'], svg[viewBox*='32']"
+      );
+      if (spinner) {
+        hasVideoProcessing = true;
+        break;
+      }
+    }
+  }
+
+  // If we previously detected video generation but now the chip is gone or spinner stopped, check for completion
+  if (!hasVideoProcessing) {
+    // Check for video element that might have appeared
+    const videoElements = document.querySelectorAll("video, iframe[src*='video']");
+    if (videoElements.length > 0) {
+      console.log(
+        "[Nano Flow] Video generation complete - video element appeared after processing stopped"
+      );
+      return true;
+    }
+
+    // Check for completion messages in response elements
+    const responseElements = document.querySelectorAll("response-element");
+    for (const element of responseElements) {
+      const text = element.textContent?.toLowerCase() ?? "";
+      // Check for completion messages
+      if (
+        text.includes("video is ready") ||
+        text.includes("your video is ready") ||
+        text.includes("הסרטון מוכן") ||
+        text.includes("הסרטון שלך מוכן") ||
+        (text.includes("video") && !text.includes("generating") && !text.includes("creating"))
+      ) {
+        // Make sure there's no active processing chip
+        const processingChip = element.querySelector("async-processing-chip");
+        if (!processingChip) {
+          console.log("[Nano Flow] Video generation complete - completion message found");
+          return true;
+        }
+      }
+    }
+
+    // Check markdown content for completion
+    const markdownElements = document.querySelectorAll(
+      '.markdown, [class*="markdown"], [id*="model-response-message-content"]'
+    );
+    for (const element of markdownElements) {
+      const text = element.textContent?.toLowerCase() ?? "";
+      // If text mentions video but NOT generating/creating, and no processing chip, it's likely done
+      if (
+        (text.includes("video") || text.includes("סרטון")) &&
+        !text.includes("generating") &&
+        !text.includes("creating") &&
+        !text.includes("יוצר")
+      ) {
+        const processingChip = element.querySelector("async-processing-chip");
+        if (!processingChip) {
+          console.log(
+            "[Nano Flow] Video generation complete - markdown content indicates completion"
+          );
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+// Check if canvas is currently being generated
+function isCanvasGenerating(): boolean {
+  // Check for thinking avatar with class "thinking" (indicates canvas generation)
+  const thinkingAvatars = document.querySelectorAll("bard-avatar.thinking, .bard-avatar.thinking");
+  if (thinkingAvatars.length > 0) {
+    // Check if there's a lottie-animation spinner inside
+    for (const avatar of thinkingAvatars) {
+      const spinner = avatar.querySelector("lottie-animation, .avatar_spinner_animation");
+      if (spinner) {
+        console.log(
+          "[Nano Flow] Canvas generation in progress - thinking avatar with spinner found"
+        );
+        return true;
+      }
+    }
+  }
+
+  // Check for aria-busy="true" on markdown elements (indicates active generation)
+  const busyElements = document.querySelectorAll('[aria-busy="true"]');
+  for (const element of busyElements) {
+    // Check if it's a markdown/content element
+    if (
+      element.classList.contains("markdown") ||
+      element.id?.includes("model-response-message-content") ||
+      element.closest(".model-response-text")
+    ) {
+      // Check if there's no immersive-entry-chip yet (canvas not ready)
+      const canvasChip = element
+        .closest(".response-container")
+        ?.querySelector("immersive-entry-chip");
+      if (!canvasChip) {
+        console.log("[Nano Flow] Canvas generation in progress - aria-busy element found");
+        return true;
+      }
+    }
+  }
+
+  // Check for canvas-related text with processing indicators
+  const responseElements = document.querySelectorAll("response-element, .response-container");
+  for (const element of responseElements) {
+    const text = element.textContent?.toLowerCase() ?? "";
+    if (
+      text.includes("canvas") ||
+      text.includes("drawing") ||
+      text.includes("scribble") ||
+      text.includes("interactive")
+    ) {
+      // Check if there's a thinking avatar but no canvas chip yet
+      const thinkingAvatar = element.querySelector("bard-avatar.thinking, .bard-avatar.thinking");
+      const canvasChip = element.querySelector("immersive-entry-chip");
+      if (thinkingAvatar && !canvasChip) {
+        console.log(
+          "[Nano Flow] Canvas generation in progress - canvas text with thinking avatar found"
+        );
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// Check if canvas generation is complete
+function isCanvasGenerationComplete(): boolean {
+  // Check if immersive-entry-chip exists (this is the canvas artifact)
+  const canvasChips = document.querySelectorAll("immersive-entry-chip");
+  if (canvasChips.length > 0) {
+    // Verify the chip is visible and has content
+    for (const chip of canvasChips) {
+      const htmlChip = chip as HTMLElement;
+      const isVisible = htmlChip.offsetParent !== null; // Check if element is visible
+      const hasContent = chip.textContent && chip.textContent.trim().length > 0;
+      if (isVisible && hasContent) {
+        console.log("[Nano Flow] Canvas generation complete - immersive-entry-chip found");
+        return true;
+      }
+    }
+  }
+
+  // Check if thinking avatar has disappeared (generation complete)
+  const thinkingAvatars = document.querySelectorAll("bard-avatar.thinking, .bard-avatar.thinking");
+  let hasActiveThinking = false;
+  for (const avatar of thinkingAvatars) {
+    const spinner = avatar.querySelector("lottie-animation, .avatar_spinner_animation");
+    if (spinner) {
+      hasActiveThinking = true;
+      break;
+    }
+  }
+
+  // If no active thinking and aria-busy is false, check for canvas chip
+  if (!hasActiveThinking) {
+    const busyElements = document.querySelectorAll('[aria-busy="true"]');
+    const hasActiveBusy = Array.from(busyElements).some((el) => {
+      return (
+        el.classList.contains("markdown") ||
+        el.id?.includes("model-response-message-content") ||
+        el.closest(".model-response-text")
+      );
+    });
+
+    if (!hasActiveBusy) {
+      // Check for canvas chip that might have appeared
+      const canvasChips = document.querySelectorAll("immersive-entry-chip");
+      if (canvasChips.length > 0) {
+        console.log(
+          "[Nano Flow] Canvas generation complete - thinking stopped and canvas chip present"
+        );
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 // Check if Gemini is currently thinking/processing
 function isGeminiThinking(): boolean {
   // Check for thinking avatar (animated star)
@@ -586,48 +857,171 @@ function isGeminiThinking(): boolean {
     return true;
   }
 
-  // Check for generic loading indicators
-  const loading = document.querySelector('[data-loading="true"], [aria-busy="true"]');
+  // Check for generic loading indicators (but exclude canvas-specific busy states)
+  const loading = document.querySelector('[data-loading="true"]');
   if (loading) {
     console.log("[Nano Flow] Gemini thinking - generic loading indicator present");
     return true;
+  }
+
+  // Check for aria-busy but only if it's not canvas (canvas has its own detection)
+  const busyElements = document.querySelectorAll('[aria-busy="true"]');
+  for (const element of busyElements) {
+    // Skip if it's canvas-related (we handle that separately)
+    const isCanvasRelated =
+      element.closest(".response-container")?.querySelector("immersive-entry-chip") !== null;
+    if (!isCanvasRelated) {
+      console.log("[Nano Flow] Gemini thinking - aria-busy indicator present");
+      return true;
+    }
   }
 
   return false;
 }
 
 // Wait for generation to complete
-async function waitForGenerationComplete(timeout = 180000): Promise<boolean> {
-  console.log("[Nano Flow] Waiting for generation to complete...");
+async function waitForGenerationComplete(
+  tool: GeminiTool = GeminiTool.IMAGE,
+  timeout = 180000
+): Promise<boolean> {
+  // Use longer timeout for video/canvas generation (they can take 2-5 minutes)
+  const effectiveTimeout =
+    tool === GeminiTool.VIDEO
+      ? Math.max(timeout, 300000) // 5 minutes for video
+      : tool === GeminiTool.CANVAS
+        ? Math.max(timeout, 300000) // 5 minutes for canvas
+        : timeout;
+
+  console.log(
+    "[Nano Flow] Waiting for generation to complete...",
+    "Tool:",
+    tool,
+    "Timeout:",
+    Math.round(effectiveTimeout / 1000),
+    "s"
+  );
 
   // Wait for initial response to start appearing
   await sleep(2000);
 
   const startTime = Date.now();
   let lastLogTime = 0;
+  let wasVideoGenerating = false;
+  let wasCanvasGenerating = false;
 
   // Wait until Gemini stops thinking
-  while (Date.now() - startTime < timeout) {
+  while (Date.now() - startTime < effectiveTimeout) {
     const isThinking = isGeminiThinking();
+    const isVideoGen = isVideoGenerating();
+    const isCanvasGen = isCanvasGenerating();
 
-    // Log progress every 5 seconds
-    if (Date.now() - lastLogTime > 5000) {
+    // Track if we detected video generation
+    if (isVideoGen && !wasVideoGenerating) {
+      wasVideoGenerating = true;
+      console.log("[Nano Flow] Video generation detected, waiting for completion...");
+    }
+
+    // Track if we detected canvas generation
+    if (isCanvasGen && !wasCanvasGenerating) {
+      wasCanvasGenerating = true;
+      console.log("[Nano Flow] Canvas generation detected, waiting for completion...");
+    }
+
+    // Log progress every 5 seconds (or 10 seconds for video/canvas)
+    const logInterval =
+      tool === GeminiTool.VIDEO ||
+      wasVideoGenerating ||
+      tool === GeminiTool.CANVAS ||
+      wasCanvasGenerating
+        ? 10000
+        : 5000;
+    if (Date.now() - lastLogTime > logInterval) {
       const elapsed = Math.round((Date.now() - startTime) / 1000);
-      console.log(`[Nano Flow] Waiting... ${elapsed}s elapsed, thinking: ${isThinking}`);
+      console.log(
+        `[Nano Flow] Waiting... ${elapsed}s elapsed, thinking: ${isThinking}, video generating: ${isVideoGen}, canvas generating: ${isCanvasGen}`
+      );
       lastLogTime = Date.now();
     }
 
-    if (!isThinking) {
+    // For video generation, check specifically for video completion
+    if (tool === GeminiTool.VIDEO || wasVideoGenerating) {
+      if (isVideoGenerationComplete()) {
+        console.log("[Nano Flow] Video generation complete!");
+        // Wait a bit more to ensure video is fully loaded
+        await sleep(3000);
+        return true;
+      }
+
+      // If video is still generating, continue waiting
+      if (isVideoGen) {
+        await sleep(3000); // Check less frequently for video (it takes longer)
+        continue;
+      }
+
+      // If we were generating video but now it's not generating, check if it completed
+      if (wasVideoGenerating && !isVideoGen) {
+        await sleep(5000); // Give it more time for the video to appear
+        if (isVideoGenerationComplete()) {
+          console.log("[Nano Flow] Video generation complete after processing stopped!");
+          await sleep(3000);
+          return true;
+        }
+        // If still not complete, continue waiting (might be transitioning)
+      }
+    }
+
+    // For canvas generation, check specifically for canvas completion
+    if (tool === GeminiTool.CANVAS || wasCanvasGenerating) {
+      if (isCanvasGenerationComplete()) {
+        console.log("[Nano Flow] Canvas generation complete!");
+        // Wait a bit more to ensure canvas is fully loaded
+        await sleep(2000);
+        return true;
+      }
+
+      // If canvas is still generating, continue waiting
+      if (isCanvasGen) {
+        await sleep(2000); // Check less frequently for canvas
+        continue;
+      }
+
+      // If we were generating canvas but now it's not generating, check if it completed
+      if (wasCanvasGenerating && !isCanvasGen) {
+        await sleep(3000); // Give it time for the canvas chip to appear
+        if (isCanvasGenerationComplete()) {
+          console.log("[Nano Flow] Canvas generation complete after processing stopped!");
+          await sleep(2000);
+          return true;
+        }
+        // If still not complete, continue waiting (might be transitioning)
+      }
+    }
+
+    if (!isThinking && !isVideoGen && !isCanvasGen) {
       // Double-check by waiting a moment and checking again
       await sleep(1000);
 
-      if (!isGeminiThinking()) {
+      if (!isGeminiThinking() && !isVideoGenerating() && !isCanvasGenerating()) {
         // Check if images appeared in the response
         const responseImages = document.querySelectorAll(
           ".response-container img, .generated-image, img[alt*='Generated'], img[src*='blob:']"
         );
         if (responseImages.length > 0) {
           console.log("[Nano Flow] Generation complete - images found:", responseImages.length);
+          return true;
+        }
+
+        // Check if video appeared (for non-video tools that might return video)
+        if (isVideoGenerationComplete()) {
+          console.log("[Nano Flow] Generation complete - video found");
+          await sleep(3000);
+          return true;
+        }
+
+        // Check if canvas appeared (for non-canvas tools that might return canvas)
+        if (isCanvasGenerationComplete()) {
+          console.log("[Nano Flow] Generation complete - canvas found");
+          await sleep(2000);
           return true;
         }
 
@@ -641,7 +1035,15 @@ async function waitForGenerationComplete(timeout = 180000): Promise<boolean> {
         }
 
         // If no thinking indicators and we've waited at least 5 seconds, consider it done
-        if (Date.now() - startTime > 5000) {
+        // But for video/canvas, wait longer (at least 15 seconds to account for processing time)
+        const minWaitTime =
+          tool === GeminiTool.VIDEO ||
+          wasVideoGenerating ||
+          tool === GeminiTool.CANVAS ||
+          wasCanvasGenerating
+            ? 15000
+            : 5000;
+        if (Date.now() - startTime > minWaitTime) {
           console.log("[Nano Flow] Generation appears complete - no thinking indicators");
           return true;
         }
@@ -653,7 +1055,7 @@ async function waitForGenerationComplete(timeout = 180000): Promise<boolean> {
 
   console.log(
     "[Nano Flow] Generation timeout reached after",
-    Math.round(timeout / 1000),
+    Math.round(effectiveTimeout / 1000),
     "seconds"
   );
   return true; // Return true anyway to continue with next item
@@ -696,8 +1098,8 @@ async function processPromptThroughUI(
       throw new Error("Failed to submit prompt");
     }
 
-    // Step 5: Wait for completion
-    await waitForGenerationComplete();
+    // Step 5: Wait for completion (pass tool type for proper detection)
+    await waitForGenerationComplete(tool);
 
     return true;
   } catch (error) {

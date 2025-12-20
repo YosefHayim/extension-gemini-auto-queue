@@ -1,5 +1,6 @@
 import {
   BookMarked,
+  CheckCheck,
   Clock,
   Cpu,
   Download,
@@ -8,9 +9,8 @@ import {
   Play,
   Settings as SettingsIcon,
   Sparkles,
-  Trash2,
 } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { CsvDialog } from "@/components/CsvDialog";
@@ -24,6 +24,7 @@ import {
   getFolders,
   getQueue,
   getSettings,
+  hasAnyAIKey,
   isOnboardingComplete,
   onStorageChange,
   setFolders,
@@ -32,8 +33,7 @@ import {
   setSettings,
 } from "@/services/storageService";
 import {
-  GeminiModel,
-  type GeminiTool,
+  GeminiTool,
   MessageType,
   QueueStatus,
   STORAGE_KEYS,
@@ -58,6 +58,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
   const isDark = settings.theme === ThemeMode.DARK;
 
@@ -150,10 +151,40 @@ export default function App() {
   const handleAddToQueue = useCallback(
     async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
       const sourceText = text ?? "";
-      const lines = sourceText
-        .split(/[,\n]/)
-        .map((line) => line.trim())
-        .filter((line) => line !== "");
+
+      // Smart parsing: prioritize newlines, only split by commas when they appear to be list separators
+      // Detect numbered patterns (e.g., "Prompt 1:", "1.", "1)") to preserve full prompts
+      const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
+
+      // Split by newlines first
+      const newlineSplit = sourceText.split(/\n/);
+      const lines = newlineSplit.flatMap((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return [];
+
+        // If line starts with a numbered pattern, treat entire line as one prompt
+        // This handles cases like "Prompt 1: ..." or "1. ..."
+        if (numberedPattern.test(trimmed)) {
+          return [trimmed];
+        }
+
+        // Only split by commas if they appear to be explicit list separators
+        // (comma followed by space and capital letter, indicating start of new item)
+        // or if there are multiple commas suggesting a list format
+        const hasMultipleCommas = (trimmed.match(/,/g) ?? []).length > 1;
+        const commaBeforeCapital = /,\s+[A-Z]/;
+
+        if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
+          // Split on commas that are followed by space and capital letter
+          return trimmed
+            .split(/,\s+(?=[A-Z])/)
+            .map((item) => item.trim())
+            .filter((item) => item !== "");
+        }
+
+        // Otherwise, treat the entire line as one prompt
+        return [trimmed];
+      });
 
       const newItems: QueueItem[] = lines.map((line) => {
         const combinedPrompt = templateText ? `${line} ${templateText}` : line;
@@ -162,7 +193,7 @@ export default function App() {
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
           status: QueueStatus.IDLE,
-          tool: tool || settings.defaultTool,
+          tool: tool ?? settings.defaultTool,
           images: images && images.length > 0 ? [...images] : undefined,
         };
       });
@@ -183,6 +214,37 @@ export default function App() {
     [queue]
   );
 
+  const handleRetryQueueItem = useCallback(
+    async (id: string) => {
+      const updatedQueue = queue.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status: QueueStatus.IDLE,
+              error: undefined,
+              startTime: undefined,
+              endTime: undefined,
+              completionTimeSeconds: undefined,
+              results: undefined,
+            }
+          : item
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue]
+  );
+
+  const handleClearAll = useCallback(() => {
+    setShowClearAllConfirm(true);
+  }, []);
+
+  const confirmClearAll = useCallback(async () => {
+    setQueueState([]);
+    await setQueue([]);
+    setShowClearAllConfirm(false);
+  }, []);
+
   const handleClearCompleted = useCallback(async () => {
     const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
     setQueueState(updatedQueue);
@@ -190,14 +252,47 @@ export default function App() {
   }, [queue]);
 
   const handleCsvUpload = useCallback(
-    async (items: { prompt: string; modifier?: string }[]) => {
+    async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
       const newItems: QueueItem[] = items.map((item) => {
-        const combined = item.modifier ? `${item.prompt} ${item.modifier}` : item.prompt;
+        // Map tool string to GeminiTool enum
+        let tool: GeminiTool | undefined = undefined;
+        if (item.tool) {
+          const toolLower = item.tool.toLowerCase().trim();
+          // Map common tool names to enum values
+          if (toolLower === "image" || toolLower === "imagen") {
+            tool = GeminiTool.IMAGE;
+          } else if (toolLower === "canvas") {
+            tool = GeminiTool.CANVAS;
+          } else if (toolLower === "video" || toolLower === "veo") {
+            tool = GeminiTool.VIDEO;
+          } else if (toolLower === "research" || toolLower === "deep_research") {
+            tool = GeminiTool.DEEP_RESEARCH;
+          } else if (toolLower === "learning") {
+            tool = GeminiTool.LEARNING;
+          } else if (toolLower === "layout" || toolLower === "visual_layout") {
+            tool = GeminiTool.VISUAL_LAYOUT;
+          } else if (toolLower === "none" || toolLower === "") {
+            tool = GeminiTool.NONE;
+          } else {
+            // Try to match by enum key
+            const toolKey = Object.keys(GeminiTool).find(
+              (key) =>
+                key.toLowerCase() === toolLower ||
+                GeminiTool[key as keyof typeof GeminiTool].toLowerCase() === toolLower
+            );
+            if (toolKey) {
+              tool = GeminiTool[toolKey as keyof typeof GeminiTool] as GeminiTool;
+            }
+          }
+        }
+
         return {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: item.prompt,
-          finalPrompt: constructFinalPrompt(combined),
+          finalPrompt: constructFinalPrompt(item.prompt),
           status: QueueStatus.IDLE,
+          tool: tool ?? settings.defaultTool,
+          images: item.images && item.images.length > 0 ? [...item.images] : undefined,
         };
       });
 
@@ -205,7 +300,7 @@ export default function App() {
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
     },
-    [queue, constructFinalPrompt]
+    [queue, constructFinalPrompt, settings.defaultTool]
   );
 
   // Processing handlers
@@ -406,7 +501,7 @@ export default function App() {
       <ApiKeyDialog
         isOpen={showApiKeyDialog}
         isDark={isDark}
-        currentKey={settings.aiApiKeys?.gemini}
+        currentKey={settings.aiApiKeys.gemini}
         onClose={() => {
           setShowApiKeyDialog(false);
         }}
@@ -473,7 +568,8 @@ export default function App() {
               <Info
                 size={8}
                 className="opacity-0 transition-opacity group-hover:opacity-50"
-                title={tab.tooltip}
+                data-tooltip-id="tooltip"
+                data-tooltip-content={tab.tooltip}
               />
             </div>
             <span className="w-full truncate px-1 text-center">{tab.label}</span>
@@ -493,6 +589,8 @@ export default function App() {
             defaultTool={settings.defaultTool}
             onAddToQueue={handleAddToQueue}
             onRemoveFromQueue={handleRemoveFromQueue}
+            onRetryQueueItem={handleRetryQueueItem}
+            onClearAll={handleClearAll}
             onOpenCsvDialog={() => {
               setShowCsvDialog(true);
             }}
@@ -503,6 +601,7 @@ export default function App() {
           <TemplatesPanel
             folders={folders}
             isDark={isDark}
+            hasAIKey={hasAnyAIKey(settings)}
             onCreateFolder={handleCreateFolder}
             onDeleteFolder={handleDeleteFolder}
             onToggleFolder={handleToggleFolder}
@@ -518,14 +617,51 @@ export default function App() {
           <SettingsPanel
             settings={settings}
             isDark={isDark}
-            hasApiKey={!!settings.aiApiKeys?.gemini}
             onUpdateSettings={handleUpdateSettings}
-            onOpenApiKeyDialog={() => {
-              setShowApiKeyDialog(true);
-            }}
           />
         )}
       </div>
+
+      {/* Clear All Confirmation Dialog */}
+      {showClearAllConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div
+            className={`mx-4 w-full max-w-sm rounded-lg border p-4 shadow-2xl ${
+              isDark ? "border-white/20 bg-gray-900" : "border-slate-200 bg-white"
+            }`}
+          >
+            <h3 className={`mb-2 text-sm font-black ${isDark ? "text-white" : "text-gray-900"}`}>
+              Clear All Queue Items?
+            </h3>
+            <p className={`mb-4 text-xs ${isDark ? "text-white/70" : "text-gray-600"}`}>
+              This will permanently delete all {queue.length} item{queue.length !== 1 ? "s" : ""} in
+              the queue. This action cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setShowClearAllConfirm(false);
+                }}
+                className={`flex-1 rounded-md border px-3 py-2 text-xs font-bold uppercase transition-all ${
+                  isDark
+                    ? "border-white/20 bg-white/5 hover:bg-white/10"
+                    : "border-slate-200 bg-slate-100 hover:bg-slate-200"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  confirmClearAll().catch(() => {});
+                }}
+                className="flex-1 rounded-md bg-red-600 px-3 py-2 text-xs font-bold uppercase text-white transition-all hover:bg-red-700 active:scale-95"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer Controls */}
       <div
@@ -536,10 +672,16 @@ export default function App() {
             onClick={() => {
               handleClearCompleted().catch(() => {});
             }}
+            disabled={queue.filter((item) => item.status === QueueStatus.COMPLETED).length === 0}
             title="Clear completed items"
-            className="flex-1 rounded-md border border-white/10 p-2 text-[10px] font-black uppercase transition-all hover:bg-red-500 hover:text-white"
+            className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-[10px] font-black uppercase transition-all ${
+              isDark
+                ? "border-green-500/30 bg-green-500/10 text-green-400 hover:border-green-500/50 hover:bg-green-500/20 disabled:opacity-30 disabled:hover:border-green-500/30 disabled:hover:bg-green-500/10"
+                : "border-green-300 bg-green-50 text-green-700 hover:border-green-400 hover:bg-green-100 disabled:opacity-30 disabled:hover:border-green-300 disabled:hover:bg-green-50"
+            }`}
           >
-            <Trash2 size={14} className="mx-auto" />
+            <CheckCheck size={14} />
+            <span className="hidden sm:inline">Clear Completed</span>
           </button>
           <button
             onClick={() => {
