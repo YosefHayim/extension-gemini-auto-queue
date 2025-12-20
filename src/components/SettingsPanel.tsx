@@ -65,7 +65,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onUpdateSettings({
       aiApiKeys: {
         ...settings.aiApiKeys,
-        [provider]: value || undefined,
+        [provider]: value ?? undefined,
       },
     });
   };
@@ -129,7 +129,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             {/* Provider API Keys */}
             {Object.entries(AI_PROVIDER_INFO).map(([provider, info]) => {
               const providerKey = provider as AIProvider;
-              const apiKey = settings.aiApiKeys?.[providerKey] || "";
+              const apiKey = settings.aiApiKeys?.[providerKey] ?? "";
               const isVisible = visibleKeys[providerKey];
 
               return (
@@ -290,7 +290,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             isDark ? "border-white/10 bg-black/40" : "border-slate-200 bg-white"
           } ${!settings.useToolSequence ? "opacity-40" : ""}`}
         >
-          {(settings.toolSequence || []).map((tool, idx) => (
+          {(settings.toolSequence ?? []).map((tool, idx) => (
             <div
               key={idx}
               className={`flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold ${
@@ -302,7 +302,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               {settings.useToolSequence && (
                 <button
                   onClick={() => {
-                    const newSequence = [...(settings.toolSequence || [])];
+                    const newSequence = [...(settings.toolSequence ?? [])];
                     newSequence.splice(idx, 1);
                     onUpdateSettings({
                       toolSequence: newSequence.length > 0 ? newSequence : [GeminiTool.IMAGE],
@@ -316,7 +316,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               )}
             </div>
           ))}
-          {(settings.toolSequence || []).length === 0 && (
+          {(settings.toolSequence ?? []).length === 0 && (
             <span className="text-[10px] opacity-40">No tools in sequence</span>
           )}
         </div>
@@ -331,7 +331,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   key={tool}
                   onClick={() => {
                     onUpdateSettings({
-                      toolSequence: [...(settings.toolSequence || []), tool as GeminiTool],
+                      toolSequence: [...(settings.toolSequence ?? []), tool as GeminiTool],
                     });
                   }}
                   title={`Add ${info.label} to sequence`}

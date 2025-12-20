@@ -94,7 +94,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files ?? []);
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {

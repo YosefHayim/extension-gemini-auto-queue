@@ -90,14 +90,14 @@ function InjectableSidebar() {
   // Listen for storage changes
   useEffect(() => {
     const cleanup = onStorageChange((changes) => {
-      if (changes[STORAGE_KEYS.QUEUE]) {
-        setQueueState(changes[STORAGE_KEYS.QUEUE].newValue || []);
+      if (STORAGE_KEYS.QUEUE in changes && changes[STORAGE_KEYS.QUEUE]) {
+        setQueueState(changes[STORAGE_KEYS.QUEUE].newValue ?? []);
       }
-      if (changes[STORAGE_KEYS.SETTINGS]) {
-        setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue || DEFAULT_SETTINGS);
+      if (STORAGE_KEYS.SETTINGS in changes && changes[STORAGE_KEYS.SETTINGS]) {
+        setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue ?? DEFAULT_SETTINGS);
       }
-      if (changes[STORAGE_KEYS.FOLDERS]) {
-        setFoldersState(changes[STORAGE_KEYS.FOLDERS].newValue || []);
+      if (STORAGE_KEYS.FOLDERS in changes && changes[STORAGE_KEYS.FOLDERS]) {
+        setFoldersState(changes[STORAGE_KEYS.FOLDERS].newValue ?? []);
       }
     });
 
@@ -141,7 +141,7 @@ function InjectableSidebar() {
   const constructFinalPrompt = useCallback(
     (original: string) => {
       let p = `${settings.prefix} ${original} ${settings.suffix}`.trim();
-      if (settings.globalNegativesEnabled && settings.globalNegatives?.trim()) {
+      if (settings.globalNegativesEnabled && settings.globalNegatives.trim()) {
         p += `. NOT ${settings.globalNegatives.trim()}`;
       }
       return p;
@@ -151,7 +151,7 @@ function InjectableSidebar() {
 
   const handleAddToQueue = useCallback(
     async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
-      const sourceText = text || "";
+      const sourceText = text ?? "";
       const lines = sourceText
         .split(/[,\n]/)
         .map((line) => line.trim())
@@ -160,7 +160,7 @@ function InjectableSidebar() {
       const newItems: QueueItem[] = lines.map((line) => {
         const combinedPrompt = templateText ? `${line} ${templateText}` : line;
         return {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 9),
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
           status: QueueStatus.IDLE,
@@ -196,7 +196,7 @@ function InjectableSidebar() {
       const newItems: QueueItem[] = items.map((item) => {
         const combined = item.modifier ? `${item.prompt} ${item.modifier}` : item.prompt;
         return {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 9),
           originalPrompt: item.prompt,
           finalPrompt: constructFinalPrompt(combined),
           status: QueueStatus.IDLE,
@@ -235,7 +235,7 @@ function InjectableSidebar() {
   const handleCreateFolder = useCallback(
     async (name: string) => {
       const newFolder: Folder = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substring(2, 9),
         name,
         templates: [],
         isOpen: true,
@@ -294,13 +294,13 @@ function InjectableSidebar() {
         if (f.id === folderId) {
           const existingIdx = f.templates.findIndex((t) => t.id === template.id);
           const updatedTemplate: PromptTemplate = {
-            id: template.id || Math.random().toString(36).substr(2, 9),
-            name: template.name || "Unnamed",
-            text: template.text || "",
-            createdAt: template.createdAt || Date.now(),
+            id: template.id ?? Math.random().toString(36).substring(2, 9),
+            name: template.name ?? "Unnamed",
+            text: template.text ?? "",
+            createdAt: template.createdAt ?? Date.now(),
             lastEditedAt: Date.now(),
-            timesUsed: template.timesUsed || 0,
-            images: template.images || [],
+            timesUsed: template.timesUsed ?? 0,
+            images: template.images ?? [],
           };
 
           if (existingIdx > -1) {
@@ -434,7 +434,12 @@ function InjectableSidebar() {
       >
         {/* Onboarding */}
         {showOnboarding && (
-          <OnboardingModal onComplete={handleCompleteOnboarding} isDark={isDark} />
+          <OnboardingModal
+            onComplete={() => {
+              handleCompleteOnboarding().catch(() => {});
+            }}
+            isDark={isDark}
+          />
         )}
 
         {/* CSV Dialog */}
@@ -444,7 +449,9 @@ function InjectableSidebar() {
           onClose={() => {
             setShowCsvDialog(false);
           }}
-          onUpload={handleCsvUpload}
+          onUpload={(items) => {
+            handleCsvUpload(items).catch(() => {});
+          }}
         />
 
         {/* Header */}
@@ -573,14 +580,18 @@ function InjectableSidebar() {
         >
           <div className="flex gap-2">
             <button
-              onClick={handleClearCompleted}
+              onClick={() => {
+                handleClearCompleted().catch(() => {});
+              }}
               title="Clear completed items"
               className="flex-1 rounded-md border border-white/10 p-2 text-[10px] font-black uppercase transition-all hover:bg-red-500 hover:text-white"
             >
               <Trash2 size={14} className="mx-auto" />
             </button>
             <button
-              onClick={toggleProcessing}
+              onClick={() => {
+                toggleProcessing().catch(() => {});
+              }}
               disabled={queue.length === 0}
               title={isProcessing ? "Stop processing queue" : "Start processing queue"}
               className={`flex flex-[4] items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
@@ -603,7 +614,7 @@ function InjectableSidebar() {
                 .filter((item) => item.status === QueueStatus.COMPLETED)
                 .slice(-5)
                 .map((item) => {
-                  const resultUrl = item.results?.flash?.url || item.results?.pro?.url;
+                  const resultUrl = item.results?.flash?.url ?? item.results?.pro?.url;
                   return resultUrl ? (
                     <div key={item.id} className="group relative shrink-0">
                       <img

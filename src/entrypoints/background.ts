@@ -280,7 +280,7 @@ export default defineBackground(() => {
           nextItem.id,
           nextItem.finalPrompt.substring(0, 50)
         );
-        console.log("[Nano Flow] Using tool:", tool, "| Images:", nextItem.images?.length || 0);
+        console.log("[Nano Flow] Using tool:", tool, "| Images:", nextItem.images?.length ?? 0);
 
         // Send prompt to content script for web automation
         const response = await sendToContentScript({
@@ -288,7 +288,7 @@ export default defineBackground(() => {
           payload: {
             prompt: nextItem.finalPrompt,
             tool,
-            images: nextItem.images || [],
+            images: nextItem.images ?? [],
           },
         });
 

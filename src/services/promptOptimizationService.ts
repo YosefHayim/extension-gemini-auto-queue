@@ -9,6 +9,27 @@ import type { AppSettings } from "@/types";
 // System prompt for all providers
 const SYSTEM_PROMPT = `You are a professional prompt engineer. Your task is to take a simple image generation prompt and expand it to be more precise, descriptive, and high-quality, ensuring it yields better results in models like Midjourney or Gemini. Keep the core intent but add stylistic details, lighting, and composition. Return ONLY the improved prompt text, nothing else.`;
 
+interface OpenAIResponse {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+  error?: {
+    message?: string;
+  };
+}
+
+interface AnthropicResponse {
+  content?: Array<{
+    type?: string;
+    text?: string;
+  }>;
+  error?: {
+    message?: string;
+  };
+}
+
 /**
  * Check if any AI API key is configured
  */
@@ -27,7 +48,7 @@ async function improvePromptWithGemini(text: string, apiKey: string): Promise<st
     contents: `${SYSTEM_PROMPT}\n\nInput: "${text}"`,
   });
 
-  return response.text || text;
+  return response.text ?? text;
 }
 
 /**
@@ -52,12 +73,15 @@ async function improvePromptWithOpenAI(text: string, apiKey: string): Promise<st
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: "Unknown error" } }));
-    throw new Error(error.error?.message || `OpenAI API error: ${response.status}`);
+    const error = (await response.json().catch(() => ({
+      error: { message: "Unknown error" },
+    }))) as OpenAIResponse;
+    const statusText = String(response.status);
+    throw new Error(error.error?.message ?? `OpenAI API error: ${statusText}`);
   }
 
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || text;
+  const data = (await response.json()) as OpenAIResponse;
+  return data.choices?.[0]?.message?.content?.trim() ?? text;
 }
 
 /**
@@ -81,14 +105,17 @@ async function improvePromptWithAnthropic(text: string, apiKey: string): Promise
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: "Unknown error" } }));
-    throw new Error(error.error?.message || `Anthropic API error: ${response.status}`);
+    const error = (await response.json().catch(() => ({
+      error: { message: "Unknown error" },
+    }))) as AnthropicResponse;
+    const statusText = String(response.status);
+    throw new Error(error.error?.message ?? `Anthropic API error: ${statusText}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as AnthropicResponse;
   const content = data.content?.[0];
   if (content?.type === "text") {
-    return content.text?.trim() || text;
+    return content.text?.trim() ?? text;
   }
   return text;
 }
@@ -118,15 +145,17 @@ export async function improvePrompt(text: string, settings: AppSettings): Promis
         return await improvePromptWithOpenAI(text, key);
       case AIProvider.ANTHROPIC:
         return await improvePromptWithAnthropic(text, key);
-      default:
-        throw new Error(`Unsupported AI provider: ${provider}`);
+      default: {
+        const exhaustiveCheck: never = provider;
+        throw new Error(`Unsupported AI provider: ${String(exhaustiveCheck)}`);
+      }
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`AI Prompt Improvement Error (${provider}):`, error);
+    console.error(`AI Prompt Improvement Error (${String(provider)}):`, error);
 
     if (errorMessage.includes("quota") || errorMessage.includes("rate")) {
-      throw new Error(`${provider} API quota exceeded. Please try again later.`);
+      throw new Error(`${String(provider)} API quota exceeded. Please try again later.`);
     }
 
     if (
@@ -134,7 +163,7 @@ export async function improvePrompt(text: string, settings: AppSettings): Promis
       errorMessage.includes("Invalid") ||
       errorMessage.includes("401")
     ) {
-      throw new Error(`Invalid ${provider} API key. Please check your settings.`);
+      throw new Error(`Invalid ${String(provider)} API key. Please check your settings.`);
     }
 
     throw error;

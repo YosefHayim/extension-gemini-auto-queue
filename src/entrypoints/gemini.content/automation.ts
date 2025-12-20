@@ -148,7 +148,7 @@ async function uploadImages(images: string[]): Promise<boolean> {
   if (!uploadBtn) {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
-      const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
+      const ariaLabel = (btn.getAttribute("aria-label") ?? "").toLowerCase();
       if (
         ariaLabel.includes("upload") ||
         ariaLabel.includes("file") ||
@@ -178,7 +178,7 @@ async function uploadImages(images: string[]): Promise<boolean> {
     // Look for any file input that accepts images
     const inputs = document.querySelectorAll('input[type="file"]');
     for (const input of inputs) {
-      const accept = input.getAttribute("accept") || "";
+      const accept = input.getAttribute("accept") ?? "";
       if (accept.includes("image") || accept === "*/*" || !accept) {
         fileInput = input as HTMLInputElement;
         console.log("[Nano Flow] Found file input with accept:", accept);
@@ -309,8 +309,8 @@ async function openToolbox(): Promise<boolean> {
   if (!toolboxBtn) {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
-      const ariaLabel = btn.getAttribute("aria-label") || "";
-      const className = btn.className || "";
+      const ariaLabel = btn.getAttribute("aria-label") ?? "";
+      const className = btn.className ?? "";
       if (
         ariaLabel.includes("כלים") ||
         ariaLabel.includes("Tools") ||
@@ -381,7 +381,7 @@ async function selectTool(tool: GeminiTool): Promise<boolean> {
   if (!toolBtn) {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
-      const text = btn.textContent?.trim().toLowerCase() || "";
+      const text = btn.textContent?.trim().toLowerCase() ?? "";
       for (const pattern of toolConfig.textPatterns) {
         if (text.includes(pattern.toLowerCase())) {
           toolBtn = btn as HTMLElement;
@@ -397,7 +397,7 @@ async function selectTool(tool: GeminiTool): Promise<boolean> {
   if (!toolBtn) {
     const listButtons = document.querySelectorAll(".toolbox-drawer-item-list-button");
     for (const btn of listButtons) {
-      const text = btn.textContent?.trim().toLowerCase() || "";
+      const text = btn.textContent?.trim().toLowerCase() ?? "";
       for (const pattern of toolConfig.textPatterns) {
         if (text.includes(pattern.toLowerCase())) {
           toolBtn = btn as HTMLElement;
@@ -479,7 +479,7 @@ async function submitPrompt(): Promise<boolean> {
   if (!submitBtn) {
     const buttons = document.querySelectorAll("button:not([disabled])");
     for (const btn of buttons) {
-      const ariaLabel = (btn.getAttribute("aria-label") || "").toLowerCase();
+      const ariaLabel = (btn.getAttribute("aria-label") ?? "").toLowerCase();
       if (
         ariaLabel.includes("send") ||
         ariaLabel.includes("submit") ||
@@ -497,7 +497,7 @@ async function submitPrompt(): Promise<boolean> {
   if (!submitBtn) {
     const buttons = document.querySelectorAll("button:not([disabled])");
     for (const btn of buttons) {
-      const text = btn.textContent?.toLowerCase() || "";
+      const text = btn.textContent?.toLowerCase() ?? "";
       if (text === "send" || text.includes("שליחה")) {
         submitBtn = btn;
         console.log("[Nano Flow] Found submit by text");
@@ -737,7 +737,7 @@ export const automationModule = {
                 "[Nano Flow] Processing prompt with tool:",
                 payload.tool || GeminiTool.IMAGE,
                 "and",
-                payload.images?.length || 0,
+                payload.images?.length ?? 0,
                 "images"
               );
               const success = await processPromptThroughUI(

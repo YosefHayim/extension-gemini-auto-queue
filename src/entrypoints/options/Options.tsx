@@ -59,7 +59,7 @@ export default function Options() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const updatedSettings = { ...settings, apiKey: apiKey || undefined };
+      const updatedSettings = { ...settings, apiKey: apiKey ?? undefined };
       await setSettings(updatedSettings);
       setSettingsState(updatedSettings);
       setSaveSuccess(true);
@@ -157,7 +157,9 @@ export default function Options() {
                 </button>
                 <button
                   type="button"
-                  onClick={handleValidateKey}
+                  onClick={() => {
+                    handleValidateKey().catch(() => {});
+                  }}
                   disabled={!apiKey || isValidating}
                   className={`rounded-md p-2 transition-all ${isValidating ? "opacity-50" : "opacity-40 hover:bg-blue-500/20 hover:opacity-100"}`}
                 >
@@ -298,7 +300,9 @@ export default function Options() {
 
         {/* Save Button */}
         <button
-          onClick={handleSave}
+          onClick={() => {
+            handleSave().catch(() => {});
+          }}
           disabled={isSaving}
           className={`flex w-full items-center justify-center gap-2 rounded-xl p-4 font-black text-white transition-all ${
             saveSuccess

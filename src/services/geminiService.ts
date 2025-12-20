@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-import { getApiKey } from "./storageService";
+import { getAIApiKey } from "./storageService";
+import { AIProvider } from "@/types";
 
 import type { GeminiModel } from "@/types";
 
@@ -31,7 +32,7 @@ type ContentPart = TextPart | ImagePart;
 export async function generateImage(options: GenerateImageOptions): Promise<string> {
   const { prompt, model, imageBase64s } = options;
 
-  const apiKey = await getApiKey();
+  const apiKey = await getAIApiKey(AIProvider.GEMINI);
   if (!apiKey) {
     throw new Error("API Key not configured. Please set your Gemini API key in settings.");
   }
@@ -68,7 +69,8 @@ export async function generateImage(options: GenerateImageOptions): Promise<stri
     if (response.candidates?.[0]?.content?.parts) {
       for (const part of response.candidates[0].content.parts) {
         if ("inlineData" in part && part.inlineData) {
-          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          const { mimeType, data } = part.inlineData;
+          return `data:${String(mimeType)};base64,${String(data)}`;
         }
       }
     }
@@ -96,7 +98,7 @@ export async function generateImage(options: GenerateImageOptions): Promise<stri
  * @returns Improved prompt text
  */
 export async function improvePrompt(text: string): Promise<string> {
-  const apiKey = await getApiKey();
+  const apiKey = await getAIApiKey(AIProvider.GEMINI);
   if (!apiKey) {
     throw new Error("API Key not configured. Please set your Gemini API key in settings.");
   }
@@ -109,7 +111,7 @@ export async function improvePrompt(text: string): Promise<string> {
       contents: `You are a professional prompt engineer. Your task is to take a simple image generation prompt and expand it to be more precise, descriptive, and high-quality, ensuring it yields better results in models like Midjourney or Gemini. Keep the core intent but add stylistic details, lighting, and composition. Return ONLY the improved prompt text. Input: "${text}"`,
     });
 
-    return response.text || text;
+    return response.text ?? text;
   } catch (error) {
     console.error("AI Prompt Improvement Error:", error);
     throw error;
@@ -121,7 +123,7 @@ export async function improvePrompt(text: string): Promise<string> {
  * @returns boolean indicating if the API key works
  */
 export async function validateApiKey(): Promise<boolean> {
-  const apiKey = await getApiKey();
+  const apiKey = await getAIApiKey(AIProvider.GEMINI);
   if (!apiKey) {
     return false;
   }

@@ -16,7 +16,7 @@ export const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({
   onClose,
   onSave,
 }) => {
-  const [apiKey, setApiKey] = useState(currentKey || "");
+  const [apiKey, setApiKey] = useState(currentKey ?? "");
   const [showKey, setShowKey] = useState(false);
 
   const handleSave = () => {
@@ -102,7 +102,9 @@ export const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({
               Cancel
             </button>
             <button
-              onClick={handleSave}
+              onClick={() => {
+                handleSave().catch(() => {});
+              }}
               disabled={!apiKey.trim()}
               className="flex-1 rounded-md bg-blue-600 p-2 text-xs font-black text-white shadow-lg hover:bg-blue-500 disabled:opacity-50"
             >

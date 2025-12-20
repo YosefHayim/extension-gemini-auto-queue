@@ -96,7 +96,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
       setEditingTemplate({
         folderId,
         template: {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 9),
           name: "",
           text: "",
           createdAt: Date.now(),
@@ -153,7 +153,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files ?? []);
     files.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -165,7 +165,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   ...prev,
                   template: {
                     ...prev.template,
-                    images: [...(prev.template.images || []), data],
+                    images: [...(prev.template.images ?? []), data],
                   },
                 }
               : null

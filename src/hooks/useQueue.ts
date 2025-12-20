@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getQueue, getSettings, onStorageChange, setQueue } from "@/services/storageService";
+import { getQueue, onStorageChange, setQueue } from "@/services/storageService";
 import {
   type GeminiTool,
   MessageType,
@@ -55,12 +55,14 @@ export function useQueue(): UseQueueReturn {
   // Listen for storage changes
   useEffect(() => {
     const cleanup = onStorageChange((changes) => {
-      if (changes[STORAGE_KEYS.QUEUE]) {
+      if (STORAGE_KEYS.QUEUE in changes && changes[STORAGE_KEYS.QUEUE]) {
         const newQueue = changes[STORAGE_KEYS.QUEUE].newValue as QueueItem[];
-        setQueueState(newQueue || []);
+        setQueueState(newQueue ?? []);
 
         // Check processing status
-        const hasProcessing = newQueue?.some((item) => item.status === QueueStatus.PROCESSING);
+        const hasProcessing = (newQueue ?? []).some(
+          (item) => item.status === QueueStatus.PROCESSING
+        );
         setIsProcessing(hasProcessing);
       }
     });
@@ -155,7 +157,7 @@ export function constructFinalPrompt(
   settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives" | "globalNegativesEnabled">
 ): string {
   let prompt = `${settings.prefix} ${original} ${settings.suffix}`.trim();
-  if (settings.globalNegativesEnabled && settings.globalNegatives?.trim()) {
+  if (settings.globalNegativesEnabled && settings.globalNegatives.trim()) {
     prompt += `. NOT ${settings.globalNegatives.trim()}`;
   }
   return prompt;
@@ -171,7 +173,7 @@ export function createQueueItems(
   tool?: GeminiTool
 ): QueueItem[] {
   return prompts.map((prompt) => ({
-    id: Math.random().toString(36).substr(2, 9),
+    id: Math.random().toString(36).substring(2, 9),
     originalPrompt: prompt,
     finalPrompt: constructFinalPrompt(prompt, settings),
     status: QueueStatus.IDLE,
