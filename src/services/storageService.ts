@@ -5,11 +5,12 @@ import { GeminiModel, STORAGE_KEYS, SidebarPosition, ThemeMode } from "@/types";
 export const DEFAULT_SETTINGS: AppSettings = {
   prefix: "",
   suffix: "",
-  position: SidebarPosition.RIGHT,
+  position: SidebarPosition.LEFT,
   primaryModel: GeminiModel.FLASH,
   dripFeed: false,
   autoCaption: true,
   globalNegatives: "extra fingers, deformed limbs, blurry, low resolution",
+  globalNegativesEnabled: true,
   theme: ThemeMode.DARK,
 };
 

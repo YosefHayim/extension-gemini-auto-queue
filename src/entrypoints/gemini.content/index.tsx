@@ -1,5 +1,7 @@
+import "./style.css";
+
 import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, PromptTemplate, QueueItem } from "@/types";
-import { BookMarked, Clock, Cpu, Download, Pause, Play, Settings as SettingsIcon, Sparkles, Trash2, X } from "lucide-react";
+import { BookMarked, Clock, Cpu, Download, GripVertical, Pause, Play, Settings as SettingsIcon, Sparkles, Trash2, X } from "lucide-react";
 import {
   DEFAULT_SETTINGS,
   getFolders,
@@ -12,20 +14,22 @@ import {
   setQueue,
   setSettings,
 } from "@/services/storageService";
-import { GeminiModel, MessageType, QueueStatus, STORAGE_KEYS, ThemeMode } from "@/types";
+import { GeminiModel, MessageType, QueueStatus, STORAGE_KEYS, SidebarPosition, ThemeMode } from "@/types";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { CsvDialog } from "@/components/CsvDialog";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { QueuePanel } from "@/components/QueuePanel";
+import ReactDOM from "react-dom/client";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { TemplatesPanel } from "@/components/TemplatesPanel";
+import { automationModule } from "./automation";
 import { improvePrompt } from "@/services/geminiService";
 
 type TabType = "queue" | "templates" | "settings";
 
-export default function App() {
+function InjectableSidebar() {
   const [queue, setQueueState] = useState<QueueItem[]>([]);
   const [folders, setFoldersState] = useState<Folder[]>([]);
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -35,8 +39,10 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isDark = settings.theme === ThemeMode.DARK;
+  const isLeft = settings.position === SidebarPosition.LEFT;
 
   // Load initial data
   useEffect(() => {
@@ -95,11 +101,6 @@ export default function App() {
     }
     return () => clearInterval(interval);
   }, [isProcessing]);
-
-  // Helper function to send messages to background
-  const sendMessage = async <T,>(message: ExtensionMessage): Promise<ExtensionResponse<T>> => {
-    return chrome.runtime.sendMessage(message);
-  };
 
   // Queue handlers
   const constructFinalPrompt = useCallback(
@@ -176,10 +177,10 @@ export default function App() {
   // Processing handlers
   const toggleProcessing = useCallback(async () => {
     if (isProcessing) {
-      await sendMessage({ type: MessageType.STOP_PROCESSING });
+      await chrome.runtime.sendMessage({ type: MessageType.STOP_PROCESSING });
       setIsProcessing(false);
     } else {
-      await sendMessage({ type: MessageType.PROCESS_QUEUE });
+      await chrome.runtime.sendMessage({ type: MessageType.PROCESS_QUEUE });
       setIsProcessing(true);
     }
   }, [isProcessing]);
@@ -333,151 +334,240 @@ export default function App() {
     setShowOnboarding(false);
   }, []);
 
+  // Collapsed state - show only toggle button
+  if (isCollapsed) {
+    return (
+      <div
+        className={`nano-flow-collapsed ${isLeft ? "nano-flow-left" : "nano-flow-right"}`}
+        style={{
+          position: "fixed",
+          top: "50%",
+          transform: "translateY(-50%)",
+          [isLeft ? "left" : "right"]: "0",
+          zIndex: 999999,
+        }}
+      >
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className={`p-2 rounded-md shadow-lg transition-all ${
+            isDark ? "bg-[#1a1a1a] text-white border border-white/10" : "bg-white text-slate-800 border border-slate-200"
+          }`}
+          style={{
+            borderRadius: isLeft ? "0 8px 8px 0" : "8px 0 0 8px",
+          }}
+        >
+          <div className="flex items-center gap-1">
+            <Sparkles size={16} className="text-blue-500" />
+            <GripVertical size={12} className="opacity-50" />
+          </div>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`flex flex-col h-screen w-full overflow-hidden transition-colors duration-500 ${
-        isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
-      }`}
+      className={`nano-flow-sidebar ${isLeft ? "nano-flow-left" : "nano-flow-right"}`}
+      style={{
+        position: "fixed",
+        top: 0,
+        bottom: 0,
+        [isLeft ? "left" : "right"]: 0,
+        width: "320px",
+        zIndex: 999999,
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      {/* Onboarding */}
-      {showOnboarding && <OnboardingModal onComplete={handleCompleteOnboarding} isDark={isDark} />}
+      <div
+        className={`flex flex-col h-full overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}
+        style={{
+          borderLeft: isLeft ? "none" : `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+          borderRight: isLeft ? `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}` : "none",
+        }}
+      >
+        {/* Onboarding */}
+        {showOnboarding && <OnboardingModal onComplete={handleCompleteOnboarding} isDark={isDark} />}
 
-      {/* CSV Dialog */}
-      <CsvDialog isOpen={showCsvDialog} isDark={isDark} onClose={() => setShowCsvDialog(false)} onUpload={handleCsvUpload} />
+        {/* CSV Dialog */}
+        <CsvDialog isOpen={showCsvDialog} isDark={isDark} onClose={() => setShowCsvDialog(false)} onUpload={handleCsvUpload} />
 
-      {/* API Key Dialog */}
-      <ApiKeyDialog
-        isOpen={showApiKeyDialog}
-        isDark={isDark}
-        currentKey={settings.apiKey}
-        onClose={() => setShowApiKeyDialog(false)}
-        onSave={handleSaveApiKey}
-      />
+        {/* API Key Dialog */}
+        <ApiKeyDialog
+          isOpen={showApiKeyDialog}
+          isDark={isDark}
+          currentKey={settings.apiKey}
+          onClose={() => setShowApiKeyDialog(false)}
+          onSave={handleSaveApiKey}
+        />
 
-      {/* Header */}
-      <div className={`p-2 flex items-center justify-between border-b ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}>
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-blue-600 shadow-lg shadow-blue-600/20">
-            <Sparkles size={16} className="text-white" />
+        {/* Header */}
+        <div className={`p-2 flex items-center justify-between border-b ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}>
+          <div className="flex items-center gap-2">
+            <div className="p-1 rounded-md bg-blue-600 shadow-lg shadow-blue-600/20">
+              <Sparkles size={16} className="text-white" />
+            </div>
+            <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
           </div>
-          <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
-        </div>
-        {isProcessing && (
-          <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-            <Clock size={10} className="text-blue-500 animate-spin" />
-            <span className="text-[10px] font-black text-blue-500">{(activeTimer / 1000).toFixed(1)}s</span>
+          <div className="flex items-center gap-2">
+            {isProcessing && (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 rounded-md border border-blue-500/20">
+                <Clock size={10} className="text-blue-500 animate-spin" />
+                <span className="text-[10px] font-black text-blue-500">{(activeTimer / 1000).toFixed(1)}s</span>
+              </div>
+            )}
+            <button
+              onClick={() => setIsCollapsed(true)}
+              className={`p-1 rounded opacity-50 hover:opacity-100 transition-opacity ${isDark ? "hover:bg-white/10" : "hover:bg-black/5"}`}
+            >
+              <X size={14} />
+            </button>
           </div>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className={`flex border-b overflow-hidden ${isDark ? "border-white/5 bg-white/2" : "border-slate-100"}`}>
-        {[
-          { id: "queue" as const, icon: Cpu, label: "Queue" },
-          { id: "templates" as const, icon: BookMarked, label: "Templates" },
-          { id: "settings" as const, icon: SettingsIcon, label: "Settings" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-3 text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-1 transition-all relative ${
-              activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
-            }`}
-          >
-            <tab.icon size={14} />
-            <span className="truncate w-full text-center px-1">{tab.label}</span>
-            {activeTab === tab.id && <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-500 rounded-t-md" />}
-          </button>
-        ))}
-      </nav>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-2">
-        {activeTab === "queue" && (
-          <QueuePanel
-            queue={queue}
-            isDark={isDark}
-            onAddToQueue={handleAddToQueue}
-            onRemoveFromQueue={handleRemoveFromQueue}
-            onOpenCsvDialog={() => setShowCsvDialog(true)}
-          />
-        )}
-
-        {activeTab === "templates" && (
-          <TemplatesPanel
-            folders={folders}
-            isDark={isDark}
-            onCreateFolder={handleCreateFolder}
-            onDeleteFolder={handleDeleteFolder}
-            onToggleFolder={handleToggleFolder}
-            onUseTemplate={handleUseTemplate}
-            onDeleteTemplate={handleDeleteTemplate}
-            onSaveTemplate={handleSaveTemplate}
-            onImproveTemplate={handleImproveTemplate}
-            onImproveFolder={handleImproveFolder}
-          />
-        )}
-
-        {activeTab === "settings" && (
-          <SettingsPanel
-            settings={settings}
-            isDark={isDark}
-            hasApiKey={!!settings.apiKey}
-            onUpdateSettings={handleUpdateSettings}
-            onOpenApiKeyDialog={() => setShowApiKeyDialog(true)}
-          />
-        )}
-      </div>
-
-      {/* Footer Controls */}
-      <div className={`p-2 border-t space-y-2 ${isDark ? "bg-black/80 border-white/10 backdrop-blur-xl" : "bg-slate-50 border-slate-200"}`}>
-        <div className="flex gap-2">
-          <button
-            onClick={handleClearCompleted}
-            className="flex-1 p-2 rounded-md border text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all border-white/10"
-          >
-            <Trash2 size={14} className="mx-auto" />
-          </button>
-          <button
-            onClick={toggleProcessing}
-            disabled={queue.length === 0}
-            className={`flex-[4] p-2 rounded-md flex items-center justify-center gap-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
-              isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
-            } text-white disabled:opacity-30`}
-          >
-            {isProcessing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
-            {isProcessing ? "Stop" : "Start"}
-          </button>
         </div>
 
-        {/* Results Preview */}
-        {queue.filter((item) => item.status === QueueStatus.COMPLETED).length > 0 && (
-          <div className="flex gap-1 overflow-x-auto no-scrollbar py-1">
-            {queue
-              .filter((item) => item.status === QueueStatus.COMPLETED)
-              .slice(-5)
-              .map((item) => {
-                const resultUrl = item.results?.flash?.url || item.results?.pro?.url;
-                return resultUrl ? (
-                  <div key={item.id} className="relative group shrink-0">
-                    <img src={resultUrl} className="w-12 h-12 rounded-md object-cover border border-white/10" alt="Result" />
-                    <button
-                      onClick={() => {
-                        const link = document.createElement("a");
-                        link.href = resultUrl;
-                        link.download = `nano_flow_${item.id}.png`;
-                        link.click();
-                      }}
-                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center rounded-md"
-                    >
-                      <Download size={12} className="text-white" />
-                    </button>
-                  </div>
-                ) : null;
-              })}
+        {/* Navigation */}
+        <nav className={`flex border-b overflow-hidden ${isDark ? "border-white/5 bg-white/2" : "border-slate-100"}`}>
+          {[
+            { id: "queue" as const, icon: Cpu, label: "Queue" },
+            { id: "templates" as const, icon: BookMarked, label: "Templates" },
+            { id: "settings" as const, icon: SettingsIcon, label: "Settings" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-3 text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-1 transition-all relative ${
+                activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
+              }`}
+            >
+              <tab.icon size={14} />
+              <span className="truncate w-full text-center px-1">{tab.label}</span>
+              {activeTab === tab.id && <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-500 rounded-t-md" />}
+            </button>
+          ))}
+        </nav>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto no-scrollbar p-2">
+          {activeTab === "queue" && (
+            <QueuePanel
+              queue={queue}
+              isDark={isDark}
+              onAddToQueue={handleAddToQueue}
+              onRemoveFromQueue={handleRemoveFromQueue}
+              onOpenCsvDialog={() => setShowCsvDialog(true)}
+            />
+          )}
+
+          {activeTab === "templates" && (
+            <TemplatesPanel
+              folders={folders}
+              isDark={isDark}
+              onCreateFolder={handleCreateFolder}
+              onDeleteFolder={handleDeleteFolder}
+              onToggleFolder={handleToggleFolder}
+              onUseTemplate={handleUseTemplate}
+              onDeleteTemplate={handleDeleteTemplate}
+              onSaveTemplate={handleSaveTemplate}
+              onImproveTemplate={handleImproveTemplate}
+              onImproveFolder={handleImproveFolder}
+            />
+          )}
+
+          {activeTab === "settings" && (
+            <SettingsPanel
+              settings={settings}
+              isDark={isDark}
+              hasApiKey={!!settings.apiKey}
+              onUpdateSettings={handleUpdateSettings}
+              onOpenApiKeyDialog={() => setShowApiKeyDialog(true)}
+            />
+          )}
+        </div>
+
+        {/* Footer Controls */}
+        <div className={`p-2 border-t space-y-2 ${isDark ? "bg-black/80 border-white/10 backdrop-blur-xl" : "bg-slate-50 border-slate-200"}`}>
+          <div className="flex gap-2">
+            <button
+              onClick={handleClearCompleted}
+              className="flex-1 p-2 rounded-md border text-[10px] font-black uppercase hover:bg-red-500 hover:text-white transition-all border-white/10"
+            >
+              <Trash2 size={14} className="mx-auto" />
+            </button>
+            <button
+              onClick={toggleProcessing}
+              disabled={queue.length === 0}
+              className={`flex-[4] p-2 rounded-md flex items-center justify-center gap-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
+                isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
+              } text-white disabled:opacity-30`}
+            >
+              {isProcessing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+              {isProcessing ? "Stop" : "Start"}
+            </button>
           </div>
-        )}
+
+          {/* Results Preview */}
+          {queue.filter((item) => item.status === QueueStatus.COMPLETED).length > 0 && (
+            <div className="flex gap-1 overflow-x-auto no-scrollbar py-1">
+              {queue
+                .filter((item) => item.status === QueueStatus.COMPLETED)
+                .slice(-5)
+                .map((item) => {
+                  const resultUrl = item.results?.flash?.url || item.results?.pro?.url;
+                  return resultUrl ? (
+                    <div key={item.id} className="relative group shrink-0">
+                      <img src={resultUrl} className="w-12 h-12 rounded-md object-cover border border-white/10" alt="Result" />
+                      <button
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = resultUrl;
+                          link.download = `nano_flow_${item.id}.png`;
+                          link.click();
+                        }}
+                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center rounded-md"
+                      >
+                        <Download size={12} className="text-white" />
+                      </button>
+                    </div>
+                  ) : null;
+                })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
+// Content script definition
+export default defineContentScript({
+  matches: ["https://gemini.google.com/*"],
+  runAt: "document_idle",
+  cssInjectionMode: "ui",
+
+  async main(ctx) {
+    console.log("[Nano Flow] Content script with UI loaded on gemini.google.com");
+
+    // Initialize automation module
+    automationModule.init();
+
+    // Create UI using shadow root for style isolation
+    const ui = await createShadowRootUi(ctx, {
+      name: "nano-flow-sidebar",
+      position: "inline",
+      anchor: "body",
+      onMount: (container) => {
+        const root = ReactDOM.createRoot(container);
+        root.render(<InjectableSidebar />);
+        return root;
+      },
+      onRemove: (root) => {
+        root?.unmount();
+      },
+    });
+
+    // Mount the UI
+    ui.mount();
+
+    console.log("[Nano Flow] Sidebar UI injected into page");
+  },
+});

@@ -1,12 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { QueueItem, AppSettings } from '@/types';
-import { QueueStatus, MessageType, STORAGE_KEYS } from '@/types';
-import {
-  getQueue,
-  setQueue,
-  getSettings,
-  onStorageChange
-} from '@/services/storageService';
+import type { AppSettings, QueueItem } from "@/types";
+import { MessageType, QueueStatus, STORAGE_KEYS } from "@/types";
+import { getQueue, getSettings, onStorageChange, setQueue } from "@/services/storageService";
+import { useCallback, useEffect, useState } from "react";
 
 interface UseQueueReturn {
   queue: QueueItem[];
@@ -36,14 +31,12 @@ export function useQueue(): UseQueueReturn {
       try {
         const queueData = await getQueue();
         setQueueState(queueData);
-        
+
         // Check if any items are processing
-        const hasProcessing = queueData.some(
-          (item) => item.status === QueueStatus.PROCESSING
-        );
+        const hasProcessing = queueData.some((item) => item.status === QueueStatus.PROCESSING);
         setIsProcessing(hasProcessing);
       } catch (error) {
-        console.error('Error loading queue:', error);
+        console.error("Error loading queue:", error);
       } finally {
         setIsLoading(false);
       }
@@ -58,11 +51,9 @@ export function useQueue(): UseQueueReturn {
       if (changes[STORAGE_KEYS.QUEUE]) {
         const newQueue = changes[STORAGE_KEYS.QUEUE].newValue as QueueItem[];
         setQueueState(newQueue || []);
-        
+
         // Check processing status
-        const hasProcessing = newQueue?.some(
-          (item) => item.status === QueueStatus.PROCESSING
-        );
+        const hasProcessing = newQueue?.some((item) => item.status === QueueStatus.PROCESSING);
         setIsProcessing(hasProcessing);
       }
     });
@@ -86,22 +77,26 @@ export function useQueue(): UseQueueReturn {
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, []);
 
-  const addToQueue = useCallback(async (items: QueueItem[]) => {
-    const updatedQueue = [...queue, ...items];
-    setQueueState(updatedQueue);
-    await setQueue(updatedQueue);
-  }, [queue]);
+  const addToQueue = useCallback(
+    async (items: QueueItem[]) => {
+      const updatedQueue = [...queue, ...items];
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue]
+  );
 
-  const removeFromQueue = useCallback(async (id: string) => {
-    const updatedQueue = queue.filter((item) => item.id !== id);
-    setQueueState(updatedQueue);
-    await setQueue(updatedQueue);
-  }, [queue]);
+  const removeFromQueue = useCallback(
+    async (id: string) => {
+      const updatedQueue = queue.filter((item) => item.id !== id);
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue]
+  );
 
   const clearCompleted = useCallback(async () => {
-    const updatedQueue = queue.filter(
-      (item) => item.status !== QueueStatus.COMPLETED
-    );
+    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
     setQueueState(updatedQueue);
     await setQueue(updatedQueue);
   }, [queue]);
@@ -139,7 +134,7 @@ export function useQueue(): UseQueueReturn {
     clearAll,
     startProcessing,
     stopProcessing,
-    toggleProcessing
+    toggleProcessing,
   };
 }
 
@@ -148,10 +143,10 @@ export function useQueue(): UseQueueReturn {
  */
 export function constructFinalPrompt(
   original: string,
-  settings: Pick<AppSettings, 'prefix' | 'suffix' | 'globalNegatives'>
+  settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives" | "globalNegativesEnabled">
 ): string {
   let prompt = `${settings.prefix} ${original} ${settings.suffix}`.trim();
-  if (settings.globalNegatives?.trim()) {
+  if (settings.globalNegativesEnabled && settings.globalNegatives?.trim()) {
     prompt += `. NOT ${settings.globalNegatives.trim()}`;
   }
   return prompt;
@@ -160,19 +155,14 @@ export function constructFinalPrompt(
 /**
  * Helper function to create queue items from prompts
  */
-export function createQueueItems(
-  prompts: string[],
-  settings: Pick<AppSettings, 'prefix' | 'suffix' | 'globalNegatives'>,
-  images?: string[]
-): QueueItem[] {
+export function createQueueItems(prompts: string[], settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives">, images?: string[]): QueueItem[] {
   return prompts.map((prompt) => ({
     id: Math.random().toString(36).substr(2, 9),
     originalPrompt: prompt,
     finalPrompt: constructFinalPrompt(prompt, settings),
     status: QueueStatus.IDLE,
-    images: images && images.length > 0 ? [...images] : undefined
+    images: images && images.length > 0 ? [...images] : undefined,
   }));
 }
 
 export default useQueue;
-

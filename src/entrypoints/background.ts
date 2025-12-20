@@ -1,21 +1,15 @@
-import { MessageType, QueueStatus } from '@/types';
-import type { ExtensionMessage, ExtensionResponse, QueueItem, AppSettings, Folder } from '@/types';
-import {
-  getQueue,
-  setQueue,
-  getSettings,
-  setSettings,
-  getFolders,
-  setFolders,
-  updateQueueItem
-} from '@/services/storageService';
-import { generateImage } from '@/services/geminiService';
+import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
+import { MessageType, QueueStatus } from "@/types";
+import { getFolders, getQueue, getSettings, setFolders, setQueue, setSettings, updateQueueItem } from "@/services/storageService";
+
+import { generateImage } from "@/services/geminiService";
 
 export default defineBackground(() => {
-  console.log('Gemini Nano Flow background script loaded');
+  console.log("[Nano Flow] Background script loaded");
 
   let isProcessing = false;
   let processingController: AbortController | null = null;
+  let activeGeminiTabId: number | null = null;
 
   // Handle extension icon click - open side panel
   chrome.action.onClicked.addListener(async (tab) => {
@@ -23,41 +17,52 @@ export default defineBackground(() => {
       try {
         await chrome.sidePanel.open({ tabId: tab.id });
       } catch (error) {
-        console.error('Failed to open side panel:', error);
+        console.error("[Nano Flow] Failed to open side panel:", error);
       }
     }
   });
 
-  // Enable side panel on supported sites
+  // Enable side panel on supported sites and track Gemini tabs
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.url) {
-      const isGeminiSite =
-        tab.url.includes('gemini.google.com') || tab.url.includes('aistudio.google.com');
+    if (changeInfo.status === "complete" && tab.url) {
+      const isGeminiSite = tab.url.includes("gemini.google.com") || tab.url.includes("aistudio.google.com");
 
       if (isGeminiSite) {
         await chrome.sidePanel.setOptions({
           tabId,
-          path: 'sidepanel.html',
-          enabled: true
+          path: "sidepanel.html",
+          enabled: true,
         });
+        // Track this tab as potential target for automation
+        activeGeminiTabId = tabId;
+        console.log("[Nano Flow] Gemini tab detected:", tabId);
       }
+    }
+  });
+
+  // Handle tab activation to track active Gemini tab
+  chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    try {
+      const tab = await chrome.tabs.get(activeInfo.tabId);
+      if (tab.url?.includes("gemini.google.com")) {
+        activeGeminiTabId = activeInfo.tabId;
+        console.log("[Nano Flow] Active Gemini tab:", activeGeminiTabId);
+      }
+    } catch {
+      // Tab might not exist
     }
   });
 
   // Handle messages from sidepanel and content scripts
   chrome.runtime.onMessage.addListener(
-    (
-      message: ExtensionMessage,
-      _sender: chrome.runtime.MessageSender,
-      sendResponse: (response: ExtensionResponse) => void
-    ) => {
-      handleMessage(message)
+    (message: ExtensionMessage, sender: chrome.runtime.MessageSender, sendResponse: (response: ExtensionResponse) => void) => {
+      handleMessage(message, sender)
         .then((response) => sendResponse(response))
         .catch((error) => {
-          console.error('Message handling error:', error);
+          console.error("[Nano Flow] Message handling error:", error);
           sendResponse({
             success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error",
           });
         });
 
@@ -66,7 +71,7 @@ export default defineBackground(() => {
     }
   );
 
-  async function handleMessage(message: ExtensionMessage): Promise<ExtensionResponse> {
+  async function handleMessage(message: ExtensionMessage, sender?: chrome.runtime.MessageSender): Promise<ExtensionResponse> {
     switch (message.type) {
       case MessageType.GET_QUEUE: {
         const queue = await getQueue();
@@ -122,29 +127,78 @@ export default defineBackground(() => {
         try {
           const result = await generateImage({
             prompt,
-            model: model as import('@/types').GeminiModel,
-            imageBase64s: images
+            model: model as import("@/types").GeminiModel,
+            imageBase64s: images,
           });
           return { success: true, data: result };
         } catch (error) {
           return {
             success: false,
-            error: error instanceof Error ? error.message : 'Generation failed'
+            error: error instanceof Error ? error.message : "Generation failed",
           };
         }
       }
 
       case MessageType.OPEN_SIDE_PANEL: {
-        const tabId = message.payload as number;
-        if (tabId) {
-          await chrome.sidePanel.open({ tabId });
+        // Get the current active tab if no tabId provided
+        try {
+          const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          if (activeTab?.id) {
+            await chrome.sidePanel.open({ tabId: activeTab.id });
+          }
+        } catch (error) {
+          console.error("[Nano Flow] Failed to open side panel:", error);
+        }
+        return { success: true };
+      }
+
+      case MessageType.CONTENT_SCRIPT_READY: {
+        // Content script is ready - update active tab
+        if (sender?.tab?.id) {
+          activeGeminiTabId = sender.tab.id;
+          console.log("[Nano Flow] Content script ready in tab:", activeGeminiTabId);
         }
         return { success: true };
       }
 
       default:
-        return { success: false, error: 'Unknown message type' };
+        return { success: false, error: "Unknown message type" };
     }
+  }
+
+  // Find a Gemini tab to send messages to
+  async function findGeminiTab(): Promise<number | null> {
+    // First try the active tracked tab
+    if (activeGeminiTabId) {
+      try {
+        const tab = await chrome.tabs.get(activeGeminiTabId);
+        if (tab.url?.includes("gemini.google.com")) {
+          return activeGeminiTabId;
+        }
+      } catch {
+        activeGeminiTabId = null;
+      }
+    }
+
+    // Search for any Gemini tab
+    const tabs = await chrome.tabs.query({ url: "https://gemini.google.com/*" });
+    if (tabs.length > 0 && tabs[0].id) {
+      activeGeminiTabId = tabs[0].id;
+      return activeGeminiTabId;
+    }
+
+    return null;
+  }
+
+  // Send message to content script in Gemini tab
+  async function sendToContentScript<T>(message: ExtensionMessage): Promise<ExtensionResponse<T>> {
+    const tabId = await findGeminiTab();
+    if (!tabId) {
+      throw new Error("No Gemini tab found. Please open gemini.google.com");
+    }
+
+    console.log("[Nano Flow] Sending to content script:", message.type);
+    return chrome.tabs.sendMessage(tabId, message);
   }
 
   async function startProcessing(): Promise<void> {
@@ -154,12 +208,24 @@ export default defineBackground(() => {
     // Notify sidepanel that processing started
     broadcastMessage({ type: MessageType.PROCESS_QUEUE });
 
+    // Check if we have a Gemini tab
+    const tabId = await findGeminiTab();
+    if (!tabId) {
+      console.error("[Nano Flow] No Gemini tab found");
+      broadcastMessage({ type: MessageType.STOP_PROCESSING });
+      isProcessing = false;
+      return;
+    }
+
+    console.log("[Nano Flow] Starting queue processing via web automation");
+
     while (isProcessing) {
       const queue = await getQueue();
       const nextItem = queue.find((item) => item.status === QueueStatus.IDLE);
 
       if (!nextItem) {
         // No more items to process
+        console.log("[Nano Flow] Queue empty, stopping processing");
         isProcessing = false;
         break;
       }
@@ -168,64 +234,80 @@ export default defineBackground(() => {
       const startTime = Date.now();
       await updateQueueItem(nextItem.id, {
         status: QueueStatus.PROCESSING,
-        startTime
+        startTime,
       });
 
       // Broadcast update
       broadcastMessage({
         type: MessageType.UPDATE_QUEUE,
-        payload: await getQueue()
+        payload: await getQueue(),
       });
 
       try {
-        const settings = await getSettings();
-        const result = await generateImage({
-          prompt: nextItem.finalPrompt,
-          model: settings.primaryModel,
-          imageBase64s: nextItem.images
+        console.log("[Nano Flow] Processing item:", nextItem.id, nextItem.finalPrompt.substring(0, 50));
+        console.log("[Nano Flow] Item has images:", nextItem.images?.length || 0);
+
+        // Send prompt to content script for web automation
+        const response = await sendToContentScript({
+          type: MessageType.PASTE_PROMPT,
+          payload: {
+            prompt: nextItem.finalPrompt,
+            enableImages: true,
+            images: nextItem.images || [],
+          },
         });
 
         const endTime = Date.now();
-        await updateQueueItem(nextItem.id, {
-          status: QueueStatus.COMPLETED,
-          endTime,
-          results: {
-            [settings.primaryModel.includes('flash') ? 'flash' : 'pro']: {
-              url: result,
-              modelName: settings.primaryModel.includes('flash') ? 'Flash 2.0' : 'Imagen 3',
-              timestamp: endTime
-            }
-          }
-        });
 
-        // If drip feed is enabled, add a random delay
-        if (settings.dripFeed) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, 5000 + Math.random() * 5000)
-          );
+        if (response.success) {
+          await updateQueueItem(nextItem.id, {
+            status: QueueStatus.COMPLETED,
+            endTime,
+            results: {
+              flash: {
+                url: "", // No URL from web automation
+                modelName: "Gemini Web",
+                timestamp: endTime,
+              },
+            },
+          });
+          console.log("[Nano Flow] Item completed:", nextItem.id);
+        } else {
+          throw new Error(response.error || "Web automation failed");
         }
+
+        // Get settings for drip feed
+        const settings = await getSettings();
+
+        // Wait between items (longer for web automation)
+        const waitTime = settings.dripFeed
+          ? 15000 + Math.random() * 10000 // 15-25 seconds with drip feed
+          : 8000 + Math.random() * 4000; // 8-12 seconds normally
+
+        console.log("[Nano Flow] Waiting", Math.round(waitTime / 1000), "seconds before next item");
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {
+        console.error("[Nano Flow] Processing error:", error);
         await updateQueueItem(nextItem.id, {
           status: QueueStatus.FAILED,
-          error: error instanceof Error ? error.message : 'Generation failed'
+          error: error instanceof Error ? error.message : "Generation failed",
         });
       }
 
       // Broadcast queue update
       broadcastMessage({
         type: MessageType.UPDATE_QUEUE,
-        payload: await getQueue()
+        payload: await getQueue(),
       });
-
-      // Small delay between items
-      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     // Notify that processing stopped
     broadcastMessage({ type: MessageType.STOP_PROCESSING });
+    console.log("[Nano Flow] Processing stopped");
   }
 
   function stopProcessing(): void {
+    console.log("[Nano Flow] Stop processing requested");
     isProcessing = false;
     if (processingController) {
       processingController.abort();
@@ -239,4 +321,3 @@ export default defineBackground(() => {
     });
   }
 });
-

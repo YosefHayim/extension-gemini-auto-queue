@@ -67,6 +67,7 @@ export interface AppSettings {
   dripFeed: boolean;
   autoCaption: boolean;
   globalNegatives: string;
+  globalNegativesEnabled: boolean;
   theme: ThemeMode;
   apiKey?: string;
 }
@@ -83,6 +84,13 @@ export enum MessageType {
   STOP_PROCESSING = "STOP_PROCESSING",
   GENERATE_IMAGE = "GENERATE_IMAGE",
   OPEN_SIDE_PANEL = "OPEN_SIDE_PANEL",
+  // Web automation messages
+  PASTE_PROMPT = "PASTE_PROMPT",
+  ENABLE_IMAGE_CREATION = "ENABLE_IMAGE_CREATION",
+  SUBMIT_PROMPT = "SUBMIT_PROMPT",
+  PROMPT_SUBMITTED = "PROMPT_SUBMITTED",
+  GENERATION_COMPLETE = "GENERATION_COMPLETE",
+  CONTENT_SCRIPT_READY = "CONTENT_SCRIPT_READY",
 }
 
 export interface ExtensionMessage<T = unknown> {

@@ -88,7 +88,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({ queue, isDark, onAddToQu
   return (
     <div className="space-y-2 animate-in fade-in duration-300">
       <div className="flex items-center justify-between px-1">
-        <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Global Input</span>
+        <span className="text-[9px] font-black uppercase tracking-widest opacity-40">New Prompt</span>
         <div className="flex gap-1">
           <button
             onClick={() => imageInputRef.current?.click()}
@@ -159,7 +159,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({ queue, isDark, onAddToQu
           onClick={handleEnqueue}
           className="absolute right-2 bottom-2 bg-blue-600 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
         >
-          Enqueue
+          Add to Queue
         </button>
       </div>
 
@@ -167,7 +167,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({ queue, isDark, onAddToQu
         {queue.length === 0 ? (
           <div className="py-12 flex flex-col items-center justify-center opacity-10 gap-2 border-2 border-dashed border-white/5 rounded-md">
             <Cpu size={24} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Engine Ready</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">Queue Empty</span>
           </div>
         ) : (
           queue.map((item) => (
