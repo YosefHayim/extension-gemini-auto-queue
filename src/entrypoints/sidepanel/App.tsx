@@ -158,7 +158,7 @@ export default function App() {
 
       // Split by newlines first
       const newlineSplit = sourceText.split(/\n/);
-      const lines = newlineSplit.flatMap((line) => {
+      let lines = newlineSplit.flatMap((line) => {
         const trimmed = line.trim();
         if (!trimmed) return [];
 
@@ -185,6 +185,17 @@ export default function App() {
         // Otherwise, treat the entire line as one prompt
         return [trimmed];
       });
+
+      // If no text but images are provided, create a single item with empty prompt
+      // This handles templates that only have reference images
+      if (lines.length === 0 && images && images.length > 0) {
+        lines = [""];
+      }
+
+      // Don't add anything if there's no text and no images
+      if (lines.length === 0) {
+        return;
+      }
 
       const newItems: QueueItem[] = lines.map((line) => {
         const combinedPrompt = templateText ? `${line} ${templateText}` : line;

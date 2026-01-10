@@ -219,7 +219,7 @@ function InjectableSidebar() {
         .map((p) => p.trim())
         .filter((p) => p !== "");
 
-      const lines = paragraphs.flatMap((paragraph) => {
+      let lines = paragraphs.flatMap((paragraph) => {
         // Replace internal newlines with spaces to create a single prompt
         const normalized = paragraph.replace(/\n/g, " ").trim();
         if (!normalized) return [];
@@ -249,6 +249,17 @@ function InjectableSidebar() {
         // Otherwise, treat the entire paragraph as one prompt
         return [normalized];
       });
+
+      // If no text but images are provided, create a single item with empty prompt
+      // This handles templates that only have reference images
+      if (lines.length === 0 && images && images.length > 0) {
+        lines = [""];
+      }
+
+      // Don't add anything if there's no text and no images
+      if (lines.length === 0) {
+        return;
+      }
 
       const newItems: QueueItem[] = lines.map((line) => {
         const combinedPrompt = templateText ? `${line} ${templateText}` : line;

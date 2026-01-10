@@ -154,26 +154,36 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const data = event.target?.result as string;
-        if (editingTemplate) {
-          setEditingTemplate((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  template: {
-                    ...prev.template,
-                    images: [...(prev.template.images ?? []), data],
-                  },
-                }
-              : null
-          );
-        }
-      };
-      reader.readAsDataURL(file);
+    if (files.length === 0) return;
+
+    // Read all files in parallel and collect results before updating state
+    const readPromises = files.map((file) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const data = event.target?.result as string;
+          resolve(data);
+        };
+        reader.readAsDataURL(file);
+      });
     });
+
+    Promise.all(readPromises).then((newImages) => {
+      if (editingTemplate) {
+        setEditingTemplate((prev) =>
+          prev
+            ? {
+                ...prev,
+                template: {
+                  ...prev.template,
+                  images: [...(prev.template.images ?? []), ...newImages],
+                },
+              }
+            : null
+        );
+      }
+    });
+
     e.target.value = "";
   };
 
