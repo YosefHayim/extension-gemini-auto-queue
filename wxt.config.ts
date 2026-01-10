@@ -5,8 +5,8 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
     name: "Gemini Nano Flow",
-    description: "A bulk image generation and automation tool for Gemini and AI Studio",
-    version: "1.0.0",
+    description: "A bulk image generation and automation tool for Gemini",
+    version: "1.1.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs"],
     host_permissions: ["*://gemini.google.com/*", "*://aistudio.google.com/*"],
     side_panel: {
