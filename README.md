@@ -1,20 +1,57 @@
-# Gemini Nano Flow - Chrome Extension
+# Nano Flow - Chrome Extension
 
-A high-performance bulk image generation engine designed to unlock Gemini's creative potential at scale. This Chrome extension works on both `gemini.google.com` and `aistudio.google.com`.
+A powerful batch processing extension for Google Gemini. Queue multiple prompts, attach reference images, and let Nano Flow automate your creative workflow.
 
 ## Features
 
-- **Queue Engine**: Batch process multiple prompts with automatic queue management
-- **Style Library**: Organize and reuse prompt templates in folders
-- **AI Prompt Optimization**: Let Gemini improve your prompts automatically
-- **Multi-Model Support**: Switch between Flash 2.0 (fast) and Imagen 3 (high fidelity)
-- **Reference Images**: Include images as reference for your generations
-- **CSV Import**: Bulk import prompts from CSV files
-- **Side Panel UI**: Non-intrusive side panel that doesn't interfere with your workflow
+### Core Functionality
+
+- **Batch Queue Processing**: Add multiple prompts and process them automatically through Gemini
+- **Multi-Tool Support**: Generate with Image, Video, Canvas, Deep Research, Learning, or Visual Layout tools
+- **Reference Images**: Attach multiple images per prompt as references for better generation results
+- **Smart Prompt Parsing**: Enter prompts separated by blank lines - each paragraph becomes a queue item
+
+### CSV Import
+
+- **Bulk Import**: Upload CSV files with prompts, tool types, and image references
+- **Cloud URLs**: Reference images via HTTP/HTTPS URLs directly in your CSV
+- **Local Files**: Upload local image files and map them to CSV references
+- **Multiple Images**: Support for multiple reference images per prompt (separated by `|` or `;`)
+
+### Template Library
+
+- **Folder Organization**: Organize prompts into folders for easy access
+- **Template Reuse**: Save and reuse your favorite prompts with attached images
+- **AI Optimization**: Let AI improve your prompts automatically (requires API key)
+- **Bulk Improvement**: Optimize all templates in a folder at once
+
+### Prompt Enhancement
+
+- **Global Prefix/Suffix**: Automatically add text to all prompts
+- **Global Negatives**: Add "NOT" clauses to exclude unwanted elements
+- **Text Weighting**: Select text and apply emphasis weights (1.2x, 1.5x, or echo)
+
+### User Experience
+
+- **Interactive Onboarding**: Step-by-step guided tour highlighting each feature
+- **Resizable Sidebar**: Drag to resize the panel (280-600px)
+- **Position Control**: Place the sidebar on the left or right side
+- **Light/Dark Theme**: Match your preference or system setting
+- **Real-time Progress**: Track processing time and queue status
+
+### Advanced Settings
+
+- **Drip-Feed Mode**: Add random delays between prompts to avoid rate limits
+- **Auto-Stop on Error**: Optionally stop processing when errors occur
+- **Model Selection**: Choose between different Gemini models
 
 ## Installation
 
-### Development
+### From Chrome Web Store
+
+*(Coming soon)*
+
+### Development Build
 
 1. **Install dependencies**:
 
@@ -28,7 +65,7 @@ A high-performance bulk image generation engine designed to unlock Gemini's crea
    npm run dev
    ```
 
-   This will start the WXT development server with hot reload.
+   This starts the WXT development server with hot reload.
 
 3. **Load the extension in Chrome**:
    - Open `chrome://extensions`
@@ -52,43 +89,72 @@ npm run zip
 
 ## Usage
 
-1. **Configure API Key**:
+### Getting Started
 
-   - Click the extension icon or go to Options
-   - Enter your Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
+1. Navigate to `gemini.google.com`
+2. The Nano Flow sidebar will appear automatically
+3. Follow the interactive onboarding tour (or skip it)
 
-2. **Open Side Panel**:
+### Adding Prompts
 
-   - Navigate to `gemini.google.com` or `aistudio.google.com`
-   - Click the extension icon to open the side panel
-   - Or use keyboard shortcut: `Ctrl+Shift+G` (Windows) / `Cmd+Shift+G` (Mac)
+1. **Manual Entry**: Type prompts in the text area, separated by blank lines
+2. **CSV Import**: Click the upload icon to import from CSV
+3. **Templates**: Use saved templates from the Library tab
 
-3. **Queue Prompts**:
+### Attaching Images
 
-   - Enter prompts in the text area (one per line or comma-separated)
-   - Optionally add reference images
-   - Click "Enqueue" to add to the queue
+1. Click the camera icon to attach reference images
+2. Select one or multiple images
+3. Images will be shown as thumbnails in the input area
+4. All attached images are included with each prompt
 
-4. **Start Generation**:
-   - Click "Ignite Engine" to start processing the queue
-   - View results as they complete
-   - Download individual images or wait for batch completion
+### Processing the Queue
+
+1. Select your desired tool (Image, Video, Canvas, etc.)
+2. Click "Add to Queue" or press `Ctrl+Enter`
+3. Click the "Start" button to begin processing
+4. Watch results appear in real-time
+
+### CSV Format
+
+```csv
+Prompt,Type,Images
+"A cyberpunk city at night",image,
+"A dragon breathing fire",image,https://example.com/dragon-ref.jpg
+"Transform this photo",image,photo1.jpg
+"Combine these styles",image,style1.jpg|style2.jpg
+```
+
+**Columns:**
+- **Prompt** (required): The prompt text (use quotes for commas)
+- **Type** (optional): image, video, canvas, research, learning, layout
+- **Images** (optional): URLs or local filenames, separated by `|` or `;`
 
 ## Project Structure
 
 ```
 src/
 ├── entrypoints/
-│   ├── background.ts         # Service worker for message handling
-│   ├── sidepanel/            # Side panel React app
-│   ├── options/              # Options page for settings
-│   ├── gemini.content.ts     # Content script for gemini.google.com
-│   └── aistudio.content.ts   # Content script for aistudio.google.com
-├── components/               # Reusable React components
-├── services/                 # API and storage services
-├── hooks/                    # React hooks
-├── types/                    # TypeScript types
-└── assets/                   # Styles and static assets
+│   ├── background.ts              # Service worker for message handling
+│   ├── gemini.content/            # Content script with sidebar UI
+│   │   ├── index.tsx              # Main sidebar component
+│   │   ├── automation.ts          # Gemini page automation
+│   │   └── style.css              # Component styles
+│   ├── sidepanel/                 # Side panel React app
+│   ├── options/                   # Options page for settings
+│   └── popup/                     # Browser action popup
+├── components/
+│   ├── QueuePanel.tsx             # Queue management UI
+│   ├── TemplatesPanel.tsx         # Template library UI
+│   ├── SettingsPanel.tsx          # Settings configuration
+│   ├── OnboardingModal.tsx        # Interactive tour
+│   ├── CsvDialog.tsx              # CSV import dialog
+│   └── ...                        # Other components
+├── services/
+│   ├── storageService.ts          # Chrome storage management
+│   └── promptOptimizationService.ts # AI prompt improvement
+├── types/                         # TypeScript type definitions
+└── assets/                        # Icons and static assets
 ```
 
 ## Technology Stack
@@ -97,6 +163,7 @@ src/
 - **UI**: React 18 with TypeScript
 - **Styling**: Tailwind CSS
 - **AI**: Google Gemini API via `@google/genai`
+- **Icons**: Lucide React
 - **Storage**: Chrome Storage API
 
 ## Development
@@ -104,7 +171,7 @@ src/
 ### Prerequisites
 
 - Node.js 18+
-- npm or pnpm
+- npm, pnpm, or bun
 
 ### Commands
 
@@ -129,16 +196,17 @@ node scripts/generate-icons.js
 
 The extension stores configuration in `chrome.storage.local`:
 
-- **API Key**: Your Gemini API key (stored securely)
-- **Queue**: Current generation queue
-- **Settings**: User preferences (theme, model, prompts)
-- **Folders**: Style library organization
+- **Queue**: Current generation queue with status
+- **Settings**: User preferences (theme, position, model, prefix/suffix)
+- **Folders**: Template library organization
+- **Onboarding**: Tour completion status
 
 ## Keyboard Shortcuts
 
-| Shortcut               | Action          |
-| ---------------------- | --------------- |
-| `Ctrl/Cmd + Shift + G` | Open Side Panel |
+| Shortcut           | Action                   |
+| ------------------ | ------------------------ |
+| `Ctrl/Cmd + Enter` | Add prompts to queue     |
+| `Enter`            | Submit in input dialogs  |
 
 ## Permissions
 
@@ -149,6 +217,12 @@ The extension requires the following permissions:
 - `activeTab`: Detect when on supported sites
 - `tabs`: Open side panel on supported pages
 - Host permissions for `gemini.google.com` and `aistudio.google.com`
+
+## Privacy
+
+Nano Flow operates entirely locally in your browser. Your prompts, images, and settings are stored in Chrome's local storage and are never sent to external servers (except when using the AI optimization feature with your own API key).
+
+See our [Privacy Policy](./PRIVACY.md) for more details.
 
 ## License
 

@@ -10,7 +10,6 @@ import {
   Pause,
   Play,
   Settings as SettingsIcon,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -516,7 +515,11 @@ function InjectableSidebar() {
           }}
         >
           <div className="flex items-center gap-1">
-            <Sparkles size={16} className="text-blue-500" />
+            <img
+              src={chrome.runtime.getURL("icons/icon-16.png")}
+              alt="Nano Flow"
+              className="h-4 w-4"
+            />
             <GripVertical size={12} className="opacity-50" />
           </div>
         </button>
@@ -605,9 +608,11 @@ function InjectableSidebar() {
           className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
         >
           <div className="flex items-center gap-2">
-            <div className="rounded-md bg-blue-600 p-1 shadow-lg shadow-blue-600/20">
-              <Sparkles size={16} className="text-white" />
-            </div>
+            <img
+              src={chrome.runtime.getURL("icons/icon-32.png")}
+              alt="Nano Flow"
+              className="h-6 w-6 rounded-md"
+            />
             <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
           </div>
           <div className="flex items-center gap-2">

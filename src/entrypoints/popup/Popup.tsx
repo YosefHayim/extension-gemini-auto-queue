@@ -1,4 +1,4 @@
-import { Github, Heart, Linkedin, Mail, MessageSquare, Power } from "lucide-react";
+import { Github, Heart, Linkedin, MessageSquare, Power } from "lucide-react";
 import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 import { useEffect, useState } from "react";
 
@@ -28,30 +28,16 @@ export default function Popup() {
     }
   };
 
-  const handleEmailClick = () => {
-    window.open(
-      `mailto:yosefisabag@gmail.com?subject=Gemini Nano Flow - Feature Request/Feedback`,
-      "_blank"
-    );
-  };
-
-  const handleEmailCopy = async () => {
-    try {
-      await navigator.clipboard.writeText("yosefisabag@gmail.com");
-      // You could add a toast notification here if desired
-    } catch (error) {
-      console.error("Failed to copy email:", error);
-    }
-  };
-
   return (
     <div className="w-80 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Header */}
       <div className="border-b border-white/10 bg-white/5 px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-            <Power className="h-4 w-4 text-white" />
-          </div>
+          <img
+            src="/icons/icon-48.png"
+            alt="Nano Flow"
+            className="h-8 w-8 rounded-lg"
+          />
           <div>
             <h1 className="text-sm font-semibold">Gemini Nano Flow</h1>
             <p className="text-xs text-gray-400">Bulk Image Generation</p>
@@ -93,40 +79,22 @@ export default function Popup() {
       {/* Contact/Feedback Section */}
       <div className="px-4 pb-4">
         <div className="rounded-lg border border-white/10 bg-gradient-to-br from-blue-500/10 to-purple-600/10 p-4 backdrop-blur-sm">
-          <div className="mb-3 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-600/20">
               <MessageSquare className="h-4 w-4 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white">Feedback & Features</h2>
-              <p className="text-xs text-gray-400">Have suggestions? We'd love to hear from you!</p>
+              <h2 className="text-sm font-semibold text-white">Ideas & Features</h2>
+              <p className="text-xs text-gray-400">
+                Contact me at{" "}
+                <a
+                  href="mailto:yosefisabag@gmail.com?subject=Gemini Nano Flow - Feature Request"
+                  className="text-blue-400 hover:text-blue-300"
+                >
+                  yosefisabag@gmail.com
+                </a>
+              </p>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleEmailClick}
-              className="flex flex-1 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-blue-700 active:scale-95"
-              aria-label="Send feedback email"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span>Send Email</span>
-            </button>
-            <button
-              onClick={handleEmailCopy}
-              className="flex items-center gap-1.5 rounded-md border border-white/20 bg-white/5 px-3 py-2 text-xs text-gray-300 transition-all hover:bg-white/10 hover:text-white active:scale-95"
-              aria-label="Copy email address"
-              title="Copy email to clipboard"
-            >
-              <Mail className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <div className="mt-2 flex items-center justify-center">
-            <a
-              href="mailto:yosefisabag@gmail.com?subject=Gemini Nano Flow - Feature Request/Feedback"
-              className="text-[10px] text-gray-400 transition-colors hover:text-blue-400"
-            >
-              yosefisabag@gmail.com
-            </a>
           </div>
         </div>
       </div>

@@ -464,54 +464,14 @@ export default function App() {
   );
 
   // Onboarding
-  const [highlightedSelector, setHighlightedSelector] = useState<string | null>(null);
-
   const handleCompleteOnboarding = useCallback(async () => {
     await setOnboardingComplete(true);
     setShowOnboarding(false);
-    setHighlightedSelector(null);
-  }, []);
-
-  const handleHighlight = useCallback((selector: string | null) => {
-    setHighlightedSelector(selector);
-    if (selector) {
-      // Update highlight position based on element
-      setTimeout(() => {
-        const element = document.querySelector(selector);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const x = rect.left + rect.width / 2;
-          const y = rect.top + rect.height / 2;
-          document.documentElement.style.setProperty("--highlight-x", `${x}px`);
-          document.documentElement.style.setProperty("--highlight-y", `${y}px`);
-        }
-      }, 100);
-    }
   }, []);
 
   const handleSwitchTab = useCallback((tab: "queue" | "templates" | "settings") => {
     setActiveTab(tab);
   }, []);
-
-  const handleAddDemoPrompts = useCallback(async () => {
-    // Clear existing queue first for demo
-    setQueueState([]);
-    await setQueue([]);
-
-    // Wait a moment
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    const demoPrompts = [
-      "A serene mountain landscape at sunset",
-      "A futuristic cyberpunk cityscape at night",
-      "A cozy coffee shop interior with warm lighting",
-    ];
-    await handleAddToQueue(demoPrompts.join("\n"), undefined, undefined, settings.defaultTool);
-  }, [handleAddToQueue, settings.defaultTool]);
-
-  const handleStartDemoQueue = useCallback(async () => {
-    await toggleProcessing();
-  }, [toggleProcessing]);
 
   return (
     <div
@@ -526,51 +486,8 @@ export default function App() {
             handleCompleteOnboarding().catch(() => {});
           }}
           isDark={isDark}
-          onHighlight={handleHighlight}
           onSwitchTab={handleSwitchTab}
-          onAddDemoPrompts={handleAddDemoPrompts}
-          onStartDemoQueue={handleStartDemoQueue}
         />
-      )}
-
-      {/* Highlight Overlay for Components */}
-      {highlightedSelector && (
-        <>
-          <div
-            className="pointer-events-none fixed inset-0 z-[1500]"
-            style={{
-              background: `radial-gradient(circle 300px at var(--highlight-x, 50%) var(--highlight-y, 50%), transparent 0%, rgba(0, 0, 0, 0.7) 100%)`,
-            }}
-          />
-          <style>
-            {`
-              ${highlightedSelector} {
-                position: relative;
-                z-index: 1501;
-                animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-              }
-              ${highlightedSelector}::before {
-                content: '';
-                position: absolute;
-                inset: -4px;
-                border: 3px solid rgba(59, 130, 246, 0.8);
-                border-radius: 8px;
-                pointer-events: none;
-                animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-              }
-              @keyframes pulse-ring {
-                0%, 100% {
-                  opacity: 1;
-                  transform: scale(1);
-                }
-                50% {
-                  opacity: 0.7;
-                  transform: scale(1.02);
-                }
-              }
-            `}
-          </style>
-        </>
       )}
 
       {/* CSV Dialog */}
@@ -600,6 +517,7 @@ export default function App() {
 
       {/* Header */}
       <div
+        data-onboarding="sidebar-header"
         className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
       >
         <div className="flex items-center gap-2">
@@ -786,11 +704,7 @@ export default function App() {
             title={isProcessing ? "Stop processing queue" : "Start processing queue"}
             className={`flex flex-[4] items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
               isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
-            } text-white disabled:opacity-30 ${
-              highlightedSelector === "[data-onboarding='start-button']"
-                ? "ring-4 ring-blue-400 ring-offset-2"
-                : ""
-            }`}
+            } text-white disabled:opacity-30`}
           >
             {isProcessing ? (
               <Pause size={16} fill="currentColor" />

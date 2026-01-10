@@ -261,14 +261,24 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const data = event.target?.result as string;
-        setSelectedImages((prev) => [...prev, data]);
-      };
-      reader.readAsDataURL(file);
+    if (files.length === 0) return;
+
+    // Read all files in parallel and collect results before updating state
+    const readPromises = files.map((file) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const data = event.target?.result as string;
+          resolve(data);
+        };
+        reader.readAsDataURL(file);
+      });
     });
+
+    Promise.all(readPromises).then((newImages) => {
+      setSelectedImages((prev) => [...prev, ...newImages]);
+    });
+
     e.target.value = "";
   };
 
@@ -432,6 +442,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         )}
 
         <button
+          data-onboarding="add-queue-btn"
           onClick={handleEnqueue}
           title="Add prompt to processing queue"
           className="absolute bottom-2 right-2 rounded-md bg-blue-600 px-3 py-1 text-[10px] font-black uppercase text-white shadow-lg shadow-blue-600/30 transition-all active:scale-95"
@@ -440,7 +451,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         </button>
       </div>
 
-      <div className="space-y-1 pt-2">
+      <div data-onboarding="queue-list" className="space-y-1 pt-2">
         {queue.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-white/5 py-12 opacity-10">
             <Cpu size={24} />
