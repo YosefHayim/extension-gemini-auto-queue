@@ -75,6 +75,7 @@ export const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({
                 onChange={(e) => {
                   setApiKey(e.target.value);
                 }}
+                onKeyDown={(e) => e.key === "Enter" && handleSave()}
                 placeholder="AIzaSy..."
                 className={`w-full rounded-md border p-2 pr-10 font-mono text-xs outline-none ${
                   isDark ? "border-white/10 bg-black/40" : "border-slate-200 bg-slate-50"
@@ -102,9 +103,7 @@ export const ApiKeyDialog: React.FC<ApiKeyDialogProps> = ({
               Cancel
             </button>
             <button
-              onClick={() => {
-                handleSave().catch(() => {});
-              }}
+              onClick={handleSave}
               disabled={!apiKey.trim()}
               className="flex-1 rounded-md bg-blue-600 p-2 text-xs font-black text-white shadow-lg hover:bg-blue-500 disabled:opacity-50"
             >

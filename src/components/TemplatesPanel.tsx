@@ -21,7 +21,7 @@ import type { Folder, PromptTemplate } from "@/types";
 const TemplateInfo: React.FC<{ text: string }> = ({ text }) => (
   <span
     title={text}
-    className="ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
+    className="ml-1 inline-flex items-center opacity-30 transition-opacity hover:opacity-70"
   >
     <Info size={10} />
   </span>
@@ -429,6 +429,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       template: { ...editingTemplate.template, name: e.target.value },
                     });
                   }}
+                  onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()}
                   placeholder="e.g. Dreamy Portrait"
                   className={`w-full rounded-md border p-2 text-xs font-bold outline-none ${
                     isDark ? "border-white/10 bg-black/40" : "border-slate-200 bg-slate-50"

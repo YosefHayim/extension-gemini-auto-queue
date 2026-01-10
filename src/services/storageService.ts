@@ -24,11 +24,12 @@ export const DEFAULT_SETTINGS: AppSettings = {
   globalNegatives: "",
   globalNegativesEnabled: false,
   theme: ThemeMode.DARK,
-  defaultTool: GeminiTool.NONE,
+  defaultTool: GeminiTool.IMAGE,
   toolSequence: [GeminiTool.IMAGE, GeminiTool.VIDEO, GeminiTool.CANVAS],
   useToolSequence: false,
   aiApiKeys: {},
   preferredAIProvider: AIProvider.GEMINI,
+  sidebarWidth: 320, // Default sidebar width in pixels
 };
 
 /**

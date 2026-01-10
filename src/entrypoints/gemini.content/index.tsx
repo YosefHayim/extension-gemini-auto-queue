@@ -11,10 +11,9 @@ import {
   Play,
   Settings as SettingsIcon,
   Sparkles,
-  Trash2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 
 import { CsvDialog } from "@/components/CsvDialog";
@@ -37,7 +36,7 @@ import {
   setSettings,
 } from "@/services/storageService";
 import {
-  type GeminiTool,
+  GeminiTool,
   MessageType,
   QueueStatus,
   STORAGE_KEYS,
@@ -54,6 +53,10 @@ import { automationModule } from "./automation";
 
 type TabType = "queue" | "templates" | "settings";
 
+// Constants for sidebar resize
+const MIN_SIDEBAR_WIDTH = 280;
+const MAX_SIDEBAR_WIDTH = 600;
+
 function InjectableSidebar() {
   const [queue, setQueueState] = useState<QueueItem[]>([]);
   const [folders, setFoldersState] = useState<Folder[]>([]);
@@ -65,6 +68,10 @@ function InjectableSidebar() {
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isResizing, setIsResizing] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SETTINGS.sidebarWidth);
+
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const isDark = settings.theme === ThemeMode.DARK;
   const isLeft = settings.position === SidebarPosition.LEFT;
@@ -83,6 +90,10 @@ function InjectableSidebar() {
       setSettingsState(settingsData);
       setFoldersState(foldersData);
       setShowOnboarding(!onboardingDone);
+      // Set sidebar width from saved settings
+      if (settingsData.sidebarWidth) {
+        setSidebarWidth(settingsData.sidebarWidth);
+      }
     };
 
     loadData();
@@ -140,6 +151,49 @@ function InjectableSidebar() {
     };
   }, [isProcessing]);
 
+  // Resize handler
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+      let newWidth: number;
+
+      if (isLeft) {
+        // For left sidebar, calculate from left edge
+        newWidth = e.clientX;
+      } else {
+        // For right sidebar, calculate from right edge
+        newWidth = window.innerWidth - e.clientX;
+      }
+
+      // Clamp to min/max bounds
+      newWidth = Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, newWidth));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = async () => {
+      setIsResizing(false);
+      // Save the new width to storage
+      await setSettings({ sidebarWidth });
+    };
+
+    // Add listeners to document for smoother resizing
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    // Add cursor style to body during resize
+    document.body.style.cursor = "ew-resize";
+    document.body.style.userSelect = "none";
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing, isLeft, sidebarWidth]);
+
   // Queue handlers
   const constructFinalPrompt = useCallback(
     (original: string) => {
@@ -156,38 +210,45 @@ function InjectableSidebar() {
     async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
       const sourceText = text ?? "";
 
-      // Smart parsing: prioritize newlines, only split by commas when they appear to be list separators
-      // Detect numbered patterns (e.g., "Prompt 1:", "1.", "1)") to preserve full prompts
-      const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
+      // Smart parsing: split by blank lines (paragraphs) - each paragraph is one prompt
+      // This allows multi-line prompts when separated by blank lines
+      // Also detect numbered patterns (e.g., "Prompt 1:", "1.", "1)") to preserve full prompts
 
-      // Split by newlines first
-      const newlineSplit = sourceText.split(/\n/);
-      const lines = newlineSplit.flatMap((line) => {
-        const trimmed = line.trim();
-        if (!trimmed) return [];
+      // Split by blank lines (one or more empty lines between paragraphs)
+      const paragraphs = sourceText
+        .split(/\n\s*\n+/)
+        .map((p) => p.trim())
+        .filter((p) => p !== "");
 
-        // If line starts with a numbered pattern, treat entire line as one prompt
-        // This handles cases like "Prompt 1: ..." or "1. ..."
-        if (numberedPattern.test(trimmed)) {
-          return [trimmed];
+      const lines = paragraphs.flatMap((paragraph) => {
+        // Replace internal newlines with spaces to create a single prompt
+        const normalized = paragraph.replace(/\n/g, " ").trim();
+        if (!normalized) return [];
+
+        // Detect numbered patterns (e.g., "Prompt 1:", "1.", "1)")
+        const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
+
+        // If paragraph starts with a numbered pattern, treat entire paragraph as one prompt
+        if (numberedPattern.test(normalized)) {
+          return [normalized];
         }
 
         // Only split by commas if they appear to be explicit list separators
         // (comma followed by space and capital letter, indicating start of new item)
         // or if there are multiple commas suggesting a list format
-        const hasMultipleCommas = (trimmed.match(/,/g) ?? []).length > 1;
+        const hasMultipleCommas = (normalized.match(/,/g) ?? []).length > 1;
         const commaBeforeCapital = /,\s+[A-Z]/;
 
-        if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
+        if (hasMultipleCommas && commaBeforeCapital.test(normalized)) {
           // Split on commas that are followed by space and capital letter
-          return trimmed
+          return normalized
             .split(/,\s+(?=[A-Z])/)
             .map((item) => item.trim())
             .filter((item) => item !== "");
         }
 
-        // Otherwise, treat the entire line as one prompt
-        return [trimmed];
+        // Otherwise, treat the entire paragraph as one prompt
+        return [normalized];
       });
 
       const newItems: QueueItem[] = lines.map((line) => {
@@ -223,21 +284,38 @@ function InjectableSidebar() {
     await setQueue([]);
   }, []);
 
-  const handleClearCompleted = useCallback(async () => {
-    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
-    setQueueState(updatedQueue);
-    await setQueue(updatedQueue);
-  }, [queue]);
+  const handleRetryQueueItem = useCallback(
+    async (id: string) => {
+      const updatedQueue = queue.map((item) =>
+        item.id === id ? { ...item, status: QueueStatus.IDLE, error: undefined } : item
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue]
+  );
 
   const handleCsvUpload = useCallback(
-    async (items: { prompt: string; modifier?: string }[]) => {
+    async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
       const newItems: QueueItem[] = items.map((item) => {
-        const combined = item.modifier ? `${item.prompt} ${item.modifier}` : item.prompt;
+        // Map tool string to GeminiTool enum
+        const toolMap: Record<string, GeminiTool> = {
+          image: GeminiTool.IMAGE,
+          canvas: GeminiTool.CANVAS,
+          video: GeminiTool.VIDEO,
+          research: GeminiTool.DEEP_RESEARCH,
+          learning: GeminiTool.LEARNING,
+          layout: GeminiTool.VISUAL_LAYOUT,
+        };
+        const tool = item.tool ? toolMap[item.tool.toLowerCase()] ?? settings.defaultTool : settings.defaultTool;
+
         return {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: item.prompt,
-          finalPrompt: constructFinalPrompt(combined),
+          finalPrompt: constructFinalPrompt(item.prompt),
           status: QueueStatus.IDLE,
+          tool,
+          images: item.images && item.images.length > 0 ? item.images : undefined,
         };
       });
 
@@ -245,7 +323,7 @@ function InjectableSidebar() {
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
     },
-    [queue, constructFinalPrompt]
+    [queue, constructFinalPrompt, settings.defaultTool]
   );
 
   // Processing handlers
@@ -448,21 +526,47 @@ function InjectableSidebar() {
 
   return (
     <div
+      ref={sidebarRef}
       className={`nano-flow-sidebar ${isLeft ? "nano-flow-left" : "nano-flow-right"}`}
       style={{
         position: "fixed",
         top: 0,
         bottom: 0,
         [isLeft ? "left" : "right"]: 0,
-        width: "320px",
+        width: `${sidebarWidth}px`,
         zIndex: 999999,
         display: "flex",
-        flexDirection: "column",
+        flexDirection: isLeft ? "row" : "row-reverse",
         pointerEvents: "auto",
       }}
     >
+      {/* Resize Handle */}
       <div
-        className={`flex h-full flex-col overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          setIsResizing(true);
+        }}
+        className={`group flex w-2 cursor-ew-resize items-center justify-center transition-colors ${
+          isDark ? "hover:bg-blue-500/30" : "hover:bg-blue-500/20"
+        } ${isResizing ? (isDark ? "bg-blue-500/40" : "bg-blue-500/30") : ""}`}
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          [isLeft ? "right" : "left"]: 0,
+          zIndex: 10,
+        }}
+        title="Drag to resize"
+      >
+        <div
+          className={`h-8 w-1 rounded-full transition-colors ${
+            isDark ? "bg-white/20 group-hover:bg-blue-400" : "bg-black/20 group-hover:bg-blue-500"
+          } ${isResizing ? (isDark ? "bg-blue-400" : "bg-blue-500") : ""}`}
+        />
+      </div>
+
+      <div
+        className={`flex h-full flex-1 flex-col overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}
         style={{
           borderLeft: isLeft
             ? "none"
@@ -479,6 +583,7 @@ function InjectableSidebar() {
               handleCompleteOnboarding().catch(() => {});
             }}
             isDark={isDark}
+            onSwitchTab={setActiveTab}
           />
         )}
 
@@ -496,6 +601,7 @@ function InjectableSidebar() {
 
         {/* Header */}
         <div
+          data-onboarding="sidebar-header"
           className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
         >
           <div className="flex items-center gap-2">
@@ -584,6 +690,7 @@ function InjectableSidebar() {
               defaultTool={settings.defaultTool}
               onAddToQueue={handleAddToQueue}
               onRemoveFromQueue={handleRemoveFromQueue}
+              onRetryQueueItem={handleRetryQueueItem}
               onClearAll={handleClearAll}
               onOpenCsvDialog={() => {
                 setShowCsvDialog(true);
@@ -592,27 +699,31 @@ function InjectableSidebar() {
           )}
 
           {activeTab === "templates" && (
-            <TemplatesPanel
-              folders={folders}
-              isDark={isDark}
-              hasAIKey={hasAnyAIKey(settings)}
-              onCreateFolder={handleCreateFolder}
-              onDeleteFolder={handleDeleteFolder}
-              onToggleFolder={handleToggleFolder}
-              onUseTemplate={handleUseTemplate}
-              onDeleteTemplate={handleDeleteTemplate}
-              onSaveTemplate={handleSaveTemplate}
-              onImproveTemplate={handleImproveTemplate}
-              onImproveFolder={handleImproveFolder}
-            />
+            <div data-onboarding="templates-panel">
+              <TemplatesPanel
+                folders={folders}
+                isDark={isDark}
+                hasAIKey={hasAnyAIKey(settings)}
+                onCreateFolder={handleCreateFolder}
+                onDeleteFolder={handleDeleteFolder}
+                onToggleFolder={handleToggleFolder}
+                onUseTemplate={handleUseTemplate}
+                onDeleteTemplate={handleDeleteTemplate}
+                onSaveTemplate={handleSaveTemplate}
+                onImproveTemplate={handleImproveTemplate}
+                onImproveFolder={handleImproveFolder}
+              />
+            </div>
           )}
 
           {activeTab === "settings" && (
-            <SettingsPanel
-              settings={settings}
-              isDark={isDark}
-              onUpdateSettings={handleUpdateSettings}
-            />
+            <div data-onboarding="settings-panel">
+              <SettingsPanel
+                settings={settings}
+                isDark={isDark}
+                onUpdateSettings={handleUpdateSettings}
+              />
+            </div>
           )}
         </div>
 
@@ -622,15 +733,7 @@ function InjectableSidebar() {
         >
           <div className="flex gap-2">
             <button
-              onClick={() => {
-                handleClearCompleted().catch(() => {});
-              }}
-              title="Clear completed items"
-              className="flex-1 rounded-md border border-white/10 p-2 text-[10px] font-black uppercase transition-all hover:bg-red-500 hover:text-white"
-            >
-              <Trash2 size={14} className="mx-auto" />
-            </button>
-            <button
+              data-onboarding="start-button"
               onClick={() => {
                 toggleProcessing().catch(() => {});
               }}

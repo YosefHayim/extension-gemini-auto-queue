@@ -26,7 +26,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   return (
     <div
       title={statusDescriptions[status]}
-      className={`flex cursor-help items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${statusStyles[status]}`}
+      className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${statusStyles[status]}`}
     >
       {status}
     </div>

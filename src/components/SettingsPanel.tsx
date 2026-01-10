@@ -30,18 +30,18 @@ const SettingInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDar
 
   return (
     <span
-      className="relative ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
+      className="relative ml-1 inline-flex items-center opacity-30 transition-opacity hover:opacity-70"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Info size={10} />
       {isHovered && (
         <div
-          className={`absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-1 text-xs shadow-lg ${
+          className={`pointer-events-auto absolute bottom-full left-1/2 z-[2147483647] mb-2 max-h-[200px] w-[200px] -translate-x-1/2 overflow-auto whitespace-normal rounded-md px-2 py-1 text-xs normal-case shadow-lg ${
             isDark ? "border border-white/10 bg-gray-800 text-white" : "bg-gray-900 text-white"
           }`}
         >
-          {text}
+          <div className="break-words">{text}</div>
           <div
             className={`absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent ${
               isDark ? "border-t-gray-800" : "border-t-gray-900"

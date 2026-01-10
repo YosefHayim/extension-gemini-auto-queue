@@ -160,6 +160,8 @@ export interface AppSettings {
   // AI Provider settings for prompt optimization
   aiApiKeys: AIApiKeys; // API keys for each supported AI provider
   preferredAIProvider: AIProvider; // Which AI provider to use for prompt optimization
+  // Sidebar settings
+  sidebarWidth: number; // Width of sidebar in pixels (min: 280, max: 600)
 }
 
 // Chrome Extension Message Types

@@ -23,17 +23,16 @@ const QueueInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark 
 
   return (
     <span
-      className="relative ml-1 inline-flex cursor-help items-center opacity-30 transition-opacity hover:opacity-70"
+      className="relative ml-1 inline-flex items-center opacity-30 transition-opacity hover:opacity-70"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Info size={10} />
       {isHovered && (
         <div
-          className={`pointer-events-none absolute bottom-full left-1/2 z-[9999] mb-2 w-64 -translate-x-1/2 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
+          className={`pointer-events-auto absolute bottom-full left-1/2 z-[2147483647] mb-2 max-h-[200px] w-[200px] -translate-x-1/2 overflow-auto whitespace-normal rounded-md px-3 py-2 text-xs normal-case shadow-xl ${
             isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
           }`}
-          style={{ maxWidth: "calc(100vw - 2rem)" }}
         >
           <div className="break-words">{text}</div>
           <div
@@ -91,27 +90,29 @@ const QueueMessageItem: React.FC<{
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onRetryQueueItem(item.id);
             }}
             title="Retry this prompt"
-            className="p-1 text-blue-500/40 opacity-0 transition-all hover:text-blue-500 group-hover:opacity-100"
+            className="cursor-pointer rounded p-1.5 text-blue-500/40 opacity-0 transition-all hover:bg-blue-500/10 hover:text-blue-500 group-hover:opacity-100"
           >
-            <RefreshCw size={12} />
+            <RefreshCw size={14} />
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onRemoveFromQueue(item.id);
             }}
             title="Remove from queue"
-            className="p-1 text-red-500/40 opacity-0 transition-all hover:text-red-500 group-hover:opacity-100"
+            className="cursor-pointer rounded p-1.5 text-red-500/40 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100"
           >
-            <Trash2 size={12} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
       <div
-        className={`relative ${isTruncated ? "cursor-help" : ""}`}
+        className="relative"
         onMouseEnter={() => isTruncated && setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -120,7 +121,7 @@ const QueueMessageItem: React.FC<{
         </p>
         {isHovered && isTruncated && (
           <div
-            className={`pointer-events-none absolute bottom-full left-0 z-[9999] mb-2 w-64 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
+            className={`pointer-events-none absolute bottom-full left-0 z-[2147483647] mb-2 w-64 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
               isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
             }`}
             style={{ maxWidth: "calc(100vw - 2rem)" }}
@@ -283,7 +284,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         <span className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
           New Prompt
           <QueueInfo
-            text="Enter prompts: one per line, comma-separated, or numbered list. Each line or comma-separated item creates a separate prompt."
+            text="Enter prompts separated by blank lines. Each paragraph (text between blank lines) becomes one prompt. Multi-line paragraphs are joined into a single prompt."
             isDark={isDark}
           />
         </span>
@@ -356,8 +357,14 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
             setBulkInput(e.target.value);
           }}
           onSelect={handleTextSelection}
-          placeholder="Enter prompts: one per line, comma-separated, or numbered list (1. 2. 3.). Each line/comma creates a separate prompt."
-          className={`no-scrollbar min-h-[140px] w-full rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              handleEnqueue();
+            }
+          }}
+          placeholder="Enter prompts separated by blank lines. Each paragraph becomes one prompt. Press Ctrl+Enter to add to queue."
+          className={`min-h-[140px] max-h-[300px] w-full overflow-y-auto rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
             isDark
               ? "border-white/10 bg-black/40 focus:border-blue-500/50"
               : "border-slate-200 bg-slate-50 shadow-inner focus:border-blue-500/50"
