@@ -1,12 +1,14 @@
 import {
   BookMarked,
+  Brain,
   Camera,
   ChevronLeft,
   ChevronRight,
   Cpu,
+  Download,
+  GripVertical,
   Layers,
   Play,
-  Settings as SettingsIcon,
   SkipForward,
   Sparkles,
   Type,
@@ -55,7 +57,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "textarea",
       title: "Add Your Prompts",
-      description: "Enter multiple prompts here, one per paragraph. Press Ctrl+Enter to add them to the queue.",
+      description:
+        "Enter multiple prompts here, one per paragraph. Press Ctrl+Enter to add them to the queue.",
       icon: <Type className="h-5 w-5" />,
       selector: "[data-onboarding='queue-textarea']",
       tab: "queue",
@@ -65,7 +68,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "tool-selector",
       title: "Choose Your Tool",
-      description: "Select Image, Video, Canvas, or other tools. Each prompt can use a different tool.",
+      description:
+        "Select Image, Video, Canvas, or other tools. Each prompt can use a different tool.",
       icon: <Camera className="h-5 w-5" />,
       selector: "[data-onboarding='tool-selector']",
       tab: "queue",
@@ -74,7 +78,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "add-queue",
       title: "Build Your Queue",
-      description: "Click here to add prompts to the queue. Import CSV for bulk uploads with images.",
+      description:
+        "Click here to add prompts to the queue. Import CSV for bulk uploads with images.",
       icon: <Layers className="h-5 w-5" />,
       selector: "[data-onboarding='add-queue-btn']",
       tab: "queue",
@@ -83,7 +88,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "start-engine",
       title: "Start Processing",
-      description: "Hit this button to start batch processing. Watch as prompts are generated automatically!",
+      description:
+        "Hit this button to start batch processing. Watch as prompts are generated automatically!",
       icon: <Play className="h-5 w-5" />,
       selector: "[data-onboarding='start-button']",
       tab: "queue",
@@ -92,12 +98,33 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "queue-list",
       title: "Monitor Progress",
-      description: "Your queue items appear here. Retry failed items or remove them from the list.",
+      description:
+        "Your queue items appear here. Drag to reorder, edit, duplicate, or remove items.",
       icon: <Cpu className="h-5 w-5" />,
       selector: "[data-onboarding='queue-list']",
       tab: "queue",
       position: "top",
       spotlightPadding: 8,
+    },
+    {
+      id: "drag-reorder",
+      title: "Drag to Reorder",
+      description:
+        "Grab the handle on any item to drag and drop it into a new position in your queue.",
+      icon: <GripVertical className="h-5 w-5" />,
+      selector: "[data-onboarding='queue-list']",
+      tab: "queue",
+      position: "top",
+    },
+    {
+      id: "export-queue",
+      title: "Export Your Work",
+      description:
+        "Download your queue as TXT, JSON, or CSV. Great for backing up or sharing prompts.",
+      icon: <Download className="h-5 w-5" />,
+      selector: "[data-onboarding='start-button']",
+      tab: "queue",
+      position: "top",
     },
     {
       id: "templates",
@@ -112,11 +139,32 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     {
       id: "ai-optimize",
       title: "AI Enhancement",
-      description: "Click the wand icon on any template to let AI improve your prompts automatically.",
+      description:
+        "Click the wand icon on any template to let AI improve your prompts automatically.",
       icon: <Wand2 className="h-5 w-5" />,
       selector: "[data-onboarding='templates-panel']",
       tab: "templates",
       position: "right",
+    },
+    {
+      id: "tool-selector",
+      title: "Choose Your Tool",
+      description:
+        "Select Image, Video, Canvas, or other tools. Each prompt can use a different tool.",
+      icon: <Camera className="h-5 w-5" />,
+      selector: "[data-onboarding='tool-selector']",
+      tab: "queue",
+      position: "top",
+    },
+    {
+      id: "mode-selector",
+      title: "Select Response Mode",
+      description:
+        "Choose Quick for speed, Deep for thorough thinking, or Pro for highest quality output.",
+      icon: <Brain className="h-5 w-5" />,
+      selector: "[data-onboarding='mode-selector']",
+      tab: "queue",
+      position: "top",
     },
     {
       id: "model-selector",
@@ -128,14 +176,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       position: "top",
     },
     {
-      id: "settings",
-      title: "Fine-Tune Everything",
-      description: "Global prefixes, negatives, drip-feed mode, and more. Customize your workflow.",
-      icon: <SettingsIcon className="h-5 w-5" />,
-      selector: "[data-onboarding='settings-panel']",
+      id: "theme-system",
+      title: "Auto Theme Sync",
+      description:
+        "Choose System theme to automatically match your browser's light/dark preference.",
+      icon: <Sparkles className="h-5 w-5" />,
+      selector: "[data-onboarding='theme-selector']",
       tab: "settings",
-      position: "right",
-      spotlightPadding: 8,
+      position: "top",
     },
   ];
 
@@ -370,9 +418,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               <button
                 onClick={handleBack}
                 className={`flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-[10px] font-bold transition-all ${
-                  isDark
-                    ? "bg-white/5 hover:bg-white/10"
-                    : "bg-slate-100 hover:bg-slate-200"
+                  isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"
                 }`}
               >
                 <ChevronLeft size={14} />
@@ -404,9 +450,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         {/* Arrow pointer */}
         {targetRect && (
           <div
-            className={`absolute h-3 w-3 rotate-45 ${
-              isDark ? "bg-gray-900" : "bg-white"
-            }`}
+            className={`absolute h-3 w-3 rotate-45 ${isDark ? "bg-gray-900" : "bg-white"}`}
             style={{
               ...(step.position === "top" && {
                 bottom: -6,

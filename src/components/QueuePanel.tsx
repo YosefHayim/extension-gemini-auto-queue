@@ -1,21 +1,47 @@
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  Brain,
   Camera,
-  Clock,
   Cpu,
+  Gem,
   Info,
   Maximize2,
-  RefreshCw,
   Trash2,
   TrendingUp,
   Type,
   Upload,
   X,
+  Zap,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { GEMINI_TOOL_INFO, GeminiTool, QueueStatus, type QueueItem } from "@/types";
+import {
+  GEMINI_MODE_INFO,
+  GEMINI_TOOL_INFO,
+  GeminiMode,
+  GeminiTool,
+  QueueStatus,
+  type QueueItem,
+} from "@/types";
 
-import { StatusBadge } from "./StatusBadge";
+import { QueueItemCard } from "./QueueItemCard";
+import { SearchFilter } from "./SearchFilter";
 
 // Inline info icon for queue panel
 const QueueInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark = false }) => {
@@ -46,107 +72,73 @@ const QueueInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark 
   );
 };
 
-// Queue message item with hover tooltip for truncated text
-const QueueMessageItem: React.FC<{
-  item: QueueItem;
-  toolInfo: (typeof GEMINI_TOOL_INFO)[GeminiTool];
-  isDark: boolean;
-  onRemoveFromQueue: (id: string) => void;
-  onRetryQueueItem: (id: string) => void;
-}> = ({ item, toolInfo, isDark, onRemoveFromQueue, onRetryQueueItem }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isTruncated, setIsTruncated] = useState(false);
-  const textRef = useRef<HTMLParagraphElement>(null);
+const MODE_ICONS = {
+  [GeminiMode.Quick]: Zap,
+  [GeminiMode.Deep]: Brain,
+  [GeminiMode.Pro]: Gem,
+};
 
-  useEffect(() => {
-    // Check if text is truncated by comparing scrollHeight with clientHeight
-    if (textRef.current) {
-      const isOverflowing = textRef.current.scrollHeight > textRef.current.clientHeight;
-      setIsTruncated(isOverflowing);
-    }
-  }, [item.originalPrompt]);
+const MODE_SELECTOR_STYLES: Record<GeminiMode, { selected: string; unselected: string }> = {
+  [GeminiMode.Quick]: {
+    selected: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30",
+    unselected:
+      "border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 border dark:text-emerald-400 dark:border-emerald-500/40",
+  },
+  [GeminiMode.Deep]: {
+    selected: "bg-blue-500 text-white shadow-lg shadow-blue-500/30",
+    unselected:
+      "border-blue-500/30 text-blue-500 hover:bg-blue-500/10 border dark:text-blue-400 dark:border-blue-500/40",
+  },
+  [GeminiMode.Pro]: {
+    selected: "bg-purple-500 text-white shadow-lg shadow-purple-500/30",
+    unselected:
+      "border-purple-500/30 text-purple-500 hover:bg-purple-500/10 border dark:text-purple-400 dark:border-purple-500/40",
+  },
+};
+
+interface SortableQueueItemProps {
+  item: QueueItem;
+  isDark: boolean;
+  onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  onDuplicateWithAI: (id: string) => void;
+  onEdit?: (id: string, newPrompt: string) => void;
+  onRunSingle?: (id: string) => void;
+  isEditing: boolean;
+}
+
+const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
+  item,
+  isDark,
+  onRemove,
+  onRetry,
+  onDuplicate,
+  onDuplicateWithAI,
+  onEdit,
+  onRunSingle,
+  isEditing,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   return (
-    <div
-      className={`group rounded-md border p-2 transition-all ${isDark ? "bg-white/2 border-white/5" : "border-slate-100 bg-white shadow-sm"}`}
-    >
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <StatusBadge status={item.status} />
-          <span
-            title={toolInfo.description || "Tool"}
-            className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[8px] font-bold ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-600"}`}
-          >
-            {React.createElement(toolInfo.icon, { size: 10 })} {toolInfo.label}
-          </span>
-          {item.status === QueueStatus.COMPLETED && item.completionTimeSeconds !== undefined && (
-            <span
-              title="Completion time"
-              className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[8px] font-bold ${isDark ? "bg-green-500/20 text-green-400" : "bg-green-100 text-green-700"}`}
-            >
-              <Clock size={10} /> {item.completionTimeSeconds.toFixed(1)}s
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRetryQueueItem(item.id);
-            }}
-            title="Retry this prompt"
-            className="cursor-pointer rounded p-1.5 text-blue-500/40 opacity-0 transition-all hover:bg-blue-500/10 hover:text-blue-500 group-hover:opacity-100"
-          >
-            <RefreshCw size={14} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemoveFromQueue(item.id);
-            }}
-            title="Remove from queue"
-            className="cursor-pointer rounded p-1.5 text-red-500/40 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
-      </div>
-      <div
-        className="relative"
-        onMouseEnter={() => isTruncated && setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <p ref={textRef} className="line-clamp-2 text-[10px] font-medium leading-tight opacity-80">
-          "{item.originalPrompt}"
-        </p>
-        {isHovered && isTruncated && (
-          <div
-            className={`pointer-events-none absolute bottom-full left-0 z-[2147483647] mb-2 w-64 whitespace-normal rounded-md px-3 py-2 text-xs shadow-xl ${
-              isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
-            }`}
-            style={{ maxWidth: "calc(100vw - 2rem)" }}
-          >
-            <div className="break-words">"{item.originalPrompt}"</div>
-            <div
-              className={`absolute left-6 top-full border-4 border-transparent ${
-                isDark ? "border-t-gray-800" : "border-t-gray-900"
-              }`}
-            />
-          </div>
-        )}
-      </div>
-      {item.images && item.images.length > 0 && (
-        <div className="mt-2 flex gap-1">
-          {item.images.slice(0, 4).map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              className="h-6 w-6 rounded-md border border-white/5 object-cover"
-              alt="ref"
-            />
-          ))}
-        </div>
-      )}
+    <div ref={setNodeRef} style={style}>
+      <QueueItemCard
+        item={item}
+        isDark={isDark}
+        onRemove={onRemove}
+        onRetry={onRetry}
+        onDuplicate={onDuplicate}
+        onDuplicateWithAI={onDuplicateWithAI}
+        onEdit={onEdit}
+        onRunSingle={onRunSingle}
+        isEditing={isEditing}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
     </div>
   );
 };
@@ -159,12 +151,25 @@ interface QueuePanelProps {
     text?: string,
     templateText?: string,
     images?: string[],
-    tool?: GeminiTool
+    tool?: GeminiTool,
+    mode?: GeminiMode
   ) => void;
   onRemoveFromQueue: (id: string) => void;
   onRetryQueueItem: (id: string) => void;
   onClearAll?: () => void;
+  onClearByFilter?: (filter: {
+    status?: QueueStatus;
+    tool?: GeminiTool;
+    mode?: GeminiMode;
+  }) => void;
   onOpenCsvDialog: () => void;
+  onReorderQueue: (newQueue: QueueItem[]) => void;
+  onDuplicateItem: (id: string) => void;
+  onDuplicateWithAI: (id: string) => void;
+  onEditItem?: (id: string, newPrompt: string) => void;
+  onRunSingleItem?: (id: string) => void;
+  selectedMode?: GeminiMode;
+  onModeChange?: (mode: GeminiMode) => void;
 }
 
 interface TextSelection {
@@ -181,22 +186,92 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onRemoveFromQueue,
   onRetryQueueItem,
   onClearAll,
+  onClearByFilter,
   onOpenCsvDialog,
+  onReorderQueue,
+  onDuplicateItem,
+  onDuplicateWithAI,
+  onEditItem,
+  onRunSingleItem,
+  selectedMode = GeminiMode.Quick,
+  onModeChange,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selection, setSelection] = useState<TextSelection | null>(null);
   const [selectedTool, setSelectedTool] = useState<GeminiTool>(defaultTool ?? GeminiTool.IMAGE);
+  const [localSelectedMode, setLocalSelectedMode] = useState<GeminiMode>(selectedMode);
+
+  const [searchText, setSearchText] = useState("");
+  const [selectedToolFilters, setSelectedToolFilters] = useState<GeminiTool[]>([]);
+  const [selectedModeFilters, setSelectedModeFilters] = useState<GeminiMode[]>([]);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [showClearMenu, setShowClearMenu] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const clearMenuRef = useRef<HTMLDivElement>(null);
 
-  // Sync selectedTool with defaultTool prop changes
+  // Close clear menu on click outside
+  useEffect(() => {
+    if (!showClearMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (clearMenuRef.current && !clearMenuRef.current.contains(event.target as Node)) {
+        setShowClearMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showClearMenu]);
+
+  const filteredQueue = useMemo(() => {
+    return queue.filter((item) => {
+      if (searchText && !item.originalPrompt.toLowerCase().includes(searchText.toLowerCase())) {
+        return false;
+      }
+      if (selectedToolFilters.length > 0 && item.tool && !selectedToolFilters.includes(item.tool)) {
+        return false;
+      }
+      if (selectedModeFilters.length > 0 && item.mode && !selectedModeFilters.includes(item.mode)) {
+        return false;
+      }
+      return true;
+    });
+  }, [queue, searchText, selectedToolFilters, selectedModeFilters]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = queue.findIndex((item) => item.id === active.id);
+      const newIndex = queue.findIndex((item) => item.id === over.id);
+      const newQueue = arrayMove(queue, oldIndex, newIndex);
+      onReorderQueue(newQueue);
+    }
+  };
+
+  const handleModeSelect = (mode: GeminiMode) => {
+    setLocalSelectedMode(mode);
+    onModeChange?.(mode);
+  };
+
   useEffect(() => {
     if (defaultTool) {
       setSelectedTool(defaultTool);
     }
   }, [defaultTool]);
+
+  useEffect(() => {
+    setLocalSelectedMode(selectedMode);
+  }, [selectedMode]);
 
   // Auto-select tool if all queue items have the same tool type
   useEffect(() => {
@@ -283,7 +358,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   };
 
   const handleEnqueue = () => {
-    onAddToQueue(bulkInput, undefined, selectedImages, selectedTool);
+    onAddToQueue(bulkInput, undefined, selectedImages, selectedTool, localSelectedMode);
     setBulkInput("");
     setSelectedImages([]);
   };
@@ -330,7 +405,6 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         </div>
       </div>
 
-      {/* Tool Selector */}
       <div data-onboarding="tool-selector" className="flex flex-wrap gap-1">
         {Object.entries(GEMINI_TOOL_INFO)
           .filter(([tool]) => (tool as GeminiTool) !== GeminiTool.NONE)
@@ -358,6 +432,28 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           })}
       </div>
 
+      <div data-onboarding="mode-selector" className="flex flex-wrap gap-1.5">
+        {Object.values(GeminiMode).map((mode) => {
+          const modeInfo = GEMINI_MODE_INFO[mode];
+          const isSelected = localSelectedMode === mode;
+          const styles = MODE_SELECTOR_STYLES[mode];
+          const Icon = MODE_ICONS[mode];
+          return (
+            <button
+              key={mode}
+              onClick={() => handleModeSelect(mode)}
+              title={modeInfo.description}
+              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wide transition-all ${
+                isSelected ? styles.selected : styles.unselected
+              }`}
+            >
+              <Icon size={12} />
+              <span>{modeInfo.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="relative">
         <textarea
           data-onboarding="queue-textarea"
@@ -374,7 +470,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
             }
           }}
           placeholder="Enter prompts separated by blank lines. Each paragraph becomes one prompt. Press Ctrl+Enter to add to queue."
-          className={`min-h-[140px] max-h-[300px] w-full overflow-y-auto rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
+          className={`max-h-[300px] min-h-[140px] w-full overflow-y-auto rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
             isDark
               ? "border-white/10 bg-black/40 focus:border-blue-500/50"
               : "border-slate-200 bg-slate-50 shadow-inner focus:border-blue-500/50"
@@ -451,7 +547,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         </button>
       </div>
 
-      <div data-onboarding="queue-list" className="space-y-1 pt-2">
+      <div data-onboarding="queue-list" className="space-y-2 pt-2">
         {queue.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-white/5 py-12 opacity-10">
             <Cpu size={24} />
@@ -459,11 +555,23 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           </div>
         ) : (
           <>
-            {onClearAll && (
-              <div className="mb-2 flex items-center justify-end">
+            <SearchFilter
+              searchText={searchText}
+              onSearchChange={setSearchText}
+              selectedTools={selectedToolFilters}
+              onToolsChange={setSelectedToolFilters}
+              selectedModes={selectedModeFilters}
+              onModesChange={setSelectedModeFilters}
+              isDark={isDark}
+              totalItems={queue.length}
+              filteredCount={filteredQueue.length}
+            />
+
+            {(onClearAll || onClearByFilter) && (
+              <div ref={clearMenuRef} className="relative flex items-center justify-end">
                 <button
-                  onClick={onClearAll}
-                  title="Delete all queue items"
+                  onClick={() => setShowClearMenu(!showClearMenu)}
+                  title="Clear queue items"
                   className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider transition-all ${
                     isDark
                       ? "border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-500/50 hover:bg-red-500/20"
@@ -471,25 +579,179 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                   }`}
                 >
                   <Trash2 size={12} />
-                  <span>Clear All</span>
+                  <span>Clear</span>
                 </button>
+
+                {showClearMenu && (
+                  <div
+                    className={`absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border shadow-xl ${
+                      isDark ? "border-white/10 bg-gray-900" : "border-slate-200 bg-white"
+                    }`}
+                  >
+                    <div className="p-1">
+                      {onClearAll && (
+                        <button
+                          onClick={() => {
+                            onClearAll();
+                            setShowClearMenu(false);
+                          }}
+                          className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium transition-colors ${
+                            isDark
+                              ? "text-red-400 hover:bg-red-500/20"
+                              : "text-red-600 hover:bg-red-50"
+                          }`}
+                        >
+                          <Trash2 size={12} />
+                          Clear All ({queue.length})
+                        </button>
+                      )}
+
+                      {onClearByFilter && (
+                        <>
+                          <div
+                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                          />
+                          <div
+                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                          >
+                            By Status
+                          </div>
+                          {Object.values(QueueStatus).map((status) => {
+                            const count = queue.filter((item) => item.status === status).length;
+                            if (count === 0) return null;
+                            return (
+                              <button
+                                key={status}
+                                onClick={() => {
+                                  onClearByFilter({ status });
+                                  setShowClearMenu(false);
+                                }}
+                                className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                                }`}
+                              >
+                                <span className="capitalize">{status}</span>
+                                <span
+                                  className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                >
+                                  {count}
+                                </span>
+                              </button>
+                            );
+                          })}
+
+                          <div
+                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                          />
+                          <div
+                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                          >
+                            By Tool
+                          </div>
+                          {Object.values(GeminiTool)
+                            .filter((tool) => tool !== GeminiTool.NONE)
+                            .map((tool) => {
+                              const count = queue.filter((item) => item.tool === tool).length;
+                              if (count === 0) return null;
+                              const toolInfo = GEMINI_TOOL_INFO[tool];
+                              return (
+                                <button
+                                  key={tool}
+                                  onClick={() => {
+                                    onClearByFilter({ tool });
+                                    setShowClearMenu(false);
+                                  }}
+                                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                    isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                                  }`}
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    {React.createElement(toolInfo.icon, { size: 12 })}
+                                    {toolInfo.label}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                  >
+                                    {count}
+                                  </span>
+                                </button>
+                              );
+                            })}
+
+                          <div
+                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                          />
+                          <div
+                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                          >
+                            By Mode
+                          </div>
+                          {Object.values(GeminiMode).map((mode) => {
+                            const count = queue.filter((item) => item.mode === mode).length;
+                            if (count === 0) return null;
+                            const modeInfo = GEMINI_MODE_INFO[mode];
+                            return (
+                              <button
+                                key={mode}
+                                onClick={() => {
+                                  onClearByFilter({ mode });
+                                  setShowClearMenu(false);
+                                }}
+                                className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                                }`}
+                              >
+                                <span>{modeInfo.label}</span>
+                                <span
+                                  className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                >
+                                  {count}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
-            {queue.map((item) => {
-              const toolInfo = item.tool
-                ? GEMINI_TOOL_INFO[item.tool]
-                : GEMINI_TOOL_INFO[GeminiTool.IMAGE];
-              return (
-                <QueueMessageItem
-                  key={item.id}
-                  item={item}
-                  toolInfo={toolInfo}
-                  isDark={isDark}
-                  onRemoveFromQueue={onRemoveFromQueue}
-                  onRetryQueueItem={onRetryQueueItem}
-                />
-              );
-            })}
+
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={filteredQueue.map((item) => item.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {filteredQueue.map((item) => (
+                    <SortableQueueItem
+                      key={item.id}
+                      item={item}
+                      isDark={isDark}
+                      onRemove={onRemoveFromQueue}
+                      onRetry={onRetryQueueItem}
+                      onDuplicate={onDuplicateItem}
+                      onDuplicateWithAI={onDuplicateWithAI}
+                      onEdit={
+                        onEditItem
+                          ? (id, prompt) => {
+                              onEditItem(id, prompt);
+                              setEditingItemId(null);
+                            }
+                          : undefined
+                      }
+                      onRunSingle={onRunSingleItem}
+                      isEditing={editingItemId === item.id}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </>
         )}
       </div>

@@ -11,9 +11,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { Toaster, toast } from "sonner";
 
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { CsvDialog } from "@/components/CsvDialog";
+import { ExportDialog } from "@/components/ExportDialog";
+import { Footer } from "@/components/Footer";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { QueuePanel } from "@/components/QueuePanel";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -33,6 +36,7 @@ import {
   setSettings,
 } from "@/services/storageService";
 import {
+  GeminiMode,
   GeminiTool,
   MessageType,
   QueueStatus,
@@ -59,8 +63,26 @@ export default function App() {
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
-  const isDark = settings.theme === ThemeMode.DARK;
+  // Determine if dark mode based on theme setting
+  const [systemPrefersDark, setSystemPrefersDark] = useState(
+    () => window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSystemPrefersDark(e.matches);
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // Resolve actual dark mode: SYSTEM follows OS preference, otherwise explicit choice
+  const isDark =
+    settings.theme === ThemeMode.SYSTEM ? systemPrefersDark : settings.theme === ThemeMode.DARK;
 
   // Load initial data
   useEffect(() => {
@@ -203,7 +225,7 @@ export default function App() {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
-          status: QueueStatus.IDLE,
+          status: QueueStatus.Pending,
           tool: tool ?? settings.defaultTool,
           images: images && images.length > 0 ? [...images] : undefined,
         };
@@ -212,6 +234,7 @@ export default function App() {
       const updatedQueue = [...queue, ...newItems];
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
+      toast.success(`Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`);
     },
     [queue, constructFinalPrompt, settings.defaultTool]
   );
@@ -231,7 +254,7 @@ export default function App() {
         item.id === id
           ? {
               ...item,
-              status: QueueStatus.IDLE,
+              status: QueueStatus.Pending,
               error: undefined,
               startTime: undefined,
               endTime: undefined,
@@ -242,8 +265,70 @@ export default function App() {
       );
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
+      toast.info("Prompt queued for retry");
     },
     [queue]
+  );
+
+  const handleReorderQueue = useCallback(async (newQueue: QueueItem[]) => {
+    setQueueState(newQueue);
+    await setQueue(newQueue);
+  }, []);
+
+  const handleDuplicateItem = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+      const newItem: QueueItem = {
+        ...item,
+        id: Math.random().toString(36).substring(2, 9),
+        status: QueueStatus.Pending,
+        error: undefined,
+        completionTimeSeconds: undefined,
+        startTime: undefined,
+        endTime: undefined,
+      };
+      const updatedQueue = [...queue, newItem];
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success("Prompt duplicated and added to end of queue");
+    },
+    [queue]
+  );
+
+  const handleDuplicateWithAI = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+      const newItem: QueueItem = {
+        ...item,
+        id: Math.random().toString(36).substring(2, 9),
+        originalPrompt: item.originalPrompt + " (AI enhanced variation)",
+        finalPrompt: constructFinalPrompt(item.originalPrompt + " (AI enhanced variation)"),
+        status: QueueStatus.Pending,
+        error: undefined,
+        completionTimeSeconds: undefined,
+        startTime: undefined,
+        endTime: undefined,
+      };
+      const updatedQueue = [...queue, newItem];
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue, constructFinalPrompt]
+  );
+
+  const handleEditItem = useCallback(
+    async (id: string, newPrompt: string) => {
+      const updatedQueue = queue.map((item) =>
+        item.id === id
+          ? { ...item, originalPrompt: newPrompt, finalPrompt: constructFinalPrompt(newPrompt) }
+          : item
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue, constructFinalPrompt]
   );
 
   const handleClearAll = useCallback(() => {
@@ -251,16 +336,102 @@ export default function App() {
   }, []);
 
   const confirmClearAll = useCallback(async () => {
+    const count = queue.length;
     setQueueState([]);
     await setQueue([]);
     setShowClearAllConfirm(false);
-  }, []);
+    toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""} from queue`);
+  }, [queue.length]);
 
   const handleClearCompleted = useCallback(async () => {
-    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
+    const completedCount = queue.filter((item) => item.status === QueueStatus.Completed).length;
+    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.Completed);
     setQueueState(updatedQueue);
     await setQueue(updatedQueue);
+    if (completedCount > 0) {
+      toast.success(`Cleared ${completedCount} completed item${completedCount !== 1 ? "s" : ""}`);
+    }
   }, [queue]);
+
+  const handleClearByFilter = useCallback(
+    async (filter: { status?: QueueStatus; tool?: GeminiTool; mode?: GeminiMode }) => {
+      const itemsToRemove = queue.filter((item) => {
+        if (filter.status && item.status !== filter.status) return false;
+        if (filter.tool && item.tool !== filter.tool) return false;
+        if (filter.mode && item.mode !== filter.mode) return false;
+        return true;
+      });
+      const count = itemsToRemove.length;
+      const updatedQueue = queue.filter((item) => !itemsToRemove.includes(item));
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""}`);
+    },
+    [queue]
+  );
+
+  const handleRunSingleItem = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+
+      const startTime = Date.now();
+      const updatedQueue = queue.map((i) =>
+        i.id === id ? { ...i, status: QueueStatus.Processing, startTime } : i
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+
+      toast.info("Running prompt...");
+
+      try {
+        const response = await sendMessage<boolean>({
+          type: MessageType.PASTE_PROMPT,
+          payload: {
+            prompt: item.finalPrompt,
+            tool: item.tool || settings.defaultTool,
+            images: item.images ?? [],
+            mode: item.mode,
+          },
+        });
+
+        const endTime = Date.now();
+        const completionTimeSeconds = (endTime - startTime) / 1000;
+
+        if (response?.success) {
+          const completedQueue = queue.map((i) =>
+            i.id === id
+              ? {
+                  ...i,
+                  status: QueueStatus.Completed,
+                  endTime,
+                  completionTimeSeconds,
+                }
+              : i
+          );
+          setQueueState(completedQueue);
+          await setQueue(completedQueue);
+          toast.success("Prompt completed!");
+        } else {
+          throw new Error("Failed to run prompt");
+        }
+      } catch (error) {
+        const failedQueue = queue.map((i) =>
+          i.id === id
+            ? {
+                ...i,
+                status: QueueStatus.Failed,
+                error: error instanceof Error ? error.message : "Unknown error",
+              }
+            : i
+        );
+        setQueueState(failedQueue);
+        await setQueue(failedQueue);
+        toast.error("Failed to run prompt");
+      }
+    },
+    [queue, settings.defaultTool]
+  );
 
   const handleCsvUpload = useCallback(
     async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
@@ -301,7 +472,7 @@ export default function App() {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: item.prompt,
           finalPrompt: constructFinalPrompt(item.prompt),
-          status: QueueStatus.IDLE,
+          status: QueueStatus.Pending,
           tool: tool ?? settings.defaultTool,
           images: item.images && item.images.length > 0 ? [...item.images] : undefined,
         };
@@ -310,6 +481,9 @@ export default function App() {
       const updatedQueue = [...queue, ...newItems];
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
+      toast.success(
+        `Imported ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} from CSV`
+      );
     },
     [queue, constructFinalPrompt, settings.defaultTool]
   );
@@ -319,9 +493,11 @@ export default function App() {
     if (isProcessing) {
       await sendMessage({ type: MessageType.STOP_PROCESSING });
       setIsProcessing(false);
+      toast.info("Processing stopped");
     } else {
       await sendMessage({ type: MessageType.PROCESS_QUEUE });
       setIsProcessing(true);
+      toast.success("Processing started");
     }
   }, [isProcessing]);
 
@@ -490,6 +666,15 @@ export default function App() {
         isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
       }`}
     >
+      <Toaster
+        position="top-center"
+        theme={isDark ? "dark" : "light"}
+        toastOptions={{
+          className: "text-xs",
+          duration: 3000,
+        }}
+      />
+
       {/* Onboarding */}
       {showOnboarding && (
         <OnboardingModal
@@ -524,6 +709,14 @@ export default function App() {
         onSave={(key) => {
           handleSaveApiKey(key).catch(() => {});
         }}
+      />
+
+      {/* Export Dialog */}
+      <ExportDialog
+        isOpen={showExportDialog}
+        onClose={() => setShowExportDialog(false)}
+        queue={queue}
+        isDark={isDark}
       />
 
       {/* Header */}
@@ -609,9 +802,15 @@ export default function App() {
               onRemoveFromQueue={handleRemoveFromQueue}
               onRetryQueueItem={handleRetryQueueItem}
               onClearAll={handleClearAll}
+              onClearByFilter={handleClearByFilter}
+              onRunSingleItem={handleRunSingleItem}
               onOpenCsvDialog={() => {
                 setShowCsvDialog(true);
               }}
+              onReorderQueue={handleReorderQueue}
+              onDuplicateItem={handleDuplicateItem}
+              onDuplicateWithAI={handleDuplicateWithAI}
+              onEditItem={handleEditItem}
             />
           </div>
         )}
@@ -695,7 +894,7 @@ export default function App() {
             onClick={() => {
               handleClearCompleted().catch(() => {});
             }}
-            disabled={queue.filter((item) => item.status === QueueStatus.COMPLETED).length === 0}
+            disabled={queue.filter((item) => item.status === QueueStatus.Completed).length === 0}
             title="Clear completed items"
             className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-[10px] font-black uppercase transition-all ${
               isDark
@@ -705,6 +904,19 @@ export default function App() {
           >
             <CheckCheck size={14} />
             <span className="hidden sm:inline">Clear Completed</span>
+          </button>
+          <button
+            onClick={() => setShowExportDialog(true)}
+            disabled={queue.length === 0}
+            title="Export queue to file"
+            className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-[10px] font-black uppercase transition-all ${
+              isDark
+                ? "border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20 disabled:opacity-30 disabled:hover:border-blue-500/30 disabled:hover:bg-blue-500/10"
+                : "border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 disabled:opacity-30 disabled:hover:border-blue-300 disabled:hover:bg-blue-50"
+            }`}
+          >
+            <Download size={14} />
+            <span className="hidden sm:inline">Export</span>
           </button>
           <button
             data-onboarding="start-button"
@@ -727,10 +939,10 @@ export default function App() {
         </div>
 
         {/* Results Preview */}
-        {queue.filter((item) => item.status === QueueStatus.COMPLETED).length > 0 && (
+        {queue.filter((item) => item.status === QueueStatus.Completed).length > 0 && (
           <div className="no-scrollbar flex gap-1 overflow-x-auto py-1">
             {queue
-              .filter((item) => item.status === QueueStatus.COMPLETED)
+              .filter((item) => item.status === QueueStatus.Completed)
               .slice(-5)
               .map((item) => {
                 const resultUrl = item.results?.flash?.url ?? item.results?.pro?.url;
@@ -759,6 +971,8 @@ export default function App() {
           </div>
         )}
       </div>
+
+      <Footer isDark={isDark} />
     </div>
   );
 }

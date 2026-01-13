@@ -1,6 +1,7 @@
-import { Github, Heart, Linkedin, MessageSquare, Power } from "lucide-react";
+import { Github, Heart, Linkedin, MessageSquare, PanelRight, Power } from "lucide-react";
 import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 import { useEffect, useState } from "react";
+import { MessageType } from "@/types";
 
 export default function Popup() {
   const [enabled, setEnabled] = useState<boolean>(true);
@@ -33,11 +34,7 @@ export default function Popup() {
       {/* Header */}
       <div className="border-b border-white/10 bg-white/5 px-4 py-3">
         <div className="flex items-center gap-2">
-          <img
-            src="/icons/icon-48.png"
-            alt="Nano Flow"
-            className="h-8 w-8 rounded-lg"
-          />
+          <img src="/icons/icon-48.png" alt="Nano Flow" className="h-8 w-8 rounded-lg" />
           <div>
             <h1 className="text-sm font-semibold">Gemini Nano Flow</h1>
             <p className="text-xs text-gray-400">Bulk Image Generation</p>
@@ -46,7 +43,7 @@ export default function Popup() {
       </div>
 
       {/* Toggle Section */}
-      <div className="px-4 py-6">
+      <div className="px-4 py-4">
         <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
           <div className="flex-1">
             <div className="mb-1 flex items-center gap-2">
@@ -74,6 +71,19 @@ export default function Popup() {
             />
           </button>
         </div>
+      </div>
+
+      {/* Open Side Panel Button */}
+      <div className="px-4 pb-4">
+        <button
+          onClick={() => {
+            chrome.runtime.sendMessage({ type: MessageType.OPEN_SIDE_PANEL });
+          }}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-3 text-sm font-medium text-blue-400 transition-all hover:border-blue-500/50 hover:from-blue-500/20 hover:to-purple-500/20"
+        >
+          <PanelRight className="h-4 w-4" />
+          Open Side Panel
+        </button>
       </div>
 
       {/* Contact/Feedback Section */}

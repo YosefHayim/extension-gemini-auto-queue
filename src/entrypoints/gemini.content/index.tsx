@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
+import { Toaster, toast } from "sonner";
 
 import { CsvDialog } from "@/components/CsvDialog";
+import { Footer } from "@/components/Footer";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { QueuePanel } from "@/components/QueuePanel";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -35,6 +37,7 @@ import {
   setSettings,
 } from "@/services/storageService";
 import {
+  GeminiMode,
   GeminiTool,
   MessageType,
   QueueStatus,
@@ -206,7 +209,13 @@ function InjectableSidebar() {
   );
 
   const handleAddToQueue = useCallback(
-    async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
+    async (
+      text?: string,
+      templateText?: string,
+      images?: string[],
+      tool?: GeminiTool,
+      mode?: GeminiMode
+    ) => {
       const sourceText = text ?? "";
 
       // Smart parsing: split by blank lines (paragraphs) - each paragraph is one prompt
@@ -267,8 +276,9 @@ function InjectableSidebar() {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: line,
           finalPrompt: constructFinalPrompt(combinedPrompt),
-          status: QueueStatus.IDLE,
+          status: QueueStatus.Pending,
           tool: tool ?? settings.defaultTool,
+          mode: mode ?? GeminiMode.Quick,
           images: images && images.length > 0 ? [...images] : undefined,
         };
       });
@@ -276,6 +286,7 @@ function InjectableSidebar() {
       const updatedQueue = [...queue, ...newItems];
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
+      toast.success(`Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`);
     },
     [queue, constructFinalPrompt, settings.defaultTool]
   );
@@ -290,20 +301,164 @@ function InjectableSidebar() {
   );
 
   const handleClearAll = useCallback(async () => {
+    const count = queue.length;
     setQueueState([]);
     await setQueue([]);
-  }, []);
+    toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""} from queue`);
+  }, [queue.length]);
+
+  const handleClearByFilter = useCallback(
+    async (filter: { status?: QueueStatus; tool?: GeminiTool; mode?: GeminiMode }) => {
+      const itemsToRemove = queue.filter((item) => {
+        if (filter.status && item.status !== filter.status) return false;
+        if (filter.tool && item.tool !== filter.tool) return false;
+        if (filter.mode && item.mode !== filter.mode) return false;
+        return true;
+      });
+      const count = itemsToRemove.length;
+      const updatedQueue = queue.filter((item) => !itemsToRemove.includes(item));
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""}`);
+    },
+    [queue]
+  );
+
+  const handleRunSingleItem = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+
+      const startTime = Date.now();
+      const updatedQueue = queue.map((i) =>
+        i.id === id ? { ...i, status: QueueStatus.Processing, startTime } : i
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+
+      toast.info("Running prompt...");
+
+      try {
+        const success = await automationModule.processPrompt(
+          item.finalPrompt,
+          item.tool || settings.defaultTool,
+          item.images,
+          item.mode
+        );
+
+        const endTime = Date.now();
+        const completionTimeSeconds = (endTime - startTime) / 1000;
+
+        if (success) {
+          const completedQueue = queue.map((i) =>
+            i.id === id
+              ? {
+                  ...i,
+                  status: QueueStatus.Completed,
+                  endTime,
+                  completionTimeSeconds,
+                }
+              : i
+          );
+          setQueueState(completedQueue);
+          await setQueue(completedQueue);
+          toast.success("Prompt completed!");
+        } else {
+          throw new Error("Failed to run prompt");
+        }
+      } catch (error) {
+        const failedQueue = queue.map((i) =>
+          i.id === id
+            ? {
+                ...i,
+                status: QueueStatus.Failed,
+                error: error instanceof Error ? error.message : "Unknown error",
+              }
+            : i
+        );
+        setQueueState(failedQueue);
+        await setQueue(failedQueue);
+        toast.error("Failed to run prompt");
+      }
+    },
+    [queue, settings.defaultTool]
+  );
 
   const handleRetryQueueItem = useCallback(
     async (id: string) => {
       const updatedQueue = queue.map((item) =>
-        item.id === id ? { ...item, status: QueueStatus.IDLE, error: undefined } : item
+        item.id === id ? { ...item, status: QueueStatus.Pending, error: undefined } : item
       );
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
     },
     [queue]
   );
+
+  const handleReorderQueue = useCallback(async (newQueue: QueueItem[]) => {
+    setQueueState(newQueue);
+    await setQueue(newQueue);
+  }, []);
+
+  const handleDuplicateItem = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+      const newItem: QueueItem = {
+        ...item,
+        id: Math.random().toString(36).substring(2, 9),
+        status: QueueStatus.Pending,
+        error: undefined,
+        completionTimeSeconds: undefined,
+        startTime: undefined,
+        endTime: undefined,
+      };
+      const updatedQueue = [...queue, newItem];
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success("Prompt duplicated and added to end of queue");
+    },
+    [queue]
+  );
+
+  const handleDuplicateWithAI = useCallback(
+    async (id: string) => {
+      const item = queue.find((i) => i.id === id);
+      if (!item) return;
+      const newItem: QueueItem = {
+        ...item,
+        id: Math.random().toString(36).substring(2, 9),
+        originalPrompt: item.originalPrompt + " (AI enhanced variation)",
+        finalPrompt: constructFinalPrompt(item.originalPrompt + " (AI enhanced variation)"),
+        status: QueueStatus.Pending,
+        error: undefined,
+        completionTimeSeconds: undefined,
+        startTime: undefined,
+        endTime: undefined,
+      };
+      const updatedQueue = [...queue, newItem];
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue, constructFinalPrompt]
+  );
+
+  const handleEditItem = useCallback(
+    async (id: string, newPrompt: string) => {
+      const updatedQueue = queue.map((item) =>
+        item.id === id
+          ? { ...item, originalPrompt: newPrompt, finalPrompt: constructFinalPrompt(newPrompt) }
+          : item
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue, constructFinalPrompt]
+  );
+
+  const handleModeChange = useCallback(async (mode: GeminiMode) => {
+    await automationModule.selectMode(mode);
+  }, []);
 
   const handleCsvUpload = useCallback(
     async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
@@ -317,13 +472,15 @@ function InjectableSidebar() {
           learning: GeminiTool.LEARNING,
           layout: GeminiTool.VISUAL_LAYOUT,
         };
-        const tool = item.tool ? toolMap[item.tool.toLowerCase()] ?? settings.defaultTool : settings.defaultTool;
+        const tool = item.tool
+          ? (toolMap[item.tool.toLowerCase()] ?? settings.defaultTool)
+          : settings.defaultTool;
 
         return {
           id: Math.random().toString(36).substring(2, 9),
           originalPrompt: item.prompt,
           finalPrompt: constructFinalPrompt(item.prompt),
-          status: QueueStatus.IDLE,
+          status: QueueStatus.Pending,
           tool,
           images: item.images && item.images.length > 0 ? item.images : undefined,
         };
@@ -590,6 +747,15 @@ function InjectableSidebar() {
             : "none",
         }}
       >
+        <Toaster
+          position="top-center"
+          theme={isDark ? "dark" : "light"}
+          toastOptions={{
+            className: "text-xs",
+            duration: 3000,
+          }}
+        />
+
         {/* Onboarding */}
         {showOnboarding && (
           <OnboardingModal
@@ -708,9 +874,16 @@ function InjectableSidebar() {
               onRemoveFromQueue={handleRemoveFromQueue}
               onRetryQueueItem={handleRetryQueueItem}
               onClearAll={handleClearAll}
+              onClearByFilter={handleClearByFilter}
               onOpenCsvDialog={() => {
                 setShowCsvDialog(true);
               }}
+              onReorderQueue={handleReorderQueue}
+              onDuplicateItem={handleDuplicateItem}
+              onDuplicateWithAI={handleDuplicateWithAI}
+              onEditItem={handleEditItem}
+              onRunSingleItem={handleRunSingleItem}
+              onModeChange={handleModeChange}
             />
           )}
 
@@ -769,10 +942,10 @@ function InjectableSidebar() {
           </div>
 
           {/* Results Preview */}
-          {queue.filter((item) => item.status === QueueStatus.COMPLETED).length > 0 && (
+          {queue.filter((item) => item.status === QueueStatus.Completed).length > 0 && (
             <div className="no-scrollbar flex gap-1 overflow-x-auto py-1">
               {queue
-                .filter((item) => item.status === QueueStatus.COMPLETED)
+                .filter((item) => item.status === QueueStatus.Completed)
                 .slice(-5)
                 .map((item) => {
                   const resultUrl = item.results?.flash?.url ?? item.results?.pro?.url;
@@ -801,6 +974,8 @@ function InjectableSidebar() {
             </div>
           )}
         </div>
+
+        <Footer isDark={isDark} />
       </div>
     </div>
   );

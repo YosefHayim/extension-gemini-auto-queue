@@ -9,13 +9,54 @@ import {
   Video,
 } from "lucide-react";
 
+// User-friendly queue status names for better UX
 export enum QueueStatus {
-  IDLE = "IDLE",
-  PROCESSING = "PROCESSING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  PAUSED = "PAUSED",
+  Pending = "Pending",
+  Processing = "Processing",
+  Completed = "Completed",
+  Failed = "Failed",
 }
+
+// Gemini speed/quality modes - affects generation time and quality
+export enum GeminiMode {
+  Quick = "quick", // Fast generation, lower quality (זריז)
+  Deep = "deep", // Balanced, deeper thinking (מעמיק)
+  Pro = "pro", // Highest quality, slower (Pro)
+}
+
+// Mode display info for UI
+export const GEMINI_MODE_INFO: Record<
+  GeminiMode,
+  {
+    label: string;
+    labelHebrew: string;
+    description: string;
+    dataTestId: string;
+    color: string;
+  }
+> = {
+  [GeminiMode.Quick]: {
+    label: "Quick",
+    labelHebrew: "זריז",
+    description: "Fast responses, best for simple tasks",
+    dataTestId: "bard-mode-option-זריז",
+    color: "emerald",
+  },
+  [GeminiMode.Deep]: {
+    label: "Deep",
+    labelHebrew: "מעמיק",
+    description: "Deeper thinking, better for complex tasks",
+    dataTestId: "bard-mode-option-מעמיק",
+    color: "blue",
+  },
+  [GeminiMode.Pro]: {
+    label: "Pro",
+    labelHebrew: "Pro",
+    description: "Highest quality, best for creative work",
+    dataTestId: "bard-mode-option-pro",
+    color: "purple",
+  },
+};
 
 export interface ModelResult {
   url: string;
@@ -28,10 +69,11 @@ export interface QueueItem {
   originalPrompt: string;
   finalPrompt: string;
   status: QueueStatus;
-  tool?: GeminiTool; // Which Gemini tool to use for this prompt
+  tool?: GeminiTool;
+  mode?: GeminiMode;
   startTime?: number;
   endTime?: number;
-  completionTimeSeconds?: number; // Time taken to complete in seconds
+  completionTimeSeconds?: number;
   images?: string[];
   results?: {
     flash?: ModelResult;
@@ -115,6 +157,7 @@ export interface Folder {
 export enum ThemeMode {
   LIGHT = "LIGHT",
   DARK = "DARK",
+  SYSTEM = "SYSTEM",
 }
 
 // AI Providers for prompt optimization

@@ -40,7 +40,7 @@ export function useQueue(): UseQueueReturn {
         setQueueState(queueData);
 
         // Check if any items are processing
-        const hasProcessing = queueData.some((item) => item.status === QueueStatus.PROCESSING);
+        const hasProcessing = queueData.some((item) => item.status === QueueStatus.Processing);
         setIsProcessing(hasProcessing);
       } catch {
         // Error loading queue
@@ -61,7 +61,7 @@ export function useQueue(): UseQueueReturn {
 
         // Check processing status
         const hasProcessing = (newQueue ?? []).some(
-          (item) => item.status === QueueStatus.PROCESSING
+          (item) => item.status === QueueStatus.Processing
         );
         setIsProcessing(hasProcessing);
       }
@@ -107,7 +107,7 @@ export function useQueue(): UseQueueReturn {
   );
 
   const clearCompleted = useCallback(async () => {
-    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.COMPLETED);
+    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.Completed);
     setQueueState(updatedQueue);
     await setQueue(updatedQueue);
   }, [queue]);
@@ -176,7 +176,7 @@ export function createQueueItems(
     id: Math.random().toString(36).substring(2, 9),
     originalPrompt: prompt,
     finalPrompt: constructFinalPrompt(prompt, settings),
-    status: QueueStatus.IDLE,
+    status: QueueStatus.Pending,
     tool,
     images: images && images.length > 0 ? [...images] : undefined,
   }));

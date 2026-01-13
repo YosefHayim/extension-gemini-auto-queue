@@ -4,6 +4,7 @@ import {
   EyeOff,
   Info,
   Key,
+  Laptop,
   Moon,
   PanelLeft,
   PanelRight,
@@ -201,31 +202,38 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
       {/* Theme Toggle */}
       <div
+        data-onboarding="theme-selector"
         className={`space-y-2 rounded-md border p-2 ${isDark ? "bg-white/2 border-white/5" : "border-slate-100 bg-slate-50"}`}
       >
-        <div className="flex items-center justify-between px-1">
-          <label className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
-            Interface Theme
-            <SettingInfo text="Switch between dark and light appearance" isDark={isDark} />
-          </label>
-          <button
-            onClick={() => {
-              onUpdateSettings({
-                theme: isDark ? ThemeMode.LIGHT : ThemeMode.DARK,
-              });
-            }}
-            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className={`flex items-center gap-2 rounded-md border p-2 text-[10px] font-black uppercase transition-all ${
-              isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-100"
-            }`}
-          >
-            {isDark ? (
-              <Sun size={12} className="text-amber-400" />
-            ) : (
-              <Moon size={12} className="text-blue-500" />
-            )}
-            {isDark ? "Switch to Light" : "Switch to Dark"}
-          </button>
+        <label className="ml-1 flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
+          Interface Theme
+          <SettingInfo
+            text="Choose Light, Dark, or System to follow your browser preference"
+            isDark={isDark}
+          />
+        </label>
+        <div className="flex gap-1">
+          {[
+            { mode: ThemeMode.LIGHT, icon: Sun, label: "Light", color: "text-amber-500" },
+            { mode: ThemeMode.DARK, icon: Moon, label: "Dark", color: "text-blue-500" },
+            { mode: ThemeMode.SYSTEM, icon: Laptop, label: "System", color: "text-purple-500" },
+          ].map(({ mode, icon: Icon, label, color }) => (
+            <button
+              key={mode}
+              onClick={() => onUpdateSettings({ theme: mode })}
+              title={`Use ${label.toLowerCase()} theme${mode === ThemeMode.SYSTEM ? " (follows browser)" : ""}`}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2 text-[9px] font-bold uppercase transition-all ${
+                settings.theme === mode
+                  ? "border-blue-500/50 bg-blue-500/10 text-blue-500 shadow-sm"
+                  : isDark
+                    ? "border-white/10 bg-white/5 opacity-60 hover:opacity-100"
+                    : "border-slate-200 bg-slate-100 opacity-60 hover:opacity-100"
+              }`}
+            >
+              <Icon size={12} className={settings.theme === mode ? color : ""} />
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

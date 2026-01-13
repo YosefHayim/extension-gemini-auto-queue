@@ -242,7 +242,7 @@ export default defineBackground(() => {
 
     while (isProcessing) {
       const queue = await getQueue();
-      const nextItem = queue.find((item) => item.status === QueueStatus.IDLE);
+      const nextItem = queue.find((item) => item.status === QueueStatus.Pending);
 
       if (!nextItem) {
         // No more items to process
@@ -253,7 +253,7 @@ export default defineBackground(() => {
       // Update item to processing status
       const startTime = Date.now();
       await updateQueueItem(nextItem.id, {
-        status: QueueStatus.PROCESSING,
+        status: QueueStatus.Processing,
         startTime,
       });
 
@@ -292,7 +292,7 @@ export default defineBackground(() => {
 
         if (response.success) {
           await updateQueueItem(nextItem.id, {
-            status: QueueStatus.COMPLETED,
+            status: QueueStatus.Completed,
             endTime,
             completionTimeSeconds,
             results: {
@@ -316,7 +316,7 @@ export default defineBackground(() => {
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {
         await updateQueueItem(nextItem.id, {
-          status: QueueStatus.FAILED,
+          status: QueueStatus.Failed,
           error: error instanceof Error ? error.message : "Generation failed",
         });
       }

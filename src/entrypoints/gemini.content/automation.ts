@@ -1,5 +1,5 @@
 import type { ExtensionMessage, ExtensionResponse } from "@/types";
-import { GeminiTool, MessageType } from "@/types";
+import { GEMINI_MODE_INFO, GeminiMode, GeminiTool, MessageType } from "@/types";
 
 // Network request monitoring state
 interface NetworkMonitor {
@@ -113,7 +113,9 @@ function initNetworkMonitor(): void {
 
   XMLHttpRequest.prototype.open = function (method: string, url: string | URL, ...rest: unknown[]) {
     (this as XMLHttpRequest & { _nanoFlowUrl: string })._nanoFlowUrl = url.toString();
-    return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<typeof originalXHROpen>);
+    return originalXHROpen.apply(this, [method, url, ...rest] as Parameters<
+      typeof originalXHROpen
+    >);
   };
 
   XMLHttpRequest.prototype.send = function (...args) {
@@ -299,6 +301,10 @@ const TOOL_SELECTORS: Record<
     fontIcons: ["team_dashboard", "dashboard", "view_quilt", "drive_drawing"],
   },
 };
+
+// State tracking to avoid redundant selections
+let currentActiveMode: GeminiMode | null = null;
+let currentActiveTool: GeminiTool | null = null;
 
 // Helper to find element with multiple selectors
 function findElement(...selectors: string[]): Element | null {
@@ -608,15 +614,17 @@ function isToolCurrentlyActive(tool: GeminiTool): boolean {
   return false;
 }
 
-// Select a specific Gemini tool
 async function selectTool(tool: GeminiTool): Promise<boolean> {
-  // If NONE, skip tool selection
   if (tool === GeminiTool.NONE) {
     return true;
   }
 
-  // Check if tool is already active - no need to select again
+  if (currentActiveTool === tool) {
+    return true;
+  }
+
   if (isToolCurrentlyActive(tool)) {
+    currentActiveTool = tool;
     return true;
   }
 
@@ -722,9 +730,113 @@ async function selectTool(tool: GeminiTool): Promise<boolean> {
   toolBtn.click();
   await sleep(400);
 
+  currentActiveTool = tool;
   return true;
 }
 
+function isModeCurrentlyActive(mode: GeminiMode): boolean {
+  const modeInfo = GEMINI_MODE_INFO[mode];
+
+  // Method 1: Check by data-test-id attribute (most reliable)
+  const modeButton = document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`);
+  if (modeButton) {
+    // Check if this button is in a selected/active state
+    const isPressed = modeButton.getAttribute("aria-pressed") === "true";
+    const isSelected = modeButton.getAttribute("aria-selected") === "true";
+    const hasActiveClass =
+      modeButton.classList.contains("active") ||
+      modeButton.classList.contains("selected") ||
+      modeButton.classList.contains("mdc-tab--active");
+    if (isPressed || isSelected || hasActiveClass) {
+      return true;
+    }
+  }
+
+  // Method 2: Check for active mode indicator with Hebrew text
+  const activeIndicators = document.querySelectorAll(
+    '[aria-pressed="true"], [aria-selected="true"], .selected, .active, .mdc-tab--active'
+  );
+  for (const indicator of activeIndicators) {
+    const text = indicator.textContent?.toLowerCase() ?? "";
+    if (
+      text.includes(modeInfo.labelHebrew.toLowerCase()) ||
+      text.includes(modeInfo.label.toLowerCase())
+    ) {
+      return true;
+    }
+  }
+
+  // Method 3: Check URL for mode parameter (some modes change URL)
+  const url = window.location.href.toLowerCase();
+  if (mode === GeminiMode.Pro && url.includes("pro")) {
+    return true;
+  }
+
+  return false;
+}
+
+// Select a specific Gemini mode (Quick/Deep/Pro)
+async function selectMode(mode: GeminiMode): Promise<boolean> {
+  // Check if mode is already active - no need to select again
+  if (isModeCurrentlyActive(mode)) {
+    currentActiveMode = mode;
+    return true;
+  }
+
+  const modeInfo = GEMINI_MODE_INFO[mode];
+
+  // Method 1: Find by data-test-id (most reliable for Gemini modes)
+  let modeBtn = document.querySelector(
+    `[data-test-id="${modeInfo.dataTestId}"]`
+  ) as HTMLElement | null;
+
+  // Method 2: Find by text content containing Hebrew label
+  if (!modeBtn) {
+    const buttons = document.querySelectorAll("button, [role='tab'], [role='button']");
+    for (const btn of buttons) {
+      const text = btn.textContent?.trim() ?? "";
+      if (
+        text.includes(modeInfo.labelHebrew) ||
+        text.toLowerCase().includes(modeInfo.label.toLowerCase())
+      ) {
+        modeBtn = btn as HTMLElement;
+        break;
+      }
+    }
+  }
+
+  // Method 3: Find mode selector tabs
+  if (!modeBtn) {
+    const tabs = document.querySelectorAll("[role='tablist'] [role='tab']");
+    for (const tab of tabs) {
+      const text = tab.textContent?.trim() ?? "";
+      if (
+        text.includes(modeInfo.labelHebrew) ||
+        text.toLowerCase().includes(modeInfo.label.toLowerCase())
+      ) {
+        modeBtn = tab as HTMLElement;
+        break;
+      }
+    }
+  }
+
+  if (!modeBtn) {
+    return false;
+  }
+
+  modeBtn.click();
+  await sleep(300);
+
+  // Verify mode was selected
+  if (isModeCurrentlyActive(mode)) {
+    currentActiveMode = mode;
+    return true;
+  }
+
+  // Even if verification fails, assume success since we clicked
+  currentActiveMode = mode;
+  return true;
+}
 
 // Submit the prompt
 async function submitPrompt(): Promise<boolean> {
@@ -1374,19 +1486,19 @@ async function waitForDOMGenerationComplete(
   return true;
 }
 
-// Process a single prompt through the UI
 async function processPromptThroughUI(
   prompt: string,
   tool: GeminiTool = GeminiTool.IMAGE,
-  images?: string[]
+  images?: string[],
+  mode?: GeminiMode
 ): Promise<boolean> {
   try {
-    // Step 1: Select the appropriate tool
+    if (mode) {
+      await selectMode(mode);
+    }
+
     if (tool !== GeminiTool.NONE) {
-      const toolSelected = await selectTool(tool);
-      if (!toolSelected) {
-        // Could not select tool, continuing anyway
-      }
+      await selectTool(tool);
     }
 
     // Step 2: Upload reference images if provided (mainly for image tool)
@@ -1421,6 +1533,8 @@ async function processPromptThroughUI(
 
 // Automation module that handles message passing
 export const automationModule = {
+  selectMode,
+  processPrompt: processPromptThroughUI,
   init() {
     // Initialize network monitoring for better generation detection
     initNetworkMonitor();
@@ -1444,11 +1558,13 @@ export const automationModule = {
                 prompt: string;
                 tool?: GeminiTool;
                 images?: string[];
+                mode?: GeminiMode;
               };
               const success = await processPromptThroughUI(
                 payload.prompt,
                 payload.tool || GeminiTool.IMAGE,
-                payload.images
+                payload.images,
+                payload.mode
               );
               return { success };
             }
