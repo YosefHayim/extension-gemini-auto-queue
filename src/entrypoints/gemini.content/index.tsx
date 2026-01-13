@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Toaster, toast } from "sonner";
 
+import { BulkDownloadButton } from "@/components/BulkDownloadButton";
 import { CsvDialog } from "@/components/CsvDialog";
 import { Footer } from "@/components/Footer";
 import { OnboardingModal } from "@/components/OnboardingModal";
@@ -920,7 +921,7 @@ function InjectableSidebar() {
         <div
           className={`space-y-2 border-t p-2 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
         >
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               data-onboarding="start-button"
               onClick={() => {
@@ -928,7 +929,7 @@ function InjectableSidebar() {
               }}
               disabled={queue.length === 0}
               title={isProcessing ? "Stop processing queue" : "Start processing queue"}
-              className={`flex flex-[4] items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
+              className={`flex flex-1 items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
                 isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
               } text-white disabled:opacity-30`}
             >
@@ -939,6 +940,14 @@ function InjectableSidebar() {
               )}
               {isProcessing ? "Stop" : "Start"}
             </button>
+            <BulkDownloadButton
+              isDark={isDark}
+              onToast={(message, type) => {
+                if (type === "success") toast.success(message);
+                else if (type === "error") toast.error(message);
+                else toast.info(message);
+              }}
+            />
           </div>
 
           {/* Results Preview */}
