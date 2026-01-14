@@ -176,8 +176,8 @@ export function waitForNetworkComplete(timeout = 180000): Promise<boolean> {
   return new Promise((resolve) => {
     const startTime = Date.now();
     let resolved = false;
-    const POLL_INTERVAL = 500;
-    const IDLE_BUFFER = 2000;
+    const POLL_INTERVAL = 200;
+    const IDLE_BUFFER = 500;
 
     const poll = () => {
       if (resolved) return;

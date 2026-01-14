@@ -248,6 +248,29 @@ export default defineBackground(() => {
     }
   }
 
+  function sendMessageWithTimeout<T>(
+    tabId: number,
+    message: ExtensionMessage,
+    timeout = 300000
+  ): Promise<ExtensionResponse<T>> {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error(`Message timeout after ${timeout / 1000}s`));
+      }, timeout);
+
+      chrome.tabs
+        .sendMessage(tabId, message)
+        .then((response) => {
+          clearTimeout(timeoutId);
+          resolve(response);
+        })
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
+    });
+  }
+
   async function sendToContentScript<T>(message: ExtensionMessage): Promise<ExtensionResponse<T>> {
     const tabId = await findGeminiTab();
     console.log("[NanoFlow] sendToContentScript - tabId:", tabId, "message:", message.type);
@@ -261,7 +284,7 @@ export default defineBackground(() => {
     }
 
     try {
-      const response = await chrome.tabs.sendMessage(tabId, message);
+      const response = await sendMessageWithTimeout<T>(tabId, message);
       console.log("[NanoFlow] Content script response:", response);
       return response;
     } catch (error) {
@@ -362,11 +385,10 @@ export default defineBackground(() => {
           throw new Error(response.error || "Web automation failed");
         }
 
-        // Wait between items (longer for web automation)
-        // Note: settings already loaded earlier for tool selection
+        // Wait between items
         const waitTime = settings.dripFeed
-          ? 15000 + Math.random() * 10000 // 15-25 seconds with drip feed
-          : 8000 + Math.random() * 4000; // 8-12 seconds normally
+          ? 8000 + Math.random() * 7000 // 8-15 seconds with drip feed
+          : 1500 + Math.random() * 1500; // 1.5-3 seconds normally
 
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {

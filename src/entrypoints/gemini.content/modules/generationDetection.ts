@@ -272,7 +272,7 @@ async function waitForDOMGenerationComplete(
   let wasVideoGenerating = false;
   let wasCanvasGenerating = false;
   let consecutiveIdleChecks = 0;
-  const requiredIdleChecks = 4;
+  const requiredIdleChecks = 2;
 
   while (Date.now() - startTime < timeout) {
     const isThinking = isGeminiThinking();
@@ -305,7 +305,7 @@ async function waitForDOMGenerationComplete(
       consecutiveIdleChecks = 0;
     }
 
-    await sleep(500);
+    await sleep(200);
   }
 
   return true;
@@ -323,7 +323,7 @@ export async function waitForGenerationComplete(
 
   const initialResponseCount = countResponses();
 
-  await sleep(500);
+  await sleep(200);
 
   const startTime = Date.now();
 
@@ -340,25 +340,25 @@ export async function waitForGenerationComplete(
   if (tool === GeminiTool.VIDEO || isVideoGenerating()) {
     for (let i = 0; i < 10; i++) {
       if (isVideoGenerationComplete()) {
-        await sleep(2000);
+        await sleep(500);
         return true;
       }
-      await sleep(1000);
+      await sleep(300);
     }
   }
 
   if (tool === GeminiTool.CANVAS || isCanvasGenerating()) {
     for (let i = 0; i < 10; i++) {
       if (isCanvasGenerationComplete()) {
-        await sleep(1500);
+        await sleep(300);
         return true;
       }
-      await sleep(500);
+      await sleep(200);
     }
   }
 
   if (tool === GeminiTool.IMAGE) {
-    await sleep(1500);
+    await sleep(300);
     const responseImages = document.querySelectorAll(
       ".response-container img:not([src*='avatar']), .generated-image, img[alt*='Generated'], img[src*='blob:'], img[src*='data:']"
     );
@@ -377,7 +377,7 @@ export async function waitForGenerationComplete(
     }
   }
 
-  await sleep(500);
+  await sleep(200);
 
   const elapsed = Date.now() - startTime;
   log.endAction(actionKey, "waitForGeneration", "Generation complete", true, {

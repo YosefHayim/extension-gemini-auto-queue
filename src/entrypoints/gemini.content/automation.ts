@@ -49,7 +49,7 @@ async function processPromptThroughUI(
       if (!uploaded) {
         log.warn("processPrompt", "Image upload failed, continuing with text only");
       }
-      await sleep(500);
+      await sleep(200);
     }
 
     log.debug("processPrompt", "Pasting prompt");
@@ -85,12 +85,13 @@ function setupMessageListener(): void {
     (message: ExtensionMessage, _sender, sendResponse: (response: ExtensionResponse) => void) => {
       log.debug("messageListener", "Received message", { type: message.type });
 
+      if (message.type === MessageType.PING) {
+        sendResponse({ success: true });
+        return false;
+      }
+
       const handleAsync = async () => {
         switch (message.type) {
-          case MessageType.PING: {
-            return { success: true };
-          }
-
           case MessageType.PASTE_PROMPT: {
             const payload = message.payload as {
               prompt: string;
