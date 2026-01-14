@@ -76,6 +76,8 @@ export const Footer: React.FC<FooterProps> = ({ isDark }) => {
           }`}
         />
         <span className="font-light">by Yosef Hayim Sabag</span>
+        <span className="mx-1">·</span>
+        <span className="font-medium">v2.0.0</span>
       </div>
     </footer>
   );

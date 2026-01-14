@@ -9,6 +9,7 @@ declare global {
   const ExportDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ExportDialog')['default']
   const Footer: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/Footer')['default']
   const InvalidMatchPattern: typeof import('wxt/sandbox')['InvalidMatchPattern']
+  const LogLevel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/logger')['LogLevel']
   const MatchPattern: typeof import('wxt/sandbox')['MatchPattern']
   const MigrationError: typeof import('wxt/storage')['MigrationError']
   const OnboardingModal: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/OnboardingModal')['default']
@@ -52,6 +53,7 @@ declare global {
   const getExtFromMime: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['getExtFromMime']
   const getMimeFromBase64: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['getMimeFromBase64']
   const injectScript: typeof import('wxt/client')['injectScript']
+  const logger: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/logger')['logger']
   const sleep: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/timing')['sleep']
   const storage: typeof import('wxt/storage')['storage']
   const useAppConfig: typeof import('wxt/client')['useAppConfig']
@@ -74,6 +76,9 @@ declare global {
   // @ts-ignore
   export type { ResetFilter } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
   import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')
+  // @ts-ignore
+  export type { LogLevel, LogEntry, ModuleLogger } from '/Applications/Github/extension-gemini-auto-queue/src/utils/logger'
+  import('/Applications/Github/extension-gemini-auto-queue/src/utils/logger')
   // @ts-ignore
   export type { MediaItem } from '/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader'
   import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')

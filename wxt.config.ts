@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: {
     name: "Gemini Nano Flow",
     description: "A bulk image generation and automation tool for Gemini",
-    version: "1.1.0",
+    version: "2.0.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting"],
     host_permissions: ["*://gemini.google.com/*", "*://aistudio.google.com/*"],
     side_panel: {

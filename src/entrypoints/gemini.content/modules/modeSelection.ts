@@ -1,7 +1,28 @@
 import { GEMINI_MODE_INFO, GeminiMode } from "@/types";
-import { sleep } from "@/utils";
+import { sleep, logger } from "@/utils";
+
+const log = logger.module("ModeSelection");
 
 let currentActiveMode: GeminiMode | null = null;
+
+function simulateClick(element: HTMLElement): void {
+  const rect = element.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const mouseEventInit: MouseEventInit = {
+    bubbles: true,
+    cancelable: true,
+    view: window,
+    clientX: centerX,
+    clientY: centerY,
+    button: 0,
+  };
+
+  element.dispatchEvent(new MouseEvent("mousedown", mouseEventInit));
+  element.dispatchEvent(new MouseEvent("mouseup", mouseEventInit));
+  element.dispatchEvent(new MouseEvent("click", mouseEventInit));
+}
 
 function isModeCurrentlyActive(mode: GeminiMode): boolean {
   const modeInfo = GEMINI_MODE_INFO[mode];
@@ -15,19 +36,25 @@ function isModeCurrentlyActive(mode: GeminiMode): boolean {
       return true;
     }
 
+    const isChecked = modeButton.getAttribute("aria-checked") === "true";
     const isPressed = modeButton.getAttribute("aria-pressed") === "true";
     const isSelected = modeButton.getAttribute("aria-selected") === "true";
+    if (isChecked || isPressed || isSelected) {
+      return true;
+    }
+
     const hasActiveClass =
+      modeButton.classList.contains("is-selected") ||
       modeButton.classList.contains("active") ||
       modeButton.classList.contains("selected") ||
       modeButton.classList.contains("mdc-tab--active");
-    if (isPressed || isSelected || hasActiveClass) {
+    if (hasActiveClass) {
       return true;
     }
   }
 
   const activeIndicators = document.querySelectorAll(
-    '[aria-pressed="true"], [aria-selected="true"], .selected, .active, .mdc-tab--active'
+    '[aria-checked="true"], [aria-pressed="true"], [aria-selected="true"], .is-selected, .selected, .active, .mdc-tab--active'
   );
   for (const indicator of activeIndicators) {
     const text = indicator.textContent?.toLowerCase() ?? "";
@@ -58,7 +85,7 @@ async function openModeMenu(): Promise<boolean> {
   for (const selector of modeMenuTriggers) {
     const trigger = document.querySelector(selector) as HTMLElement | null;
     if (trigger) {
-      trigger.click();
+      simulateClick(trigger);
       await sleep(400);
       return true;
     }
@@ -78,7 +105,7 @@ async function openModeMenu(): Promise<boolean> {
     ) {
       const hasPopup = btn.getAttribute("aria-haspopup");
       if (hasPopup) {
-        btn.click();
+        simulateClick(btn);
         await sleep(400);
         return true;
       }
@@ -89,8 +116,16 @@ async function openModeMenu(): Promise<boolean> {
 }
 
 export async function selectMode(mode: GeminiMode): Promise<boolean> {
+  const actionKey = log.startAction("selectMode");
+
+  if (currentActiveMode === mode) {
+    log.endAction(actionKey, "selectMode", "Mode already cached", true, { mode });
+    return true;
+  }
+
   if (isModeCurrentlyActive(mode)) {
     currentActiveMode = mode;
+    log.endAction(actionKey, "selectMode", "Mode already active in UI", true, { mode });
     return true;
   }
 
@@ -135,13 +170,25 @@ export async function selectMode(mode: GeminiMode): Promise<boolean> {
   }
 
   if (!modeBtn) {
+    log.endAction(actionKey, "selectMode", "Mode button not found", false, { mode });
     return false;
   }
 
-  modeBtn.click();
+  log.debug("selectMode", `Clicking mode button: ${modeBtn.textContent?.trim()}`);
+  simulateClick(modeBtn);
   await sleep(300);
 
+  const stillNeedToSelect = !isModeCurrentlyActive(mode);
+  if (stillNeedToSelect) {
+    log.debug("selectMode", "First click didn't work, trying focus + click");
+    modeBtn.focus();
+    await sleep(100);
+    simulateClick(modeBtn);
+    await sleep(300);
+  }
+
   currentActiveMode = mode;
+  log.endAction(actionKey, "selectMode", "Mode selected successfully", true, { mode });
   return true;
 }
 

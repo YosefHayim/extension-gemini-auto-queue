@@ -1,5 +1,7 @@
 import { GeminiTool } from "@/types";
-import { findElement, sleep, SELECTORS, TOOL_SELECTORS } from "@/utils";
+import { findElement, sleep, SELECTORS, TOOL_SELECTORS, logger } from "@/utils";
+
+const log = logger.module("ToolSelection");
 
 let currentActiveTool: GeminiTool | null = null;
 
@@ -103,16 +105,21 @@ function isToolCurrentlyActive(tool: GeminiTool): boolean {
 }
 
 export async function selectTool(tool: GeminiTool): Promise<boolean> {
+  const actionKey = log.startAction("selectTool");
+
   if (tool === GeminiTool.NONE) {
+    log.endAction(actionKey, "selectTool", "No tool needed (NONE)", true);
     return true;
   }
 
   if (currentActiveTool === tool) {
+    log.endAction(actionKey, "selectTool", "Tool already cached", true, { tool });
     return true;
   }
 
   if (isToolCurrentlyActive(tool)) {
     currentActiveTool = tool;
+    log.endAction(actionKey, "selectTool", "Tool already active in UI", true, { tool });
     return true;
   }
 
@@ -199,6 +206,7 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
   }
 
   if (!toolBtn) {
+    log.endAction(actionKey, "selectTool", "Tool button not found", false, { tool });
     return false;
   }
 
@@ -206,6 +214,7 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
   await sleep(400);
 
   currentActiveTool = tool;
+  log.endAction(actionKey, "selectTool", "Tool selected successfully", true, { tool });
   return true;
 }
 

@@ -36,7 +36,7 @@ export default function Popup() {
           <img src="/icons/icon-48.png" alt="Nano Flow" className="h-8 w-8 rounded-lg" />
           <div>
             <h1 className="text-sm font-semibold">Gemini Nano Flow</h1>
-            <p className="text-xs text-gray-400">Bulk Image Generation</p>
+            <p className="text-xs text-gray-400">v2.0.0</p>
           </div>
         </div>
       </div>

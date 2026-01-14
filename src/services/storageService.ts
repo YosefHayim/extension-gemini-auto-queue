@@ -273,7 +273,7 @@ export function hasAnyAIKey(settings: AppSettings): boolean {
  */
 export async function isExtensionEnabled(): Promise<boolean> {
   try {
-    const result = chrome.storage.local.get(STORAGE_KEYS.EXTENSION_ENABLED);
+    const result = await chrome.storage.local.get(STORAGE_KEYS.EXTENSION_ENABLED);
     return (result[STORAGE_KEYS.EXTENSION_ENABLED] as boolean) ?? true; // Default to enabled
   } catch {
     return true;

@@ -1,6 +1,8 @@
 import { GeminiTool } from "@/types";
-import { sleep, SELECTORS } from "@/utils";
+import { sleep, SELECTORS, logger } from "@/utils";
 import { isNetworkGenerating, waitForNetworkComplete } from "./networkMonitor";
+
+const log = logger.module("GenerationDetection");
 
 export function isVideoGenerating(): boolean {
   const asyncChips = document.querySelectorAll("async-processing-chip");
@@ -313,6 +315,9 @@ export async function waitForGenerationComplete(
   tool: GeminiTool = GeminiTool.IMAGE,
   timeout = 180000
 ): Promise<boolean> {
+  const actionKey = log.startAction("waitForGeneration");
+  log.info("waitForGeneration", "Starting generation wait", { tool, timeout });
+
   const effectiveTimeout =
     tool === GeminiTool.VIDEO || tool === GeminiTool.CANVAS ? Math.max(timeout, 300000) : timeout;
 
@@ -373,6 +378,12 @@ export async function waitForGenerationComplete(
   }
 
   await sleep(500);
+
+  const elapsed = Date.now() - startTime;
+  log.endAction(actionKey, "waitForGeneration", "Generation complete", true, {
+    tool,
+    elapsedMs: elapsed,
+  });
 
   return true;
 }

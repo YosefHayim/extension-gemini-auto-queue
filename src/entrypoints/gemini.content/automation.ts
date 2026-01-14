@@ -1,6 +1,8 @@
 import type { ExtensionMessage, ExtensionResponse } from "@/types";
 import { GeminiMode, GeminiTool, MessageType } from "@/types";
-import { sleep } from "@/utils";
+import { sleep, logger } from "@/utils";
+
+const log = logger.module("Automation");
 import {
   initNetworkMonitor,
   selectTool,
@@ -17,55 +19,63 @@ async function processPromptThroughUI(
   images?: string[],
   mode?: GeminiMode
 ): Promise<{ success: boolean; error?: string }> {
+  const actionKey = log.startAction("processPrompt");
+
   try {
-    console.log("[NanoFlow Content] processPromptThroughUI starting", {
+    log.info("processPrompt", "Starting prompt processing", {
       tool,
       mode,
       hasImages: !!images?.length,
+      promptLength: prompt.length,
     });
 
     if (mode) {
-      console.log("[NanoFlow Content] Selecting mode:", mode);
+      log.debug("processPrompt", "Selecting mode", { mode });
       await selectMode(mode);
     }
 
     if (tool !== GeminiTool.NONE) {
-      console.log("[NanoFlow Content] Selecting tool:", tool);
+      log.debug("processPrompt", "Selecting tool", { tool });
       const toolSelected = await selectTool(tool);
       if (!toolSelected) {
+        log.endAction(actionKey, "processPrompt", "Failed to select tool", false, { tool });
         return { success: false, error: `Failed to select tool: ${tool}` };
       }
     }
 
     if (images && images.length > 0) {
-      console.log("[NanoFlow Content] Uploading", images.length, "images");
+      log.debug("processPrompt", "Uploading images", { count: images.length });
       const uploaded = await uploadImages(images);
       if (!uploaded) {
-        console.log("[NanoFlow Content] Image upload failed, continuing with text only");
+        log.warn("processPrompt", "Image upload failed, continuing with text only");
       }
       await sleep(500);
     }
 
-    console.log("[NanoFlow Content] Pasting prompt...");
+    log.debug("processPrompt", "Pasting prompt");
     const pasted = await pastePromptToInput(prompt);
     if (!pasted) {
+      log.endAction(actionKey, "processPrompt", "Failed to paste prompt", false);
       return { success: false, error: "Failed to paste prompt - input field not found" };
     }
 
-    console.log("[NanoFlow Content] Submitting prompt...");
+    log.debug("processPrompt", "Submitting prompt");
     const submitted = await submitPrompt();
     if (!submitted) {
+      log.endAction(actionKey, "processPrompt", "Failed to submit", false);
       return { success: false, error: "Failed to submit - send button not found or disabled" };
     }
 
-    console.log("[NanoFlow Content] Waiting for generation to complete...");
+    log.debug("processPrompt", "Waiting for generation to complete");
     await waitForGenerationComplete(tool);
 
-    console.log("[NanoFlow Content] Generation complete!");
+    log.endAction(actionKey, "processPrompt", "Generation complete", true);
     return { success: true };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Unknown error";
-    console.error("[NanoFlow Content] processPromptThroughUI error:", errorMsg);
+    log.endAction(actionKey, "processPrompt", "Error during processing", false, {
+      error: errorMsg,
+    });
     return { success: false, error: errorMsg };
   }
 }
@@ -73,7 +83,7 @@ async function processPromptThroughUI(
 function setupMessageListener(): void {
   chrome.runtime.onMessage.addListener(
     (message: ExtensionMessage, _sender, sendResponse: (response: ExtensionResponse) => void) => {
-      console.log("[NanoFlow Content] Received message:", message.type);
+      log.debug("messageListener", "Received message", { type: message.type });
 
       const handleAsync = async () => {
         switch (message.type) {
@@ -139,15 +149,16 @@ export const automationModule = {
   selectMode,
   processPrompt: processPromptThroughUI,
   init() {
-    console.log("[NanoFlow Content] automationModule.init() called");
+    log.info("init", "Initializing automation module");
     initNetworkMonitor();
 
     chrome.runtime
       .sendMessage({ type: MessageType.CONTENT_SCRIPT_READY })
-      .then(() => console.log("[NanoFlow Content] CONTENT_SCRIPT_READY sent"))
-      .catch((e) => console.log("[NanoFlow Content] CONTENT_SCRIPT_READY failed:", e));
+      .then(() => log.debug("init", "CONTENT_SCRIPT_READY sent"))
+      .catch((e) => log.warn("init", "CONTENT_SCRIPT_READY failed", { error: e }));
 
     setupMessageListener();
     setupKeyboardShortcuts();
+    log.info("init", "Automation module initialized");
   },
 };

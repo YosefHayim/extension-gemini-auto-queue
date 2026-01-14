@@ -11,3 +11,4 @@ export {
   getExtFromMime,
 } from "./dom";
 export { SELECTORS, TOOL_SELECTORS, type SelectorKey } from "./selectors";
+export { logger, LogLevel, type LogEntry, type ModuleLogger } from "./logger";
