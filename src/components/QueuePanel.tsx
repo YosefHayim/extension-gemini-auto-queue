@@ -159,6 +159,8 @@ interface QueuePanelProps {
   onBulkAIOptimize?: (instructions: string) => Promise<void>;
   onBulkModify?: (text: string, position: "prepend" | "append") => void;
   onBulkReset?: (filter: ResetFilter) => void;
+  onBulkRemoveText?: (text: string) => void;
+  onBulkRemoveFiles?: (indices: number[] | "all") => void;
   onClearCompleted?: () => void;
   onOpenExport?: () => void;
 }
@@ -192,6 +194,8 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onBulkAIOptimize,
   onBulkModify,
   onBulkReset,
+  onBulkRemoveText,
+  onBulkRemoveFiles,
   onClearCompleted,
   onOpenExport,
 }) => {
@@ -263,6 +267,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
 
   const pendingCount = useMemo(() => {
     return queue.filter((item) => item.status === QueueStatus.Pending).length;
+  }, [queue]);
+
+  const pendingItems = useMemo(() => {
+    return queue.filter((item) => item.status === QueueStatus.Pending);
   }, [queue]);
 
   const completedCount = useMemo(() => {
@@ -470,6 +478,15 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           setShowBulkActions(false);
         }}
         onCopyAllPrompts={() => queue.map((item) => item.originalPrompt).join("\n\n")}
+        pendingItems={pendingItems}
+        onBulkRemoveText={(text) => {
+          onBulkRemoveText?.(text);
+          setShowBulkActions(false);
+        }}
+        onBulkRemoveFiles={(indices) => {
+          onBulkRemoveFiles?.(indices);
+          setShowBulkActions(false);
+        }}
       />
       <div className="flex items-center justify-between">
         <span className="flex items-center text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">

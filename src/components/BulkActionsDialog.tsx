@@ -1,9 +1,35 @@
-import { Check, ClipboardCopy, File, Paperclip, Pencil, RefreshCw, Wand2, X } from "lucide-react";
+import {
+  Check,
+  ClipboardCopy,
+  File,
+  ImageMinus,
+  Paperclip,
+  Pencil,
+  RefreshCw,
+  Type,
+  Wand2,
+  X,
+} from "lucide-react";
 import React, { useRef, useState } from "react";
 
-import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool, QueueStatus } from "@/types";
+import {
+  GEMINI_MODE_INFO,
+  GEMINI_TOOL_INFO,
+  GeminiMode,
+  GeminiTool,
+  QueueItem,
+  QueueStatus,
+} from "@/types";
 
-type BulkActionType = "attach" | "ai" | "modify" | "reset" | "copy" | null;
+type BulkActionType =
+  | "attach"
+  | "ai"
+  | "modify"
+  | "reset"
+  | "copy"
+  | "removeText"
+  | "removeFiles"
+  | null;
 
 export interface ResetFilter {
   type: "all" | "text" | "hasImages" | "tool" | "mode" | "status";
@@ -22,11 +48,14 @@ interface BulkActionsDialogProps {
   totalCount: number;
   completedCount: number;
   failedCount: number;
+  pendingItems: QueueItem[];
   onBulkAttach: (images: string[]) => void;
   onBulkAIOptimize: (instructions: string) => void;
   onBulkModify: (text: string, position: "prepend" | "append") => void;
   onBulkReset: (filter: ResetFilter) => void;
   onCopyAllPrompts: () => string;
+  onBulkRemoveText: (text: string) => void;
+  onBulkRemoveFiles: (indices: number[] | "all") => void;
 }
 
 export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
@@ -38,11 +67,14 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   totalCount,
   completedCount,
   failedCount,
+  pendingItems,
   onBulkAttach,
   onBulkAIOptimize,
   onBulkModify,
   onBulkReset,
   onCopyAllPrompts,
+  onBulkRemoveText,
+  onBulkRemoveFiles,
 }) => {
   const [activeAction, setActiveAction] = useState<BulkActionType>(null);
   const [selectedFiles, setSelectedFiles] = useState<
@@ -58,9 +90,28 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   const [resetMode, setResetMode] = useState<GeminiMode | null>(null);
   const [resetStatus, setResetStatus] = useState<QueueStatus | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [textToRemove, setTextToRemove] = useState("");
+  const [selectedImagesForRemoval, setSelectedImagesForRemoval] = useState<number[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resettableCount = completedCount + failedCount;
+
+  // Get all unique images across pending items for removal UI
+  const allUniqueImages = React.useMemo(() => {
+    const imageSet = new Set<string>();
+    pendingItems.forEach((item) => {
+      item.images?.forEach((img) => imageSet.add(img));
+    });
+    return Array.from(imageSet);
+  }, [pendingItems]);
+
+  // Count prompts containing the text to remove
+  const textMatchCount = React.useMemo(() => {
+    if (!textToRemove.trim()) return 0;
+    return pendingItems.filter((item) =>
+      item.finalPrompt.toLowerCase().includes(textToRemove.toLowerCase())
+    ).length;
+  }, [pendingItems, textToRemove]);
 
   if (!isOpen) return null;
 
@@ -125,6 +176,12 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           filter.status = resetStatus;
         }
         onBulkReset(filter);
+      } else if (activeAction === "removeText" && textToRemove.trim()) {
+        onBulkRemoveText(textToRemove.trim());
+      } else if (activeAction === "removeFiles") {
+        if (selectedImagesForRemoval.length > 0) {
+          onBulkRemoveFiles(selectedImagesForRemoval);
+        }
       }
       handleClose();
     } finally {
@@ -144,6 +201,8 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
     setResetMode(null);
     setResetStatus(null);
     setCopySuccess(false);
+    setTextToRemove("");
+    setSelectedImagesForRemoval([]);
     onClose();
   };
 
@@ -205,6 +264,25 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           : "No prompts to copy",
       available: totalCount > 0,
       count: totalCount,
+    },
+    {
+      type: "removeText" as const,
+      icon: Type,
+      label: "Remove Text",
+      description: "Remove specific text from all pending prompts",
+      available: pendingCount > 0,
+      count: pendingCount,
+    },
+    {
+      type: "removeFiles" as const,
+      icon: ImageMinus,
+      label: "Remove Files",
+      description:
+        allUniqueImages.length > 0
+          ? "Remove attached images from pending prompts"
+          : "No images attached to remove",
+      available: allUniqueImages.length > 0,
+      count: allUniqueImages.length,
     },
   ];
 
@@ -271,7 +349,9 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                               ? "bg-amber-500/20 text-amber-500"
                               : action.type === "copy"
                                 ? "bg-cyan-500/20 text-cyan-500"
-                                : "bg-emerald-500/20 text-emerald-500"
+                                : action.type === "removeText" || action.type === "removeFiles"
+                                  ? "bg-rose-500/20 text-rose-500"
+                                  : "bg-emerald-500/20 text-emerald-500"
                     }`}
                   >
                     {action.type === "copy" && copySuccess ? (
@@ -620,6 +700,121 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                 {resetFilterType === "mode" && "Reset prompts using the selected mode"}
               </p>
             </div>
+          ) : activeAction === "removeText" ? (
+            <div className="space-y-4">
+              <button
+                onClick={() => setActiveAction(null)}
+                className={`text-xs font-medium ${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                &larr; Back
+              </button>
+
+              <div>
+                <label
+                  className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  Text to Remove
+                </label>
+                <input
+                  type="text"
+                  value={textToRemove}
+                  onChange={(e) => setTextToRemove(e.target.value)}
+                  placeholder="Enter text to remove from all prompts..."
+                  className={`w-full rounded-lg border p-3 text-sm outline-none transition-colors ${
+                    isDark
+                      ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-rose-500"
+                      : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-rose-500"
+                  }`}
+                />
+              </div>
+
+              {textToRemove.trim() && (
+                <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                  Found in {textMatchCount} of {pendingCount} pending prompt
+                  {pendingCount !== 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+          ) : activeAction === "removeFiles" ? (
+            <div className="space-y-4">
+              <button
+                onClick={() => setActiveAction(null)}
+                className={`text-xs font-medium ${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+              >
+                &larr; Back
+              </button>
+
+              <div>
+                <label
+                  className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  Select Images to Remove
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {allUniqueImages.map((img, idx) => (
+                    <label
+                      key={idx}
+                      className={`relative cursor-pointer rounded-lg border-2 p-0.5 transition-all ${
+                        selectedImagesForRemoval.includes(idx)
+                          ? "border-rose-500 bg-rose-500/10"
+                          : isDark
+                            ? "border-slate-700 hover:border-slate-600"
+                            : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={selectedImagesForRemoval.includes(idx)}
+                        onChange={() => {
+                          setSelectedImagesForRemoval((prev) =>
+                            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+                          );
+                        }}
+                      />
+                      <img
+                        src={img}
+                        className="h-14 w-full rounded object-cover"
+                        alt={`Attached image ${idx + 1}`}
+                      />
+                      {selectedImagesForRemoval.includes(idx) && (
+                        <div className="absolute inset-0 flex items-center justify-center rounded bg-rose-500/30">
+                          <X size={20} className="text-white" />
+                        </div>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedImagesForRemoval(allUniqueImages.map((_, i) => i))}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
+                    isDark
+                      ? "border-slate-700 text-slate-400 hover:border-rose-500 hover:text-rose-400"
+                      : "border-slate-200 text-slate-500 hover:border-rose-500 hover:text-rose-500"
+                  }`}
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => setSelectedImagesForRemoval([])}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
+                    isDark
+                      ? "border-slate-700 text-slate-400 hover:border-slate-600"
+                      : "border-slate-200 text-slate-500 hover:border-slate-300"
+                  }`}
+                >
+                  Clear
+                </button>
+              </div>
+
+              <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                {selectedImagesForRemoval.length} of {allUniqueImages.length} image
+                {allUniqueImages.length !== 1 ? "s" : ""} selected for removal
+              </p>
+            </div>
           ) : null}
         </div>
 
@@ -637,7 +832,9 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                   !resetTextMatch.trim()) ||
                 (activeAction === "reset" && resetFilterType === "tool" && !resetTool) ||
                 (activeAction === "reset" && resetFilterType === "mode" && !resetMode) ||
-                (activeAction === "reset" && resetFilterType === "status" && !resetStatus)
+                (activeAction === "reset" && resetFilterType === "status" && !resetStatus) ||
+                (activeAction === "removeText" && !textToRemove.trim()) ||
+                (activeAction === "removeFiles" && selectedImagesForRemoval.length === 0)
               }
               className={`w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all disabled:opacity-50 ${
                 activeAction === "ai"
@@ -646,7 +843,9 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                     ? "bg-indigo-600 hover:bg-indigo-500"
                     : activeAction === "reset"
                       ? "bg-amber-600 hover:bg-amber-500"
-                      : "bg-emerald-600 hover:bg-emerald-500"
+                      : activeAction === "removeText" || activeAction === "removeFiles"
+                        ? "bg-rose-600 hover:bg-rose-500"
+                        : "bg-emerald-600 hover:bg-emerald-500"
               }`}
             >
               {isProcessing
@@ -657,7 +856,11 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                     ? `Optimize ${pendingCount} Prompts`
                     : activeAction === "reset"
                       ? `Reset ${resetFilterType === "all" ? resettableCount : ""} Prompts`
-                      : `Modify ${pendingCount} Prompts`}
+                      : activeAction === "removeText"
+                        ? `Remove Text from ${textMatchCount} Prompts`
+                        : activeAction === "removeFiles"
+                          ? `Remove ${selectedImagesForRemoval.length} Image${selectedImagesForRemoval.length !== 1 ? "s" : ""}`
+                          : `Modify ${pendingCount} Prompts`}
             </button>
           </div>
         )}

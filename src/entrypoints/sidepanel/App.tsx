@@ -526,6 +526,70 @@ export default function App() {
     [queue]
   );
 
+  const handleBulkRemoveText = useCallback(
+    async (textToRemove: string) => {
+      if (!textToRemove.trim()) return;
+
+      let modifiedCount = 0;
+      const updatedQueue = queue.map((item) => {
+        if (item.status !== QueueStatus.Pending) return item;
+        if (!item.finalPrompt.toLowerCase().includes(textToRemove.toLowerCase())) return item;
+
+        modifiedCount++;
+        const newOriginalPrompt = item.originalPrompt
+          .split(textToRemove)
+          .join("")
+          .replace(/\s+/g, " ")
+          .trim();
+        return {
+          ...item,
+          originalPrompt: newOriginalPrompt,
+          finalPrompt: constructFinalPrompt(newOriginalPrompt),
+        };
+      });
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Removed text from ${modifiedCount} prompt${modifiedCount !== 1 ? "s" : ""}`);
+    },
+    [queue, constructFinalPrompt]
+  );
+
+  const handleBulkRemoveFiles = useCallback(
+    async (indices: number[] | "all") => {
+      const pendingItems = queue.filter((item) => item.status === QueueStatus.Pending);
+      const allUniqueImages: string[] = [];
+      pendingItems.forEach((item) => {
+        item.images?.forEach((img) => {
+          if (!allUniqueImages.includes(img)) {
+            allUniqueImages.push(img);
+          }
+        });
+      });
+
+      const imagesToRemove =
+        indices === "all"
+          ? new Set(allUniqueImages)
+          : new Set(indices.map((i) => allUniqueImages[i]));
+
+      let totalRemoved = 0;
+      const updatedQueue = queue.map((item) => {
+        if (item.status !== QueueStatus.Pending || !item.images?.length) return item;
+
+        const newImages = item.images.filter((img) => !imagesToRemove.has(img));
+        const removedFromThis = item.images.length - newImages.length;
+        totalRemoved += removedFromThis;
+
+        return { ...item, images: newImages };
+      });
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Removed ${totalRemoved} image${totalRemoved !== 1 ? "s" : ""} from prompts`);
+    },
+    [queue]
+  );
+
   const handleUpdateItemImages = useCallback(
     async (id: string, images: string[]) => {
       const updatedQueue = queue.map((item) => (item.id === id ? { ...item, images } : item));
@@ -1036,6 +1100,8 @@ export default function App() {
               onBulkAIOptimize={handleBulkAIOptimize}
               onBulkModify={handleBulkModify}
               onBulkReset={handleBulkReset}
+              onBulkRemoveText={handleBulkRemoveText}
+              onBulkRemoveFiles={handleBulkRemoveFiles}
               onClearCompleted={() => {
                 handleClearCompleted().catch(() => {});
               }}
