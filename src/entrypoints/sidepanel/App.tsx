@@ -27,12 +27,15 @@ import {
   getQueue,
   getSettings,
   hasAnyAIKey,
+  initializeQueueStorage,
   isOnboardingComplete,
+  onQueueChange,
   onStorageChange,
   setFolders,
   setOnboardingComplete,
   setQueue,
   setSettings,
+  StorageQuotaError,
 } from "@/services/storageService";
 import {
   GeminiMode,
@@ -84,9 +87,9 @@ export default function App() {
   const isDark =
     settings.theme === ThemeMode.SYSTEM ? systemPrefersDark : settings.theme === ThemeMode.DARK;
 
-  // Load initial data
   useEffect(() => {
     const loadData = async () => {
+      await initializeQueueStorage();
       const [queueData, settingsData, foldersData, onboardingDone] = await Promise.all([
         getQueue(),
         getSettings(),
@@ -103,12 +106,12 @@ export default function App() {
     loadData();
   }, []);
 
-  // Listen for storage changes
   useEffect(() => {
-    const cleanup = onStorageChange((changes) => {
-      if (STORAGE_KEYS.QUEUE in changes) {
-        setQueueState(changes[STORAGE_KEYS.QUEUE].newValue as QueueItem[]);
-      }
+    const cleanupQueue = onQueueChange((queue) => {
+      setQueueState(queue);
+    });
+
+    const cleanupStorage = onStorageChange((changes) => {
       if (STORAGE_KEYS.SETTINGS in changes) {
         setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue as AppSettings);
       }
@@ -117,7 +120,10 @@ export default function App() {
       }
     });
 
-    return cleanup;
+    return () => {
+      cleanupQueue();
+      cleanupStorage();
+    };
   }, []);
 
   // Listen for messages from background
@@ -238,8 +244,19 @@ export default function App() {
 
       const updatedQueue = [...queue, ...newItems];
       setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(`Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`);
+      try {
+        await setQueue(updatedQueue);
+        toast.success(
+          `Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`
+        );
+      } catch (error) {
+        setQueueState(queue);
+        if (error instanceof StorageQuotaError) {
+          toast.error("Storage full! Clear completed items or reduce attached images.");
+        } else {
+          toast.error("Failed to save queue. Please try again.");
+        }
+      }
     },
     [queue, constructFinalPrompt, settings.defaultTool]
   );

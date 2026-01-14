@@ -10,6 +10,14 @@ import {
   STORAGE_KEYS,
   ThemeMode,
 } from "@/types";
+import {
+  getAllQueueItems,
+  setAllQueueItems,
+  updateQueueItemInDb,
+  onQueueChange as onQueueChangeDb,
+  migrateFromChromeStorage,
+  requestPersistentStorage,
+} from "./queueDb";
 
 /**
  * Default application settings
@@ -78,21 +86,6 @@ export async function setSettings(updates: Partial<AppSettings>): Promise<void> 
   }
 }
 
-/**
- * Get queue items from storage
- */
-export async function getQueue(): Promise<QueueItem[]> {
-  try {
-    const result = await chrome.storage.local.get(STORAGE_KEYS.QUEUE);
-    return (result[STORAGE_KEYS.QUEUE] as QueueItem[]) ?? [];
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Custom error class for storage quota exceeded
- */
 export class StorageQuotaError extends Error {
   constructor(
     message: string = "Storage quota exceeded. Try clearing completed items or removing images from prompts."
@@ -102,35 +95,23 @@ export class StorageQuotaError extends Error {
   }
 }
 
-/**
- * Update queue in storage
- */
-export async function setQueue(queue: QueueItem[]): Promise<void> {
-  try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.QUEUE]: queue });
-  } catch (error) {
-    // Check if it's a quota exceeded error
-    if (error instanceof Error && error.message.includes("QUOTA_BYTES")) {
-      throw new StorageQuotaError();
-    }
-    throw error;
-  }
+export async function getQueue(): Promise<QueueItem[]> {
+  return getAllQueueItems();
 }
 
-/**
- * Update a specific queue item by ID
- */
+export async function setQueue(queue: QueueItem[]): Promise<void> {
+  await setAllQueueItems(queue);
+}
+
 export async function updateQueueItem(id: string, updates: Partial<QueueItem>): Promise<void> {
-  try {
-    const queue = await getQueue();
-    const index = queue.findIndex((item) => item.id === id);
-    if (index !== -1) {
-      queue[index] = { ...queue[index], ...updates };
-      await setQueue(queue);
-    }
-  } catch (error) {
-    throw error;
-  }
+  await updateQueueItemInDb(id, updates);
+}
+
+export { onQueueChangeDb as onQueueChange };
+
+export async function initializeQueueStorage(): Promise<void> {
+  await migrateFromChromeStorage();
+  await requestPersistentStorage();
 }
 
 /**

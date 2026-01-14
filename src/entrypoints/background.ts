@@ -4,6 +4,7 @@ import {
   getFolders,
   getQueue,
   getSettings,
+  initializeQueueStorage,
   isExtensionEnabled,
   setExtensionEnabled,
   setFolders,
@@ -19,6 +20,8 @@ export default defineBackground(() => {
   let isPaused = false;
   let processingController: AbortController | null = null;
   let activeGeminiTabId: number | null = null;
+
+  initializeQueueStorage();
 
   // Note: chrome.action.onClicked is not fired when a popup is defined
   // The popup will handle the UI, but we can still listen for clicks if popup is removed

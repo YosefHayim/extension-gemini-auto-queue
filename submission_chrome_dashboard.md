@@ -75,9 +75,10 @@ ADVANCED SETTINGS
 - Export queue to TXT, JSON, or CSV
 
 PRIVACY FOCUSED
-- All data stored locally in your browser
+- All data stored locally in your browser (IndexedDB + Chrome Storage)
 - No external data collection
 - API keys stored securely
+- Queue data persists even with large image attachments
 
 Works on: gemini.google.com and aistudio.google.com
 ```
@@ -111,6 +112,7 @@ ARCHITECTURE OVERHAUL
 - Complete modular redesign for improved reliability
 - Separated automation into dedicated modules
 - Better state management across all operations
+- Migrated queue storage from Chrome Storage to IndexedDB for unlimited capacity
 
 NEW BULK ACTIONS SYSTEM
 - Attach multiple files to all pending prompts at once
@@ -142,7 +144,13 @@ BUG FIXES
 - Fixed file attachment not working in some scenarios
 - Fixed mode selection edge cases
 - Fixed bulk attachment only keeping 1 file
+- Fixed storage quota exceeded error when attaching many images
 - Improved error handling throughout
+
+STORAGE IMPROVEMENTS
+- Queue data now stored in IndexedDB (no size limits)
+- Automatic migration from previous Chrome Storage
+- Settings and preferences remain in Chrome Storage for sync
 
 PERFORMANCE
 - Optimized content script initialization
@@ -202,7 +210,12 @@ This extension adds batch processing and queue management capabilities to Google
 
 **Storage**
 ```
-Required to save user preferences, queue items, prompt templates, and API keys locally in the browser. All data remains on the user's device.
+Required to save user preferences, prompt templates, and API keys locally in the browser. All data remains on the user's device.
+```
+
+**Unlimited Storage**
+```
+Required to store large queue data with attached reference images in IndexedDB without size limitations. Users can attach multiple high-resolution images to hundreds of prompts.
 ```
 
 **Side Panel**
@@ -239,7 +252,7 @@ No
 
 **Data Usage Explanation**
 ```
-Gemini Nano Flow does not collect, store, or transmit any personal data to external servers. All user data (settings, queue, templates, API keys) is stored locally in the browser using Chrome's Storage API and never leaves the user's device. The extension only communicates with Google Gemini and AI Studio APIs using the user's own API credentials, with requests made directly from the browser to Google's services.
+Gemini Nano Flow does not collect, store, or transmit any personal data to external servers. All user data is stored locally in the browser: queue data with images uses IndexedDB for unlimited capacity, while settings and templates use Chrome's Storage API. No data ever leaves the user's device. The extension only communicates with Google Gemini and AI Studio websites through browser automation, using the user's own session - no external API calls are made.
 ```
 
 ---
@@ -350,7 +363,7 @@ Built for Power Users
 Import hundreds of prompts from CSV files with image references. Use global prefix/suffix to maintain consistency. Apply text weighting for emphasis control.
 
 Privacy First
-Everything stays in your browser. No accounts, no data collection, no external servers. Your prompts, your images, your privacy.
+Everything stays in your browser. No accounts, no data collection, no external servers. Your prompts, your images, your privacy. Unlimited local storage means you can queue hundreds of prompts with images without hitting limits.
 
 PERFECT FOR:
 - AI Artists generating image variations
@@ -366,7 +379,7 @@ Download now and reclaim your time.
 ### Short Marketing Bullets (For Ads/Banners)
 ```
 - Queue unlimited prompts, process automatically
-- Attach reference images in bulk
+- Attach reference images in bulk (no storage limits!)
 - Fast/Thinking/Pro model selection
 - Export to TXT, JSON, CSV
 - 100% private - all data stays local
