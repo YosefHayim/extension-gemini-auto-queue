@@ -1,6 +1,5 @@
 import {
   BookMarked,
-  CheckCheck,
   Clock,
   Cpu,
   Download,
@@ -1005,6 +1004,10 @@ export default function App() {
               onBulkAIOptimize={handleBulkAIOptimize}
               onBulkModify={handleBulkModify}
               onBulkReset={handleBulkReset}
+              onClearCompleted={() => {
+                handleClearCompleted().catch(() => {});
+              }}
+              onOpenExport={() => setShowExportDialog(true)}
             />
           </div>
         )}
@@ -1084,34 +1087,6 @@ export default function App() {
         className={`space-y-3 border-t p-3 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
       >
         <div className="flex gap-3">
-          <button
-            onClick={() => {
-              handleClearCompleted().catch(() => {});
-            }}
-            disabled={queue.filter((item) => item.status === QueueStatus.Completed).length === 0}
-            title="Clear completed items"
-            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
-              isDark
-                ? "border-green-500/30 bg-green-500/10 text-green-400 hover:border-green-500/50 hover:bg-green-500/20 disabled:opacity-30 disabled:hover:border-green-500/30 disabled:hover:bg-green-500/10"
-                : "border-green-300 bg-green-50 text-green-700 hover:border-green-400 hover:bg-green-100 disabled:opacity-30 disabled:hover:border-green-300 disabled:hover:bg-green-50"
-            }`}
-          >
-            <CheckCheck size={16} />
-            <span className="hidden sm:inline">Clear Done</span>
-          </button>
-          <button
-            onClick={() => setShowExportDialog(true)}
-            disabled={queue.length === 0}
-            title="Export queue to file"
-            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
-              isDark
-                ? "border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20 disabled:opacity-30 disabled:hover:border-blue-500/30 disabled:hover:bg-blue-500/10"
-                : "border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 disabled:opacity-30 disabled:hover:border-blue-300 disabled:hover:bg-blue-50"
-            }`}
-          >
-            <Download size={16} />
-            <span className="hidden sm:inline">Export</span>
-          </button>
           <button
             data-onboarding="start-button"
             onClick={() => {

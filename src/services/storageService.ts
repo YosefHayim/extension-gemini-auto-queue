@@ -91,12 +91,28 @@ export async function getQueue(): Promise<QueueItem[]> {
 }
 
 /**
+ * Custom error class for storage quota exceeded
+ */
+export class StorageQuotaError extends Error {
+  constructor(
+    message: string = "Storage quota exceeded. Try clearing completed items or removing images from prompts."
+  ) {
+    super(message);
+    this.name = "StorageQuotaError";
+  }
+}
+
+/**
  * Update queue in storage
  */
 export async function setQueue(queue: QueueItem[]): Promise<void> {
   try {
     await chrome.storage.local.set({ [STORAGE_KEYS.QUEUE]: queue });
   } catch (error) {
+    // Check if it's a quota exceeded error
+    if (error instanceof Error && error.message.includes("QUOTA_BYTES")) {
+      throw new StorageQuotaError();
+    }
     throw error;
   }
 }

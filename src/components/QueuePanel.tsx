@@ -273,6 +273,32 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
     return queue.filter((item) => item.status === QueueStatus.Failed).length;
   }, [queue]);
 
+  const estimatedTimeRemaining = useMemo(() => {
+    const completedItems = queue.filter(
+      (item) => item.status === QueueStatus.Completed && item.completionTimeSeconds
+    );
+    if (completedItems.length === 0 || pendingCount === 0) return null;
+
+    const totalTime = completedItems.reduce(
+      (sum, item) => sum + (item.completionTimeSeconds ?? 0),
+      0
+    );
+    const avgTimePerPrompt = totalTime / completedItems.length;
+    const estimatedSeconds = Math.round(avgTimePerPrompt * pendingCount);
+
+    if (estimatedSeconds < 60) {
+      return `~${estimatedSeconds}s`;
+    } else if (estimatedSeconds < 3600) {
+      const minutes = Math.floor(estimatedSeconds / 60);
+      const seconds = estimatedSeconds % 60;
+      return seconds > 0 ? `~${minutes}m ${seconds}s` : `~${minutes}m`;
+    } else {
+      const hours = Math.floor(estimatedSeconds / 3600);
+      const minutes = Math.floor((estimatedSeconds % 3600) / 60);
+      return minutes > 0 ? `~${hours}h ${minutes}m` : `~${hours}h`;
+    }
+  }, [queue, pendingCount]);
+
   const promptPreviewCount = useMemo(() => {
     if (!bulkInput.trim()) return 0;
     const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
@@ -675,12 +701,28 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
               filteredCount={filteredQueue.length}
             />
 
+            {estimatedTimeRemaining && pendingCount > 0 && (
+              <div
+                className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium ${
+                  isDark ? "bg-slate-800 text-slate-300" : "bg-slate-100 text-slate-600"
+                }`}
+              >
+                <Clock size={14} />
+                <span>Est. {estimatedTimeRemaining} remaining</span>
+              </div>
+            )}
+
             {(onClearAll ||
               onClearByFilter ||
               onBulkAttachImages ||
               onBulkAIOptimize ||
-              onBulkModify) && (
-              <div ref={clearMenuRef} className="relative flex items-center justify-end gap-2">
+              onBulkModify ||
+              onClearCompleted ||
+              onOpenExport) && (
+              <div
+                ref={clearMenuRef}
+                className="relative flex flex-wrap items-center justify-end gap-2"
+              >
                 {pendingCount > 0 && (onBulkAttachImages || onBulkAIOptimize || onBulkModify) && (
                   <button
                     onClick={() => setShowBulkActions(true)}
@@ -693,6 +735,34 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                   >
                     <Layers size={14} />
                     <span>Bulk Actions</span>
+                  </button>
+                )}
+                {onClearCompleted && completedCount > 0 && (
+                  <button
+                    onClick={onClearCompleted}
+                    title="Clear completed items"
+                    className={`flex min-h-[40px] items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all ${
+                      isDark
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50 hover:bg-emerald-500/20"
+                        : "border-emerald-300 bg-emerald-50 text-emerald-600 hover:border-emerald-400 hover:bg-emerald-100"
+                    }`}
+                  >
+                    <Sparkles size={14} />
+                    <span>Clear Done</span>
+                  </button>
+                )}
+                {onOpenExport && queue.length > 0 && (
+                  <button
+                    onClick={onOpenExport}
+                    title="Export queue to file"
+                    className={`flex min-h-[40px] items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all ${
+                      isDark
+                        ? "border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20"
+                        : "border-blue-300 bg-blue-50 text-blue-600 hover:border-blue-400 hover:bg-blue-100"
+                    }`}
+                  >
+                    <Download size={14} />
+                    <span>Export</span>
                   </button>
                 )}
                 <button
