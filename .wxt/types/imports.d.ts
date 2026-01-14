@@ -91,7 +91,7 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { ResetFilter } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
+  export type { ResetFilter, ChatMediaCounts } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
   import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')
   // @ts-ignore
   export type { BatchOptions } from '/Applications/Github/extension-gemini-auto-queue/src/utils/batchProcessor'

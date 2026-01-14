@@ -5,6 +5,7 @@ const globals = {
   "BulkActionsDialog": true,
   "BulkDownloadButton": true,
   "BulkDownloadDialog": true,
+  "ChatMediaCounts": true,
   "ContentScriptContext": true,
   "CsvDialog": true,
   "ExportDialog": true,
