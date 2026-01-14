@@ -237,6 +237,9 @@ export enum MessageType {
   GET_EXTENSION_ENABLED = "GET_EXTENSION_ENABLED",
   SET_EXTENSION_ENABLED = "SET_EXTENSION_ENABLED",
   PING = "PING",
+  // Media download messages
+  DOWNLOAD_CHAT_MEDIA = "DOWNLOAD_CHAT_MEDIA",
+  SCAN_CHAT_MEDIA = "SCAN_CHAT_MEDIA",
 }
 
 export interface ExtensionMessage<T = unknown> {

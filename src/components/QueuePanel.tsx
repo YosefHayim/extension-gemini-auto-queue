@@ -161,6 +161,16 @@ interface QueuePanelProps {
   onBulkReset?: (filter: ResetFilter) => void;
   onBulkRemoveText?: (text: string) => void;
   onBulkRemoveFiles?: (indices: number[] | "all") => void;
+  onScanChatMedia?: () => Promise<{
+    images: number;
+    videos: number;
+    files: number;
+    total: number;
+  } | null>;
+  onDownloadChatMedia?: (
+    method: "native" | "direct",
+    filterType?: "image" | "video" | "file"
+  ) => Promise<void>;
   onClearCompleted?: () => void;
   onOpenExport?: () => void;
 }
@@ -196,6 +206,8 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onBulkReset,
   onBulkRemoveText,
   onBulkRemoveFiles,
+  onScanChatMedia,
+  onDownloadChatMedia,
   onClearCompleted,
   onOpenExport,
 }) => {
@@ -485,6 +497,11 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         }}
         onBulkRemoveFiles={(indices) => {
           onBulkRemoveFiles?.(indices);
+          setShowBulkActions(false);
+        }}
+        onScanChatMedia={onScanChatMedia}
+        onDownloadChatMedia={async (method, filterType) => {
+          await onDownloadChatMedia?.(method, filterType);
           setShowBulkActions(false);
         }}
       />

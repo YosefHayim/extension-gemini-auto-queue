@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { ResetFilter } from "@/components/BulkActionsDialog";
+import { ChatMediaCounts, ResetFilter } from "@/components/BulkActionsDialog";
 import { BulkDownloadDialog } from "@/components/BulkDownloadDialog";
 import { CsvDialog } from "@/components/CsvDialog";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -590,6 +590,53 @@ export default function App() {
     [queue]
   );
 
+  const handleScanChatMedia = useCallback(async (): Promise<ChatMediaCounts | null> => {
+    try {
+      const response = await sendMessage<{ items: unknown[]; counts: ChatMediaCounts }>({
+        type: MessageType.SCAN_CHAT_MEDIA,
+      });
+      if (response?.success && response.data?.counts) {
+        return response.data.counts;
+      }
+      return null;
+    } catch {
+      toast.error("Failed to scan chat for media");
+      return null;
+    }
+  }, []);
+
+  const handleDownloadChatMedia = useCallback(
+    async (method: "native" | "direct", filterType?: "image" | "video" | "file") => {
+      toast.info("Starting download...");
+      try {
+        const response = await sendMessage<{
+          downloadCount?: number;
+          success?: number;
+          failed?: number;
+        }>({
+          type: MessageType.DOWNLOAD_CHAT_MEDIA,
+          payload: { method, filterType },
+        });
+        if (response?.success) {
+          if (method === "native") {
+            toast.success(`Started ${response.data?.downloadCount ?? 0} downloads via Gemini`);
+          } else {
+            const successCount = response.data?.success ?? 0;
+            const failedCount = response.data?.failed ?? 0;
+            toast.success(
+              `Downloaded ${successCount} file${successCount !== 1 ? "s" : ""}${failedCount > 0 ? ` (${failedCount} failed)` : ""}`
+            );
+          }
+        } else {
+          toast.error(response?.error ?? "Download failed");
+        }
+      } catch {
+        toast.error("Failed to download media");
+      }
+    },
+    []
+  );
+
   const handleUpdateItemImages = useCallback(
     async (id: string, images: string[]) => {
       const updatedQueue = queue.map((item) => (item.id === id ? { ...item, images } : item));
@@ -1102,6 +1149,8 @@ export default function App() {
               onBulkReset={handleBulkReset}
               onBulkRemoveText={handleBulkRemoveText}
               onBulkRemoveFiles={handleBulkRemoveFiles}
+              onScanChatMedia={handleScanChatMedia}
+              onDownloadChatMedia={handleDownloadChatMedia}
               onClearCompleted={() => {
                 handleClearCompleted().catch(() => {});
               }}

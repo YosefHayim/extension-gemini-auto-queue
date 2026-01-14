@@ -1,6 +1,11 @@
 import type { ExtensionMessage, ExtensionResponse } from "@/types";
 import { GeminiMode, GeminiTool, MessageType } from "@/types";
 import { sleep, logger } from "@/utils";
+import {
+  findAllMedia,
+  downloadAllMedia,
+  downloadAllViaNativeButtons,
+} from "@/utils/mediaDownloader";
 
 const log = logger.module("Automation");
 import {
@@ -116,6 +121,53 @@ function setupMessageListener(): void {
           case MessageType.SUBMIT_PROMPT: {
             const success = await submitPrompt();
             return { success };
+          }
+
+          case MessageType.SCAN_CHAT_MEDIA: {
+            const mediaItems = findAllMedia();
+            return {
+              success: true,
+              data: {
+                items: mediaItems,
+                counts: {
+                  images: mediaItems.filter((m) => m.type === "image").length,
+                  videos: mediaItems.filter((m) => m.type === "video").length,
+                  files: mediaItems.filter((m) => m.type === "file").length,
+                  total: mediaItems.length,
+                },
+              },
+            };
+          }
+
+          case MessageType.DOWNLOAD_CHAT_MEDIA: {
+            const downloadPayload = message.payload as {
+              method?: "native" | "direct";
+              filterType?: "image" | "video" | "file";
+            };
+
+            const method = downloadPayload?.method ?? "native";
+            const filterType = downloadPayload?.filterType;
+
+            if (method === "native") {
+              const count = await downloadAllViaNativeButtons();
+              return {
+                success: count > 0,
+                data: { downloadCount: count },
+              };
+            } else {
+              let items = findAllMedia();
+              if (filterType) {
+                items = items.filter((m) => m.type === filterType);
+              }
+              if (items.length === 0) {
+                return { success: false, error: "No media found to download" };
+              }
+              const result = await downloadAllMedia(items);
+              return {
+                success: result.success > 0,
+                data: { success: result.success, failed: result.failed },
+              };
+            }
           }
 
           default:
