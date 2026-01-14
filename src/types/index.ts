@@ -17,11 +17,17 @@ export enum QueueStatus {
   Failed = "Failed",
 }
 
+export enum ContentType {
+  TextOnly = "textOnly",
+  WithImages = "withImages",
+  TextAndImages = "textAndImages",
+}
+
 // Gemini speed/quality modes - affects generation time and quality
 export enum GeminiMode {
-  Quick = "quick", // Fast generation, lower quality (זריז)
-  Deep = "deep", // Balanced, deeper thinking (מעמיק)
-  Pro = "pro", // Highest quality, slower (Pro)
+  Quick = "quick", // Fast generation (Gemini 3: "Fast")
+  Deep = "deep", // Deep thinking (Gemini 3: "Thinking")
+  Pro = "pro", // Highest quality (Gemini 3: "Pro")
 }
 
 // Mode display info for UI
@@ -36,23 +42,23 @@ export const GEMINI_MODE_INFO: Record<
   }
 > = {
   [GeminiMode.Quick]: {
-    label: "Quick",
-    labelHebrew: "זריז",
-    description: "Fast responses, best for simple tasks",
-    dataTestId: "bard-mode-option-זריז",
+    label: "Fast",
+    labelHebrew: "מהיר",
+    description: "Answers quickly, best for simple tasks",
+    dataTestId: "bard-mode-option-fast",
     color: "emerald",
   },
   [GeminiMode.Deep]: {
-    label: "Deep",
-    labelHebrew: "מעמיק",
-    description: "Deeper thinking, better for complex tasks",
-    dataTestId: "bard-mode-option-מעמיק",
+    label: "Thinking",
+    labelHebrew: "חשיבה",
+    description: "Solves complex problems with deeper reasoning",
+    dataTestId: "bard-mode-option-thinking",
     color: "blue",
   },
   [GeminiMode.Pro]: {
     label: "Pro",
     labelHebrew: "Pro",
-    description: "Highest quality, best for creative work",
+    description: "Advanced math & code, thinks longer",
     dataTestId: "bard-mode-option-pro",
     color: "purple",
   },
@@ -216,6 +222,7 @@ export enum MessageType {
   GET_FOLDERS = "GET_FOLDERS",
   UPDATE_FOLDERS = "UPDATE_FOLDERS",
   PROCESS_QUEUE = "PROCESS_QUEUE",
+  PAUSE_PROCESSING = "PAUSE_PROCESSING",
   STOP_PROCESSING = "STOP_PROCESSING",
   GENERATE_IMAGE = "GENERATE_IMAGE",
   OPEN_SIDE_PANEL = "OPEN_SIDE_PANEL",
@@ -229,6 +236,7 @@ export enum MessageType {
   TOGGLE_SIDEBAR = "TOGGLE_SIDEBAR",
   GET_EXTENSION_ENABLED = "GET_EXTENSION_ENABLED",
   SET_EXTENSION_ENABLED = "SET_EXTENSION_ENABLED",
+  PING = "PING",
 }
 
 export interface ExtensionMessage<T = unknown> {

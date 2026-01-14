@@ -75,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({ isDark }) => {
             isDark ? "fill-rose-500/60 text-rose-500/60" : "fill-rose-400/70 text-rose-400/70"
           }`}
         />
-        <span className="font-light">in Israel</span>
+        <span className="font-light">by Yosef Hayim Sabag</span>
       </div>
     </footer>
   );

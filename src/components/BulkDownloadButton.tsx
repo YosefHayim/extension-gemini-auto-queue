@@ -157,7 +157,7 @@ export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({ isDark, 
 
       {isExpanded && (
         <div
-          className={`absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border shadow-2xl ${
+          className={`absolute bottom-full right-0 z-50 mb-2 w-72 rounded-xl border shadow-2xl ${
             isDark
               ? "border-white/10 bg-gray-900/95 backdrop-blur-xl"
               : "border-slate-200 bg-white shadow-slate-200/50"

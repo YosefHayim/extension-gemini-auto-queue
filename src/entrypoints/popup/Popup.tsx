@@ -1,7 +1,6 @@
-import { Github, Heart, Linkedin, MessageSquare, PanelRight, Power } from "lucide-react";
+import { Coffee, Github, Heart, Linkedin, MessageSquare, PanelRight, Power } from "lucide-react";
 import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 import { useEffect, useState } from "react";
-import { MessageType } from "@/types";
 
 export default function Popup() {
   const [enabled, setEnabled] = useState<boolean>(true);
@@ -76,8 +75,21 @@ export default function Popup() {
       {/* Open Side Panel Button */}
       <div className="px-4 pb-4">
         <button
-          onClick={() => {
-            chrome.runtime.sendMessage({ type: MessageType.OPEN_SIDE_PANEL });
+          onClick={async () => {
+            try {
+              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+              if (tab?.id) {
+                await chrome.sidePanel.setOptions({
+                  tabId: tab.id,
+                  path: "sidepanel.html",
+                  enabled: true,
+                });
+                await chrome.sidePanel.open({ tabId: tab.id });
+                window.close();
+              }
+            } catch (error) {
+              console.error("Failed to open side panel:", error);
+            }
           }}
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-3 text-sm font-medium text-blue-400 transition-all hover:border-blue-500/50 hover:from-blue-500/20 hover:to-purple-500/20"
         >
@@ -137,6 +149,16 @@ export default function Popup() {
           >
             <Linkedin className="h-3.5 w-3.5" />
             <span>LinkedIn</span>
+          </a>
+          <a
+            href="https://buymeacoffee.com/yosefhayim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-amber-500/20 hover:text-amber-400"
+            aria-label="Buy me a coffee"
+          >
+            <Coffee className="h-3.5 w-3.5" />
+            <span>Support</span>
           </a>
         </div>
       </div>

@@ -20,7 +20,7 @@ import {
   Camera,
   Cpu,
   Gem,
-  Info,
+  Layers,
   Maximize2,
   Trash2,
   TrendingUp,
@@ -32,6 +32,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  ContentType,
   GEMINI_MODE_INFO,
   GEMINI_TOOL_INFO,
   GeminiMode,
@@ -40,37 +41,10 @@ import {
   type QueueItem,
 } from "@/types";
 
+import { BulkActionsDialog, ResetFilter } from "./BulkActionsDialog";
 import { QueueItemCard } from "./QueueItemCard";
 import { SearchFilter } from "./SearchFilter";
-
-// Inline info icon for queue panel
-const QueueInfo: React.FC<{ text: string; isDark?: boolean }> = ({ text, isDark = false }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <span
-      className="relative ml-1 inline-flex items-center opacity-30 transition-opacity hover:opacity-70"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Info size={10} />
-      {isHovered && (
-        <div
-          className={`pointer-events-auto absolute bottom-full left-1/2 z-[2147483647] mb-2 max-h-[200px] w-[200px] -translate-x-1/2 overflow-auto whitespace-normal rounded-md px-3 py-2 text-xs normal-case shadow-xl ${
-            isDark ? "border border-white/20 bg-gray-800 text-white" : "bg-gray-900 text-white"
-          }`}
-        >
-          <div className="break-words">{text}</div>
-          <div
-            className={`absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent ${
-              isDark ? "border-t-gray-800" : "border-t-gray-900"
-            }`}
-          />
-        </div>
-      )}
-    </span>
-  );
-};
+import { Tooltip } from "./Tooltip";
 
 const MODE_ICONS = {
   [GeminiMode.Quick]: Zap,
@@ -99,24 +73,28 @@ const MODE_SELECTOR_STYLES: Record<GeminiMode, { selected: string; unselected: s
 interface SortableQueueItemProps {
   item: QueueItem;
   isDark: boolean;
+  searchText?: string;
   onRemove: (id: string) => void;
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
   onEdit?: (id: string, newPrompt: string) => void;
   onRunSingle?: (id: string) => void;
+  onUpdateImages?: (id: string, images: string[]) => void;
   isEditing: boolean;
 }
 
 const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
   item,
   isDark,
+  searchText,
   onRemove,
   onRetry,
   onDuplicate,
   onDuplicateWithAI,
   onEdit,
   onRunSingle,
+  onUpdateImages,
   isEditing,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
@@ -130,12 +108,14 @@ const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
       <QueueItemCard
         item={item}
         isDark={isDark}
+        searchText={searchText}
         onRemove={onRemove}
         onRetry={onRetry}
         onDuplicate={onDuplicate}
         onDuplicateWithAI={onDuplicateWithAI}
         onEdit={onEdit}
         onRunSingle={onRunSingle}
+        onUpdateImages={onUpdateImages}
         isEditing={isEditing}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
@@ -147,6 +127,7 @@ interface QueuePanelProps {
   queue: QueueItem[];
   isDark: boolean;
   defaultTool?: GeminiTool;
+  hasApiKey: boolean;
   onAddToQueue: (
     text?: string,
     templateText?: string,
@@ -168,8 +149,13 @@ interface QueuePanelProps {
   onDuplicateWithAI: (id: string) => void;
   onEditItem?: (id: string, newPrompt: string) => void;
   onRunSingleItem?: (id: string) => void;
+  onUpdateItemImages?: (id: string, images: string[]) => void;
   selectedMode?: GeminiMode;
   onModeChange?: (mode: GeminiMode) => void;
+  onBulkAttachImages?: (images: string[]) => void;
+  onBulkAIOptimize?: (instructions: string) => Promise<void>;
+  onBulkModify?: (text: string, position: "prepend" | "append") => void;
+  onBulkReset?: (filter: ResetFilter) => void;
 }
 
 interface TextSelection {
@@ -182,6 +168,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   queue,
   isDark,
   defaultTool,
+  hasApiKey,
   onAddToQueue,
   onRemoveFromQueue,
   onRetryQueueItem,
@@ -193,8 +180,13 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onDuplicateWithAI,
   onEditItem,
   onRunSingleItem,
+  onUpdateItemImages,
   selectedMode = GeminiMode.Quick,
   onModeChange,
+  onBulkAttachImages,
+  onBulkAIOptimize,
+  onBulkModify,
+  onBulkReset,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -205,8 +197,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   const [searchText, setSearchText] = useState("");
   const [selectedToolFilters, setSelectedToolFilters] = useState<GeminiTool[]>([]);
   const [selectedModeFilters, setSelectedModeFilters] = useState<GeminiMode[]>([]);
+  const [selectedContentFilters, setSelectedContentFilters] = useState<ContentType[]>([]);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [showClearMenu, setShowClearMenu] = useState(false);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -237,9 +231,61 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
       if (selectedModeFilters.length > 0 && item.mode && !selectedModeFilters.includes(item.mode)) {
         return false;
       }
+      if (selectedContentFilters.length > 0) {
+        const hasText = item.originalPrompt.trim().length > 0;
+        const hasImages = item.images && item.images.length > 0;
+
+        const matchesFilter = selectedContentFilters.some((filter) => {
+          switch (filter) {
+            case ContentType.TextOnly:
+              return hasText && !hasImages;
+            case ContentType.WithImages:
+              return hasImages;
+            case ContentType.TextAndImages:
+              return hasText && hasImages;
+            default:
+              return true;
+          }
+        });
+
+        if (!matchesFilter) return false;
+      }
       return true;
     });
-  }, [queue, searchText, selectedToolFilters, selectedModeFilters]);
+  }, [queue, searchText, selectedToolFilters, selectedModeFilters, selectedContentFilters]);
+
+  const pendingCount = useMemo(() => {
+    return queue.filter((item) => item.status === QueueStatus.Pending).length;
+  }, [queue]);
+
+  const completedCount = useMemo(() => {
+    return queue.filter((item) => item.status === QueueStatus.Completed).length;
+  }, [queue]);
+
+  const failedCount = useMemo(() => {
+    return queue.filter((item) => item.status === QueueStatus.Failed).length;
+  }, [queue]);
+
+  const promptPreviewCount = useMemo(() => {
+    if (!bulkInput.trim()) return 0;
+    const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
+    const newlineSplit = bulkInput.split(/\n/);
+    const lines = newlineSplit.flatMap((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return [];
+      if (numberedPattern.test(trimmed)) return [trimmed];
+      const hasMultipleCommas = (trimmed.match(/,/g) ?? []).length > 1;
+      const commaBeforeCapital = /,\s+[A-Z]/;
+      if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
+        return trimmed
+          .split(/,\s+(?=[A-Z])/)
+          .map((item) => item.trim())
+          .filter((item) => item !== "");
+      }
+      return [trimmed];
+    });
+    return lines.length;
+  }, [bulkInput]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -364,35 +410,64 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   };
 
   return (
-    <div className="animate-in fade-in space-y-2 duration-300">
-      <div className="flex items-center justify-between px-1">
-        <span className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
+    <div className="animate-in fade-in space-y-3 duration-300">
+      <BulkActionsDialog
+        isOpen={showBulkActions}
+        onClose={() => setShowBulkActions(false)}
+        isDark={isDark}
+        hasApiKey={hasApiKey}
+        pendingCount={pendingCount}
+        totalCount={queue.length}
+        completedCount={completedCount}
+        failedCount={failedCount}
+        onBulkAttach={(images) => {
+          onBulkAttachImages?.(images);
+          setShowBulkActions(false);
+        }}
+        onBulkAIOptimize={async (instructions) => {
+          await onBulkAIOptimize?.(instructions);
+          setShowBulkActions(false);
+        }}
+        onBulkModify={(text, position) => {
+          onBulkModify?.(text, position);
+          setShowBulkActions(false);
+        }}
+        onBulkReset={(filter) => {
+          onBulkReset?.(filter);
+          setShowBulkActions(false);
+        }}
+        onCopyAllPrompts={() => queue.map((item) => item.originalPrompt).join("\n\n")}
+      />
+      <div className="flex items-center justify-between">
+        <span className="flex items-center text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           New Prompt
-          <QueueInfo
+          <Tooltip
             text="Enter prompts separated by blank lines. Each paragraph (text between blank lines) becomes one prompt. Multi-line paragraphs are joined into a single prompt."
             isDark={isDark}
           />
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           <button
             onClick={() => imageInputRef.current?.click()}
             title="Attach reference images"
-            className={`rounded-md border p-1.5 transition-all ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"} ${
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-all ${
               selectedImages.length > 0
-                ? "border-blue-500/30 bg-blue-500/10 text-blue-500"
-                : "opacity-40 hover:opacity-100"
+                ? "text-indigo-500 dark:text-indigo-400"
+                : isDark
+                  ? "text-slate-500 hover:text-slate-300"
+                  : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <Camera size={14} />
+            <Camera size={16} />
           </button>
           <button
             onClick={onOpenCsvDialog}
             title="Import prompts from CSV"
-            className={`rounded-md border p-1.5 transition-all ${
-              isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"
-            } opacity-40 hover:opacity-100`}
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-all ${
+              isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"
+            }`}
           >
-            <Upload size={14} />
+            <Upload size={16} />
           </button>
           <input
             ref={imageInputRef}
@@ -410,6 +485,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           .filter(([tool]) => (tool as GeminiTool) !== GeminiTool.NONE)
           .map(([tool, info]) => {
             const toolEnum = tool as GeminiTool;
+            const isSelected = selectedTool === toolEnum;
             return (
               <button
                 key={tool}
@@ -417,12 +493,12 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                   setSelectedTool(toolEnum);
                 }}
                 title={info.description}
-                className={`flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-bold transition-all ${
-                  selectedTool === toolEnum
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                className={`flex min-h-[44px] items-center gap-1 rounded-md px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+                  isSelected
+                    ? "bg-indigo-600 text-white shadow-sm"
                     : isDark
-                      ? "border border-white/10 bg-white/5 hover:bg-white/10"
-                      : "border border-slate-200 bg-slate-100 hover:bg-slate-200"
+                      ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 }`}
               >
                 <span>{React.createElement(info.icon, { size: 14 })}</span>
@@ -432,7 +508,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           })}
       </div>
 
-      <div data-onboarding="mode-selector" className="flex flex-wrap gap-1.5">
+      <div
+        data-onboarding="mode-selector"
+        className={`inline-flex rounded-lg p-0.5 ${isDark ? "bg-slate-800" : "bg-slate-100"}`}
+      >
         {Object.values(GeminiMode).map((mode) => {
           const modeInfo = GEMINI_MODE_INFO[mode];
           const isSelected = localSelectedMode === mode;
@@ -443,8 +522,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
               key={mode}
               onClick={() => handleModeSelect(mode)}
               title={modeInfo.description}
-              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wide transition-all ${
-                isSelected ? styles.selected : styles.unselected
+              className={`flex min-h-[36px] items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+                isSelected
+                  ? styles.selected
+                  : `${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`
               }`}
             >
               <Icon size={12} />
@@ -469,11 +550,11 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
               handleEnqueue();
             }
           }}
-          placeholder="Enter prompts separated by blank lines. Each paragraph becomes one prompt. Press Ctrl+Enter to add to queue."
-          className={`max-h-[300px] min-h-[140px] w-full overflow-y-auto rounded-md border p-2 text-xs leading-relaxed outline-none transition-all ${
+          placeholder="Enter prompts separated by blank lines..."
+          className={`max-h-[280px] min-h-[120px] w-full overflow-y-auto rounded-lg border p-3 pb-14 text-sm leading-relaxed outline-none transition-all ${
             isDark
-              ? "border-white/10 bg-black/40 focus:border-blue-500/50"
-              : "border-slate-200 bg-slate-50 shadow-inner focus:border-blue-500/50"
+              ? "border-slate-700 bg-slate-900 placeholder:text-slate-600 focus:border-indigo-500/60"
+              : "border-slate-200 bg-white placeholder:text-slate-400 focus:border-indigo-500/60"
           }`}
         />
 
@@ -537,21 +618,39 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           </div>
         )}
 
-        <button
-          data-onboarding="add-queue-btn"
-          onClick={handleEnqueue}
-          title="Add prompt to processing queue"
-          className="absolute bottom-2 right-2 rounded-md bg-blue-600 px-3 py-1 text-[10px] font-black uppercase text-white shadow-lg shadow-blue-600/30 transition-all active:scale-95"
-        >
-          Add to Queue
-        </button>
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
+          {promptPreviewCount > 0 && (
+            <span
+              className={`rounded-md px-2 py-1 text-[10px] font-semibold ${
+                isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
+              }`}
+            >
+              {promptPreviewCount} prompt{promptPreviewCount !== 1 ? "s" : ""}
+            </span>
+          )}
+          <button
+            data-onboarding="add-queue-btn"
+            onClick={handleEnqueue}
+            disabled={promptPreviewCount === 0 && selectedImages.length === 0}
+            title="Add prompt to processing queue (Ctrl+Enter)"
+            className="min-h-[44px] rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-indigo-600/25 transition-all hover:bg-indigo-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add to Queue
+          </button>
+        </div>
       </div>
 
       <div data-onboarding="queue-list" className="space-y-2 pt-2">
         {queue.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-white/5 py-12 opacity-10">
-            <Cpu size={24} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Queue Empty</span>
+          <div
+            className={`flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-12 ${isDark ? "border-slate-700" : "border-slate-200"}`}
+          >
+            <Cpu size={28} className={isDark ? "text-slate-700" : "text-slate-300"} />
+            <span
+              className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-600" : "text-slate-400"}`}
+            >
+              Queue Empty
+            </span>
           </div>
         ) : (
           <>
@@ -562,46 +661,66 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
               onToolsChange={setSelectedToolFilters}
               selectedModes={selectedModeFilters}
               onModesChange={setSelectedModeFilters}
+              selectedContentTypes={selectedContentFilters}
+              onContentTypesChange={setSelectedContentFilters}
               isDark={isDark}
               totalItems={queue.length}
               filteredCount={filteredQueue.length}
             />
 
-            {(onClearAll || onClearByFilter) && (
-              <div ref={clearMenuRef} className="relative flex items-center justify-end">
+            {(onClearAll ||
+              onClearByFilter ||
+              onBulkAttachImages ||
+              onBulkAIOptimize ||
+              onBulkModify) && (
+              <div ref={clearMenuRef} className="relative flex items-center justify-end gap-2">
+                {pendingCount > 0 && (onBulkAttachImages || onBulkAIOptimize || onBulkModify) && (
+                  <button
+                    onClick={() => setShowBulkActions(true)}
+                    title="Bulk actions for pending prompts"
+                    className={`flex min-h-[40px] items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all ${
+                      isDark
+                        ? "border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:border-indigo-500/50 hover:bg-indigo-500/20"
+                        : "border-indigo-300 bg-indigo-50 text-indigo-600 hover:border-indigo-400 hover:bg-indigo-100"
+                    }`}
+                  >
+                    <Layers size={14} />
+                    <span>Bulk ({pendingCount})</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setShowClearMenu(!showClearMenu)}
                   title="Clear queue items"
-                  className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider transition-all ${
+                  className={`flex min-h-[40px] items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all ${
                     isDark
                       ? "border-red-500/30 bg-red-500/10 text-red-400 hover:border-red-500/50 hover:bg-red-500/20"
                       : "border-red-300 bg-red-50 text-red-600 hover:border-red-400 hover:bg-red-100"
                   }`}
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={14} />
                   <span>Clear</span>
                 </button>
 
                 {showClearMenu && (
                   <div
-                    className={`absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border shadow-xl ${
+                    className={`absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-xl border shadow-xl ${
                       isDark ? "border-white/10 bg-gray-900" : "border-slate-200 bg-white"
                     }`}
                   >
-                    <div className="p-1">
+                    <div className="p-2">
                       {onClearAll && (
                         <button
                           onClick={() => {
                             onClearAll();
                             setShowClearMenu(false);
                           }}
-                          className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium transition-colors ${
+                          className={`flex min-h-[40px] w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
                             isDark
                               ? "text-red-400 hover:bg-red-500/20"
                               : "text-red-600 hover:bg-red-50"
                           }`}
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={14} />
                           Clear All ({queue.length})
                         </button>
                       )}
@@ -609,10 +728,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                       {onClearByFilter && (
                         <>
                           <div
-                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                            className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
                           />
                           <div
-                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                            className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
                           >
                             By Status
                           </div>
@@ -626,13 +745,13 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                                   onClearByFilter({ status });
                                   setShowClearMenu(false);
                                 }}
-                                className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                                   isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
                                 }`}
                               >
                                 <span className="capitalize">{status}</span>
                                 <span
-                                  className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                  className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}
                                 >
                                   {count}
                                 </span>
@@ -641,10 +760,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                           })}
 
                           <div
-                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                            className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
                           />
                           <div
-                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                            className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
                           >
                             By Tool
                           </div>
@@ -661,16 +780,16 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                                     onClearByFilter({ tool });
                                     setShowClearMenu(false);
                                   }}
-                                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                  className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                                     isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
                                   }`}
                                 >
-                                  <span className="flex items-center gap-1.5">
-                                    {React.createElement(toolInfo.icon, { size: 12 })}
+                                  <span className="flex items-center gap-2">
+                                    {React.createElement(toolInfo.icon, { size: 14 })}
                                     {toolInfo.label}
                                   </span>
                                   <span
-                                    className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                    className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}
                                   >
                                     {count}
                                   </span>
@@ -679,10 +798,10 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                             })}
 
                           <div
-                            className={`my-1 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
+                            className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}
                           />
                           <div
-                            className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}
+                            className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
                           >
                             By Mode
                           </div>
@@ -697,13 +816,13 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                                   onClearByFilter({ mode });
                                   setShowClearMenu(false);
                                 }}
-                                className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-1.5 text-left text-xs transition-colors ${
+                                className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                                   isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
                                 }`}
                               >
                                 <span>{modeInfo.label}</span>
                                 <span
-                                  className={`text-[10px] ${isDark ? "text-white/40" : "text-slate-400"}`}
+                                  className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}
                                 >
                                   {count}
                                 </span>
@@ -733,6 +852,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                       key={item.id}
                       item={item}
                       isDark={isDark}
+                      searchText={searchText}
                       onRemove={onRemoveFromQueue}
                       onRetry={onRetryQueueItem}
                       onDuplicate={onDuplicateItem}
@@ -740,12 +860,24 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                       onEdit={
                         onEditItem
                           ? (id, prompt) => {
-                              onEditItem(id, prompt);
-                              setEditingItemId(null);
+                              const item = queue.find((i) => i.id === id);
+                              // Check if entering edit mode (prompt equals original and not already editing)
+                              // or saving/exiting (prompt different or already in edit mode)
+                              if (item && prompt === item.originalPrompt && editingItemId !== id) {
+                                // Enter edit mode
+                                setEditingItemId(id);
+                              } else {
+                                // Save if changed, then exit edit mode
+                                if (item && prompt !== item.originalPrompt) {
+                                  onEditItem(id, prompt);
+                                }
+                                setEditingItemId(null);
+                              }
                             }
                           : undefined
                       }
                       onRunSingle={onRunSingleItem}
+                      onUpdateImages={onUpdateItemImages}
                       isEditing={editingItemId === item.id}
                     />
                   ))}

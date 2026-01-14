@@ -16,6 +16,7 @@ import { generateImage } from "@/services/geminiService";
 
 export default defineBackground(() => {
   let isProcessing = false;
+  let isPaused = false;
   let processingController: AbortController | null = null;
   let activeGeminiTabId: number | null = null;
 
@@ -121,6 +122,11 @@ export default defineBackground(() => {
         return { success: true };
       }
 
+      case MessageType.PAUSE_PROCESSING: {
+        pauseProcessing();
+        return { success: true };
+      }
+
       case MessageType.STOP_PROCESSING: {
         stopProcessing();
         return { success: true };
@@ -148,16 +154,24 @@ export default defineBackground(() => {
       }
 
       case MessageType.OPEN_SIDE_PANEL: {
-        // Get the current active tab if no tabId provided
         try {
           const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
           if (activeTab?.id) {
+            await chrome.sidePanel.setOptions({
+              tabId: activeTab.id,
+              path: "sidepanel.html",
+              enabled: true,
+            });
             await chrome.sidePanel.open({ tabId: activeTab.id });
+            return { success: true };
           }
-        } catch {
-          // Failed to open side panel
+          return { success: false, error: "No active tab found" };
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to open side panel",
+          };
         }
-        return { success: true };
       }
 
       case MessageType.CONTENT_SCRIPT_READY: {
@@ -177,6 +191,11 @@ export default defineBackground(() => {
         const enabled = message.payload as boolean;
         await setExtensionEnabled(enabled);
         return { success: true };
+      }
+
+      case MessageType.PASTE_PROMPT: {
+        const response = await sendToContentScript(message);
+        return response;
       }
 
       default:
@@ -208,44 +227,80 @@ export default defineBackground(() => {
     return null;
   }
 
-  // Send message to content script in Gemini tab
+  async function ensureContentScriptReady(tabId: number): Promise<boolean> {
+    try {
+      await chrome.tabs.sendMessage(tabId, { type: MessageType.PING });
+      return true;
+    } catch {
+      console.log("[NanoFlow] Content script not ready, injecting...");
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId },
+          files: ["content-scripts/gemini.js"],
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await chrome.tabs.sendMessage(tabId, { type: MessageType.PING });
+        return true;
+      } catch (injectError) {
+        console.error("[NanoFlow] Failed to inject content script:", injectError);
+        return false;
+      }
+    }
+  }
+
   async function sendToContentScript<T>(message: ExtensionMessage): Promise<ExtensionResponse<T>> {
     const tabId = await findGeminiTab();
+    console.log("[NanoFlow] sendToContentScript - tabId:", tabId, "message:", message.type);
     if (!tabId) {
       throw new Error("No Gemini tab found. Please open gemini.google.com");
     }
 
-    return chrome.tabs.sendMessage(tabId, message);
+    const isReady = await ensureContentScriptReady(tabId);
+    if (!isReady) {
+      throw new Error("Content script not available. Please refresh the Gemini page.");
+    }
+
+    try {
+      const response = await chrome.tabs.sendMessage(tabId, message);
+      console.log("[NanoFlow] Content script response:", response);
+      return response;
+    } catch (error) {
+      console.error("[NanoFlow] sendToContentScript error:", error);
+      throw error;
+    }
   }
 
   async function startProcessing(): Promise<void> {
-    // Check if extension is enabled
+    console.log("[NanoFlow] startProcessing() called");
+
     const enabled = await isExtensionEnabled();
+    console.log("[NanoFlow] Extension enabled:", enabled);
     if (!enabled) {
+      console.log("[NanoFlow] Extension disabled, stopping");
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
       return;
     }
 
     isProcessing = true;
+    isPaused = false;
     processingController = new AbortController();
 
-    // Notify sidepanel that processing started
     broadcastMessage({ type: MessageType.PROCESS_QUEUE });
 
-    // Check if we have a Gemini tab
     const tabId = await findGeminiTab();
+    console.log("[NanoFlow] Found Gemini tab:", tabId);
     if (!tabId) {
+      console.log("[NanoFlow] No Gemini tab found, stopping");
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
       isProcessing = false;
       return;
     }
 
-    while (isProcessing) {
+    while (isProcessing && !isPaused) {
       const queue = await getQueue();
       const nextItem = queue.find((item) => item.status === QueueStatus.Pending);
 
       if (!nextItem) {
-        // No more items to process
         isProcessing = false;
         break;
       }
@@ -328,12 +383,23 @@ export default defineBackground(() => {
       });
     }
 
-    // Notify that processing stopped
-    broadcastMessage({ type: MessageType.STOP_PROCESSING });
+    if (isPaused) {
+      isProcessing = false;
+      broadcastMessage({ type: MessageType.PAUSE_PROCESSING });
+    } else {
+      broadcastMessage({ type: MessageType.STOP_PROCESSING });
+    }
+  }
+
+  function pauseProcessing(): void {
+    isPaused = true;
+    // Don't set isProcessing = false yet - let the current item finish
+    // The while loop will check isPaused and exit gracefully
   }
 
   function stopProcessing(): void {
     isProcessing = false;
+    isPaused = false;
     if (processingController) {
       processingController.abort();
       processingController = null;

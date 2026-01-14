@@ -8,12 +8,12 @@ import {
   Pause,
   Play,
   Settings as SettingsIcon,
-  Sparkles,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
+import { ResetFilter } from "@/components/BulkActionsDialog";
 import { CsvDialog } from "@/components/CsvDialog";
 import { ExportDialog } from "@/components/ExportDialog";
 import { Footer } from "@/components/Footer";
@@ -57,6 +57,7 @@ export default function App() {
   const [folders, setFoldersState] = useState<Folder[]>([]);
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("queue");
   const [activeTimer, setActiveTimer] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -125,8 +126,13 @@ export default function App() {
     const handleMessage = (message: ExtensionMessage) => {
       if (message.type === MessageType.PROCESS_QUEUE) {
         setIsProcessing(true);
+        setIsPaused(false);
+      } else if (message.type === MessageType.PAUSE_PROCESSING) {
+        setIsProcessing(false);
+        setIsPaused(true);
       } else if (message.type === MessageType.STOP_PROCESSING) {
         setIsProcessing(false);
+        setIsPaused(false);
       } else if (message.type === MessageType.UPDATE_QUEUE) {
         setQueueState(message.payload as QueueItem[]);
       }
@@ -298,24 +304,38 @@ export default function App() {
 
   const handleDuplicateWithAI = useCallback(
     async (id: string) => {
+      if (!hasAnyAIKey(settings)) {
+        toast.error("No API key configured. Add one in Settings > API to use AI optimization.");
+        return;
+      }
+
       const item = queue.find((i) => i.id === id);
       if (!item) return;
-      const newItem: QueueItem = {
-        ...item,
-        id: Math.random().toString(36).substring(2, 9),
-        originalPrompt: item.originalPrompt + " (AI enhanced variation)",
-        finalPrompt: constructFinalPrompt(item.originalPrompt + " (AI enhanced variation)"),
-        status: QueueStatus.Pending,
-        error: undefined,
-        completionTimeSeconds: undefined,
-        startTime: undefined,
-        endTime: undefined,
-      };
-      const updatedQueue = [...queue, newItem];
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
+
+      toast.info("Optimizing prompt with AI...");
+
+      try {
+        const improvedPrompt = await improvePrompt(item.originalPrompt);
+        const newItem: QueueItem = {
+          ...item,
+          id: Math.random().toString(36).substring(2, 9),
+          originalPrompt: improvedPrompt,
+          finalPrompt: constructFinalPrompt(improvedPrompt),
+          status: QueueStatus.Pending,
+          error: undefined,
+          completionTimeSeconds: undefined,
+          startTime: undefined,
+          endTime: undefined,
+        };
+        const updatedQueue = [...queue, newItem];
+        setQueueState(updatedQueue);
+        await setQueue(updatedQueue);
+        toast.success("AI-optimized prompt added to queue");
+      } catch (error) {
+        toast.error("Failed to optimize prompt. Check your API key.");
+      }
     },
-    [queue, constructFinalPrompt]
+    [queue, constructFinalPrompt, settings]
   );
 
   const handleEditItem = useCallback(
@@ -329,6 +349,153 @@ export default function App() {
       await setQueue(updatedQueue);
     },
     [queue, constructFinalPrompt]
+  );
+
+  const handleBulkAttachImages = useCallback(
+    async (images: string[]) => {
+      const updatedQueue = queue.map((item) =>
+        item.status === QueueStatus.Pending
+          ? { ...item, images: [...(item.images ?? []), ...images] }
+          : item
+      );
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      const pendingCount = queue.filter((i) => i.status === QueueStatus.Pending).length;
+      toast.success(`Attached ${images.length} image(s) to ${pendingCount} pending prompts`);
+    },
+    [queue]
+  );
+
+  const handleBulkAIOptimize = useCallback(
+    async (instructions: string) => {
+      if (!hasAnyAIKey(settings)) {
+        toast.error("No API key configured. Add one in Settings > API.");
+        return;
+      }
+
+      const pendingItems = queue.filter((item) => item.status === QueueStatus.Pending);
+      if (pendingItems.length === 0) {
+        toast.error("No pending prompts to optimize");
+        return;
+      }
+
+      toast.info(`Optimizing ${pendingItems.length} prompts with AI...`);
+
+      try {
+        const optimizedPromises = pendingItems.map(async (item) => {
+          const enhancedPrompt = await improvePrompt(
+            `${item.originalPrompt}\n\nInstructions: ${instructions}`
+          );
+          return {
+            id: item.id,
+            originalPrompt: enhancedPrompt,
+            finalPrompt: constructFinalPrompt(enhancedPrompt),
+          };
+        });
+
+        const optimizedResults = await Promise.all(optimizedPromises);
+
+        const updatedQueue = queue.map((item) => {
+          const optimized = optimizedResults.find((r) => r.id === item.id);
+          return optimized
+            ? {
+                ...item,
+                originalPrompt: optimized.originalPrompt,
+                finalPrompt: optimized.finalPrompt,
+              }
+            : item;
+        });
+
+        setQueueState(updatedQueue);
+        await setQueue(updatedQueue);
+        toast.success(`Optimized ${pendingItems.length} prompts with AI`);
+      } catch (error) {
+        toast.error("Failed to optimize prompts. Check your API key.");
+      }
+    },
+    [queue, constructFinalPrompt, settings]
+  );
+
+  const handleBulkModify = useCallback(
+    async (text: string, position: "prepend" | "append") => {
+      const updatedQueue = queue.map((item) => {
+        if (item.status !== QueueStatus.Pending) return item;
+        const newPrompt =
+          position === "prepend"
+            ? `${text} ${item.originalPrompt}`
+            : `${item.originalPrompt} ${text}`;
+        return {
+          ...item,
+          originalPrompt: newPrompt,
+          finalPrompt: constructFinalPrompt(newPrompt),
+        };
+      });
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      const pendingCount = queue.filter((i) => i.status === QueueStatus.Pending).length;
+      toast.success(`Modified ${pendingCount} pending prompts`);
+    },
+    [queue, constructFinalPrompt]
+  );
+
+  const handleBulkReset = useCallback(
+    async (filter: ResetFilter) => {
+      let resetCount = 0;
+      const updatedQueue = queue.map((item) => {
+        const isResettable =
+          item.status === QueueStatus.Completed || item.status === QueueStatus.Failed;
+        if (!isResettable) return item;
+
+        let shouldReset = false;
+        switch (filter.type) {
+          case "all":
+            shouldReset = true;
+            break;
+          case "text":
+            shouldReset = filter.textMatch
+              ? item.originalPrompt.toLowerCase().includes(filter.textMatch.toLowerCase())
+              : false;
+            break;
+          case "hasImages":
+            shouldReset = !!(item.images && item.images.length > 0);
+            break;
+          case "tool":
+            shouldReset = filter.tool ? item.tool === filter.tool : false;
+            break;
+          case "mode":
+            shouldReset = filter.mode ? item.mode === filter.mode : false;
+            break;
+        }
+
+        if (shouldReset) {
+          resetCount++;
+          return {
+            ...item,
+            status: QueueStatus.Pending,
+            startTime: undefined,
+            endTime: undefined,
+            completionTimeSeconds: undefined,
+            error: undefined,
+            results: undefined,
+          };
+        }
+        return item;
+      });
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Reset ${resetCount} prompt${resetCount !== 1 ? "s" : ""} to pending`);
+    },
+    [queue]
+  );
+
+  const handleUpdateItemImages = useCallback(
+    async (id: string, images: string[]) => {
+      const updatedQueue = queue.map((item) => (item.id === id ? { ...item, images } : item));
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+    },
+    [queue]
   );
 
   const handleClearAll = useCallback(() => {
@@ -413,21 +580,23 @@ export default function App() {
           await setQueue(completedQueue);
           toast.success("Prompt completed!");
         } else {
-          throw new Error("Failed to run prompt");
+          const errorMsg = response?.error || "Unknown error";
+          throw new Error(errorMsg);
         }
       } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : "Unknown error";
         const failedQueue = queue.map((i) =>
           i.id === id
             ? {
                 ...i,
                 status: QueueStatus.Failed,
-                error: error instanceof Error ? error.message : "Unknown error",
+                error: errorMsg,
               }
             : i
         );
         setQueueState(failedQueue);
         await setQueue(failedQueue);
-        toast.error("Failed to run prompt");
+        toast.error(errorMsg);
       }
     },
     [queue, settings.defaultTool]
@@ -491,15 +660,17 @@ export default function App() {
   // Processing handlers
   const toggleProcessing = useCallback(async () => {
     if (isProcessing) {
-      await sendMessage({ type: MessageType.STOP_PROCESSING });
+      await sendMessage({ type: MessageType.PAUSE_PROCESSING });
       setIsProcessing(false);
-      toast.info("Processing stopped");
+      setIsPaused(true);
+      toast.info("Processing paused");
     } else {
       await sendMessage({ type: MessageType.PROCESS_QUEUE });
       setIsProcessing(true);
-      toast.success("Processing started");
+      setIsPaused(false);
+      toast.success(isPaused ? "Processing resumed" : "Processing started");
     }
-  }, [isProcessing]);
+  }, [isProcessing, isPaused]);
 
   // Settings handlers
   const handleUpdateSettings = useCallback(
@@ -725,9 +896,7 @@ export default function App() {
         className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
       >
         <div className="flex items-center gap-2">
-          <div className="rounded-md bg-blue-600 p-1 shadow-lg shadow-blue-600/20">
-            <Sparkles size={16} className="text-white" />
-          </div>
+          <img src="/icons/icon-32.png" alt="Gemini" className="h-6 w-6" />
           <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
         </div>
         {isProcessing && (
@@ -769,12 +938,12 @@ export default function App() {
             onClick={() => {
               setActiveTab(tab.id);
             }}
-            className={`group relative flex flex-1 flex-col items-center gap-1 py-3 text-[8px] font-black uppercase tracking-widest transition-all ${
+            className={`group relative flex min-h-[48px] flex-1 flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-bold uppercase tracking-wide transition-all ${
               activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
             }`}
           >
-            <div className="flex items-center gap-0.5">
-              <tab.icon size={14} />
+            <div className="flex items-center gap-1">
+              <tab.icon size={16} />
               <Info
                 size={8}
                 className="opacity-0 transition-opacity group-hover:opacity-50"
@@ -791,13 +960,14 @@ export default function App() {
       </nav>
 
       {/* Content */}
-      <div className="no-scrollbar flex-1 overflow-y-auto p-2">
+      <div className="no-scrollbar flex-1 overflow-y-auto p-3">
         {activeTab === "queue" && (
           <div data-onboarding="queue-panel">
             <QueuePanel
               queue={queue}
               isDark={isDark}
               defaultTool={settings.defaultTool}
+              hasApiKey={hasAnyAIKey(settings)}
               onAddToQueue={handleAddToQueue}
               onRemoveFromQueue={handleRemoveFromQueue}
               onRetryQueueItem={handleRetryQueueItem}
@@ -811,6 +981,11 @@ export default function App() {
               onDuplicateItem={handleDuplicateItem}
               onDuplicateWithAI={handleDuplicateWithAI}
               onEditItem={handleEditItem}
+              onUpdateItemImages={handleUpdateItemImages}
+              onBulkAttachImages={handleBulkAttachImages}
+              onBulkAIOptimize={handleBulkAIOptimize}
+              onBulkModify={handleBulkModify}
+              onBulkReset={handleBulkReset}
             />
           </div>
         )}
@@ -864,7 +1039,7 @@ export default function App() {
                 onClick={() => {
                   setShowClearAllConfirm(false);
                 }}
-                className={`flex-1 rounded-md border px-3 py-2 text-xs font-bold uppercase transition-all ${
+                className={`min-h-[44px] flex-1 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
                   isDark
                     ? "border-white/20 bg-white/5 hover:bg-white/10"
                     : "border-slate-200 bg-slate-100 hover:bg-slate-200"
@@ -876,7 +1051,7 @@ export default function App() {
                 onClick={() => {
                   confirmClearAll().catch(() => {});
                 }}
-                className="flex-1 rounded-md bg-red-600 px-3 py-2 text-xs font-bold uppercase text-white transition-all hover:bg-red-700 active:scale-95"
+                className="min-h-[44px] flex-1 rounded-lg bg-red-600 px-3 py-2.5 text-xs font-semibold uppercase text-white transition-all hover:bg-red-700 active:scale-95"
               >
                 Clear All
               </button>
@@ -887,35 +1062,35 @@ export default function App() {
 
       {/* Footer Controls */}
       <div
-        className={`space-y-2 border-t p-2 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
+        className={`space-y-3 border-t p-3 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
       >
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => {
               handleClearCompleted().catch(() => {});
             }}
             disabled={queue.filter((item) => item.status === QueueStatus.Completed).length === 0}
             title="Clear completed items"
-            className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-[10px] font-black uppercase transition-all ${
+            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
               isDark
                 ? "border-green-500/30 bg-green-500/10 text-green-400 hover:border-green-500/50 hover:bg-green-500/20 disabled:opacity-30 disabled:hover:border-green-500/30 disabled:hover:bg-green-500/10"
                 : "border-green-300 bg-green-50 text-green-700 hover:border-green-400 hover:bg-green-100 disabled:opacity-30 disabled:hover:border-green-300 disabled:hover:bg-green-50"
             }`}
           >
-            <CheckCheck size={14} />
-            <span className="hidden sm:inline">Clear Completed</span>
+            <CheckCheck size={16} />
+            <span className="hidden sm:inline">Clear Done</span>
           </button>
           <button
             onClick={() => setShowExportDialog(true)}
             disabled={queue.length === 0}
             title="Export queue to file"
-            className={`flex items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-[10px] font-black uppercase transition-all ${
+            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
               isDark
                 ? "border-blue-500/30 bg-blue-500/10 text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20 disabled:opacity-30 disabled:hover:border-blue-500/30 disabled:hover:bg-blue-500/10"
                 : "border-blue-300 bg-blue-50 text-blue-700 hover:border-blue-400 hover:bg-blue-100 disabled:opacity-30 disabled:hover:border-blue-300 disabled:hover:bg-blue-50"
             }`}
           >
-            <Download size={14} />
+            <Download size={16} />
             <span className="hidden sm:inline">Export</span>
           </button>
           <button
@@ -924,17 +1099,27 @@ export default function App() {
               toggleProcessing().catch(() => {});
             }}
             disabled={queue.length === 0}
-            title={isProcessing ? "Stop processing queue" : "Start processing queue"}
-            className={`flex flex-[4] items-center justify-center gap-2 rounded-md p-2 text-xs font-black uppercase shadow-xl transition-all active:scale-[0.98] ${
-              isProcessing ? "bg-amber-500 shadow-amber-500/30" : "bg-blue-600 shadow-blue-600/30"
+            title={
+              isProcessing
+                ? "Pause processing queue"
+                : isPaused
+                  ? "Continue processing queue"
+                  : "Start processing queue"
+            }
+            className={`flex min-h-[48px] flex-[4] items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-bold uppercase tracking-wide shadow-xl transition-all active:scale-[0.98] ${
+              isProcessing
+                ? "bg-amber-500 shadow-amber-500/30"
+                : isPaused
+                  ? "bg-green-600 shadow-green-600/30"
+                  : "bg-blue-600 shadow-blue-600/30"
             } text-white disabled:opacity-30`}
           >
             {isProcessing ? (
-              <Pause size={16} fill="currentColor" />
+              <Pause size={18} fill="currentColor" />
             ) : (
-              <Play size={16} fill="currentColor" />
+              <Play size={18} fill="currentColor" />
             )}
-            {isProcessing ? "Stop" : "Start"}
+            {isProcessing ? "Pause" : isPaused ? "Continue" : "Start"}
           </button>
         </div>
 

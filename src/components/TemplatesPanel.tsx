@@ -3,7 +3,6 @@ import {
   ChevronDown,
   Folder as FolderIcon,
   FolderPlus,
-  Info,
   Loader2,
   Pencil,
   Plus,
@@ -17,15 +16,7 @@ import React, { useRef, useState } from "react";
 
 import type { Folder, PromptTemplate } from "@/types";
 
-// Inline info icon for templates panel
-const TemplateInfo: React.FC<{ text: string }> = ({ text }) => (
-  <span
-    title={text}
-    className="ml-1 inline-flex items-center opacity-30 transition-opacity hover:opacity-70"
-  >
-    <Info size={10} />
-  </span>
-);
+import { Tooltip } from "./Tooltip";
 
 interface TemplatesPanelProps {
   folders: Folder[];
@@ -191,16 +182,19 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     <>
       <div className="animate-in fade-in space-y-2 duration-300">
         <div className="flex items-center justify-between px-1">
-          <span className="flex items-center text-[9px] font-black uppercase tracking-widest opacity-40">
+          <span className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             Collections
-            <TemplateInfo text="Organize your favorite prompts into folders. Use AI to improve them!" />
+            <Tooltip
+              text="Organize your favorite prompts into folders. Use AI to improve them!"
+              isDark={isDark}
+            />
           </span>
           <button
             onClick={() => {
               setIsCreatingFolder(true);
             }}
             title="Create new folder"
-            className="rounded-md bg-blue-500/10 p-1.5 text-blue-500 shadow-sm transition-all hover:bg-blue-600 hover:text-white"
+            className="rounded-lg bg-indigo-500/10 p-2 text-indigo-500 transition-colors duration-150 hover:bg-indigo-500 hover:text-white"
           >
             <FolderPlus size={14} />
           </button>
@@ -214,17 +208,17 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   onClick={() => {
                     onToggleFolder(folder.id);
                   }}
-                  className={`flex flex-1 items-center gap-2 rounded-md border p-2 text-xs font-black transition-all ${
+                  className={`flex min-h-[44px] flex-1 items-center gap-2 rounded-lg border p-3 text-xs font-semibold transition-colors duration-150 ${
                     isDark
-                      ? "border-white/5 bg-white/5 hover:bg-white/10"
-                      : "border-slate-100 bg-slate-50 hover:bg-slate-100"
+                      ? "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+                      : "border-slate-200 bg-slate-50 hover:bg-slate-100"
                   }`}
                 >
-                  <FolderIcon size={14} className="text-blue-500" />
+                  <FolderIcon size={14} className="text-indigo-500" />
                   <span className="flex-1 text-left">{folder.name}</span>
                   <ChevronDown
                     size={14}
-                    className={`transition-transform duration-300 ${folder.isOpen ? "rotate-180" : ""}`}
+                    className={`text-slate-400 transition-transform duration-200 ${folder.isOpen ? "rotate-180" : ""}`}
                   />
                 </button>
                 <button
@@ -235,12 +229,12 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       ? "Improve all prompts in folder"
                       : "Configure an AI API key in Settings to enable prompt optimization"
                   }
-                  className={`rounded-md p-2 transition-all ${
+                  className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors duration-150 ${
                     !hasAIKey
-                      ? "cursor-not-allowed bg-white/5 text-white/20"
+                      ? "cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600"
                       : improvingIds.has(folder.id)
                         ? "animate-pulse bg-amber-500 text-white"
-                        : "bg-amber-500/10 text-amber-500/60 hover:bg-amber-600 hover:text-white"
+                        : "bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white"
                   }`}
                 >
                   {improvingIds.has(folder.id) ? (
@@ -254,21 +248,21 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                     handleDeleteFolder(folder.id, e);
                   }}
                   title="Delete folder"
-                  className="rounded-md bg-red-500/10 p-2 text-red-500/60 transition-all hover:bg-red-600 hover:text-white"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-red-500/10 p-2 text-red-500 transition-colors duration-150 hover:bg-red-500 hover:text-white"
                 >
                   <Trash2 size={14} />
                 </button>
               </div>
 
               {folder.isOpen && (
-                <div className="animate-in slide-in-from-top-1 mt-1 space-y-1">
+                <div className="animate-in slide-in-from-top-1 mt-1.5 space-y-1.5">
                   {folder.templates.map((template) => (
                     <div
                       key={template.id}
-                      className={`group flex flex-col rounded-md border p-2 shadow-sm transition-all ${
+                      className={`group flex flex-col rounded-lg border p-3 transition-colors duration-150 ${
                         isDark
-                          ? "bg-white/2 border-white/5 hover:border-blue-500/30"
-                          : "border-slate-50 bg-white"
+                          ? "border-slate-700 bg-slate-800/30 hover:border-indigo-500/30"
+                          : "border-slate-100 bg-white hover:border-indigo-300"
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -278,10 +272,10 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                             onUseTemplate(folder.id, template.id);
                           }}
                         >
-                          <p className="truncate text-[10px] font-black text-blue-500">
+                          <p className="truncate text-xs font-semibold text-indigo-500">
                             {template.name}
                           </p>
-                          <p className="truncate text-[9px] opacity-40">"{template.text}"</p>
+                          <p className="truncate text-[11px] text-slate-400">"{template.text}"</p>
                         </div>
                         <div className="flex gap-1 opacity-0 transition-all group-hover:opacity-100">
                           <button
@@ -344,7 +338,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                       handleStartTemplateEdit(folder.id, undefined, e);
                     }}
                     title="Create new template"
-                    className="w-full rounded-md border-2 border-dashed border-white/5 p-2 text-[9px] font-black uppercase opacity-20 transition-all hover:opacity-100"
+                    className="min-h-[44px] w-full rounded-md border-2 border-dashed border-white/5 p-2 text-xs font-black uppercase opacity-20 transition-all hover:opacity-100"
                   >
                     New Style
                   </button>
@@ -355,9 +349,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           {folders.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-white/5 py-12 opacity-10">
               <BookMarked size={24} />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                Library Empty
-              </span>
+              <span className="text-xs font-black uppercase tracking-widest">Library Empty</span>
             </div>
           )}
         </div>
@@ -427,7 +419,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
             <div className="space-y-3 p-2">
               <div className="space-y-1">
-                <label className="ml-1 text-[10px] font-black uppercase opacity-40">
+                <label className="ml-1 text-xs font-black uppercase opacity-40">
                   Template Title
                 </label>
                 <input
@@ -448,7 +440,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="ml-1 text-[10px] font-black uppercase opacity-40">
+                <label className="ml-1 text-xs font-black uppercase opacity-40">
                   Logic / Modifiers
                 </label>
                 <textarea
@@ -467,7 +459,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="ml-1 text-[10px] font-black uppercase opacity-40">Assets</label>
+                <label className="ml-1 text-xs font-black uppercase opacity-40">Assets</label>
                 <div
                   onClick={() => templateImageInputRef.current?.click()}
                   className={`flex min-h-[80px] cursor-pointer flex-wrap items-center justify-center gap-1 rounded-md border-2 border-dashed p-2 transition-all ${
@@ -488,7 +480,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   editingTemplate.template.images.length === 0 ? (
                     <div className="flex flex-col items-center gap-1 opacity-20">
                       <Upload size={20} />
-                      <span className="text-[9px] font-black uppercase tracking-widest">
+                      <span className="text-xs font-black uppercase tracking-widest">
                         Select Files
                       </span>
                     </div>

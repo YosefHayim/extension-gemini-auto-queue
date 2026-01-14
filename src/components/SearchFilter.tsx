@@ -1,7 +1,7 @@
-import { ChevronDown, Filter, Search, X } from "lucide-react";
+import { ChevronDown, Filter, Image, Layers, Search, Type, X } from "lucide-react";
 import React, { useState } from "react";
 
-import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/types";
+import { ContentType, GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/types";
 
 interface SearchFilterProps {
   searchText: string;
@@ -10,6 +10,8 @@ interface SearchFilterProps {
   onToolsChange: (tools: GeminiTool[]) => void;
   selectedModes: GeminiMode[];
   onModesChange: (modes: GeminiMode[]) => void;
+  selectedContentTypes: ContentType[];
+  onContentTypesChange: (types: ContentType[]) => void;
   isDark: boolean;
   totalItems: number;
   filteredCount: number;
@@ -30,6 +32,12 @@ const MODE_PILL_STYLES: Record<GeminiMode, { selected: string; unselected: strin
   },
 };
 
+const CONTENT_TYPE_INFO: Record<ContentType, { label: string; icon: typeof Type }> = {
+  [ContentType.TextOnly]: { label: "Text Only", icon: Type },
+  [ContentType.WithImages]: { label: "With Images", icon: Image },
+  [ContentType.TextAndImages]: { label: "Text + Images", icon: Layers },
+};
+
 export const SearchFilter: React.FC<SearchFilterProps> = ({
   searchText,
   onSearchChange,
@@ -37,6 +45,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   onToolsChange,
   selectedModes,
   onModesChange,
+  selectedContentTypes,
+  onContentTypesChange,
   isDark,
   totalItems,
   filteredCount,
@@ -44,7 +54,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const hasActiveFilters =
-    searchText.length > 0 || selectedTools.length > 0 || selectedModes.length > 0;
+    searchText.length > 0 ||
+    selectedTools.length > 0 ||
+    selectedModes.length > 0 ||
+    selectedContentTypes.length > 0;
   const isFiltered = filteredCount !== totalItems;
 
   const handleToolToggle = (tool: GeminiTool) => {
@@ -63,10 +76,19 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
     }
   };
 
+  const handleContentTypeToggle = (type: ContentType) => {
+    if (selectedContentTypes.includes(type)) {
+      onContentTypesChange(selectedContentTypes.filter((t) => t !== type));
+    } else {
+      onContentTypesChange([...selectedContentTypes, type]);
+    }
+  };
+
   const handleClearAll = () => {
     onSearchChange("");
     onToolsChange([]);
     onModesChange([]);
+    onContentTypesChange([]);
   };
 
   const allTools = Object.values(GeminiTool);
@@ -140,7 +162,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                 isDark ? "bg-blue-500 text-white" : "bg-blue-500 text-white"
               }`}
             >
-              {selectedTools.length + selectedModes.length + (searchText ? 1 : 0)}
+              {selectedTools.length +
+                selectedModes.length +
+                selectedContentTypes.length +
+                (searchText ? 1 : 0)}
             </span>
           )}
         </button>
@@ -217,6 +242,41 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                       }`}
                     >
                       {modeInfo.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <div
+                className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
+                  isDark ? "text-white/40" : "text-slate-500"
+                }`}
+              >
+                Filter by Content
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.values(ContentType).map((type) => {
+                  const typeInfo = CONTENT_TYPE_INFO[type];
+                  const isSelected = selectedContentTypes.includes(type);
+                  const Icon = typeInfo.icon;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => handleContentTypeToggle(type)}
+                      className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold transition-all duration-200 ${
+                        isSelected
+                          ? isDark
+                            ? "border-white/30 bg-white/15 text-white shadow-sm"
+                            : "border-slate-400 bg-slate-700 text-white shadow-sm"
+                          : isDark
+                            ? "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
+                            : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                      }`}
+                    >
+                      <Icon size={10} />
+                      <span>{typeInfo.label}</span>
                     </button>
                   );
                 })}

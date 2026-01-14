@@ -4,6 +4,7 @@ import { QueueStatus } from "@/types";
 
 interface StatusBadgeProps {
   status: QueueStatus;
+  errorMessage?: string;
 }
 
 const statusStyles: Record<QueueStatus, string> = {
@@ -20,11 +21,16 @@ const statusDescriptions: Record<QueueStatus, string> = {
   [QueueStatus.Failed]: "Generation failed - check Gemini for errors",
 };
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, errorMessage }) => {
+  const tooltipText =
+    status === QueueStatus.Failed && errorMessage
+      ? `Error: ${errorMessage}`
+      : statusDescriptions[status];
+
   return (
     <div
-      title={statusDescriptions[status]}
-      className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${statusStyles[status]}`}
+      title={tooltipText}
+      className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${statusStyles[status]} ${status === QueueStatus.Failed && errorMessage ? "cursor-help" : ""}`}
     >
       {status}
     </div>

@@ -2,11 +2,12 @@
 export {}
 declare global {
   const ApiKeyDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ApiKeyDialog')['default']
+  const BulkActionsDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')['default']
+  const BulkDownloadButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkDownloadButton')['default']
   const ContentScriptContext: typeof import('wxt/client')['ContentScriptContext']
   const CsvDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/CsvDialog')['default']
   const ExportDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ExportDialog')['default']
   const Footer: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/Footer')['default']
-  const InfoTooltip: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/InfoTooltip')['default']
   const InvalidMatchPattern: typeof import('wxt/sandbox')['InvalidMatchPattern']
   const MatchPattern: typeof import('wxt/sandbox')['MatchPattern']
   const MigrationError: typeof import('wxt/storage')['MigrationError']
@@ -17,7 +18,9 @@ declare global {
   const SettingsPanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/SettingsPanel')['default']
   const StatusBadge: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/StatusBadge')['default']
   const TemplatesPanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/TemplatesPanel')['default']
+  const Tooltip: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/Tooltip')['default']
   const browser: typeof import('wxt/browser')['browser']
+  const clickNativeDownloadButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['clickNativeDownloadButton']
   const constructFinalPrompt: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['constructFinalPrompt']
   const createIframeUi: typeof import('wxt/client')['createIframeUi']
   const createIntegratedUi: typeof import('wxt/client')['createIntegratedUi']
@@ -29,7 +32,14 @@ declare global {
   const defineContentScript: typeof import('wxt/sandbox')['defineContentScript']
   const defineUnlistedScript: typeof import('wxt/sandbox')['defineUnlistedScript']
   const defineWxtPlugin: typeof import('wxt/sandbox')['defineWxtPlugin']
+  const downloadAllMedia: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['downloadAllMedia']
+  const downloadAllViaNativeButtons: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['downloadAllViaNativeButtons']
+  const downloadMedia: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['downloadMedia']
   const fakeBrowser: typeof import('wxt/testing')['fakeBrowser']
+  const findAllMedia: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findAllMedia']
+  const findDownloadableFiles: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findDownloadableFiles']
+  const findGeneratedImages: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findGeneratedImages']
+  const findGeneratedVideos: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findGeneratedVideos']
   const injectScript: typeof import('wxt/client')['injectScript']
   const storage: typeof import('wxt/storage')['storage']
   const useAppConfig: typeof import('wxt/client')['useAppConfig']
@@ -43,4 +53,13 @@ declare global {
   const useState: typeof import('react')['useState']
   const useStorage: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useStorage')['default']
   const useStorageListener: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useStorage')['useStorageListener']
+}
+// for type re-export
+declare global {
+  // @ts-ignore
+  export type { ResetFilter } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
+  import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')
+  // @ts-ignore
+  export type { MediaItem } from '/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader'
+  import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')
 }

@@ -18,7 +18,6 @@ const networkMonitor: NetworkMonitor = {
   completionCallbacks: [],
 };
 
-// Patterns for Gemini generation API endpoints
 const GEMINI_API_PATTERNS = [
   /StreamGenerate/i,
   /BardChatUi/i,
@@ -27,8 +26,11 @@ const GEMINI_API_PATTERNS = [
   /_\/BardChatUi/i,
 ];
 
-// Initialize network monitoring by patching fetch and XHR
+let networkMonitorInitialized = false;
+
 function initNetworkMonitor(): void {
+  if (networkMonitorInitialized) return;
+  networkMonitorInitialized = true;
   // Patch fetch
   const originalFetch = window.fetch;
   window.fetch = async function (...args) {
@@ -41,26 +43,38 @@ function initNetworkMonitor(): void {
       networkMonitor.isGenerating = true;
       networkMonitor.lastRequestStartTime = Date.now();
 
+      const REQUEST_TIMEOUT = 120000;
+      const timeoutId = setTimeout(() => {
+        if (networkMonitor.pendingRequests.has(requestId)) {
+          networkMonitor.pendingRequests.delete(requestId);
+          if (networkMonitor.pendingRequests.size === 0) {
+            networkMonitor.isGenerating = false;
+            networkMonitor.lastRequestEndTime = Date.now();
+            const callbacks = [...networkMonitor.completionCallbacks];
+            networkMonitor.completionCallbacks = [];
+            callbacks.forEach((cb) => cb());
+          }
+        }
+      }, REQUEST_TIMEOUT);
+
       try {
         const response = await originalFetch.apply(this, args);
 
-        // For streaming responses, we need to wait for the body to be consumed
         if (response.body) {
           const reader = response.body.getReader();
           const originalReader = reader;
 
-          // Create a new readable stream that tracks when reading completes
           const trackedStream = new ReadableStream({
             async start(controller) {
               try {
                 while (true) {
                   const { done, value } = await originalReader.read();
                   if (done) {
+                    clearTimeout(timeoutId);
                     networkMonitor.pendingRequests.delete(requestId);
                     if (networkMonitor.pendingRequests.size === 0) {
                       networkMonitor.isGenerating = false;
                       networkMonitor.lastRequestEndTime = Date.now();
-                      // Notify all waiting callbacks
                       const callbacks = [...networkMonitor.completionCallbacks];
                       networkMonitor.completionCallbacks = [];
                       callbacks.forEach((cb) => cb());
@@ -71,6 +85,7 @@ function initNetworkMonitor(): void {
                   controller.enqueue(value);
                 }
               } catch (error) {
+                clearTimeout(timeoutId);
                 networkMonitor.pendingRequests.delete(requestId);
                 if (networkMonitor.pendingRequests.size === 0) {
                   networkMonitor.isGenerating = false;
@@ -88,6 +103,7 @@ function initNetworkMonitor(): void {
           });
         }
 
+        clearTimeout(timeoutId);
         networkMonitor.pendingRequests.delete(requestId);
         if (networkMonitor.pendingRequests.size === 0) {
           networkMonitor.isGenerating = false;
@@ -95,6 +111,7 @@ function initNetworkMonitor(): void {
         }
         return response;
       } catch (error) {
+        clearTimeout(timeoutId);
         networkMonitor.pendingRequests.delete(requestId);
         if (networkMonitor.pendingRequests.size === 0) {
           networkMonitor.isGenerating = false;
@@ -129,12 +146,26 @@ function initNetworkMonitor(): void {
       networkMonitor.isGenerating = true;
       networkMonitor.lastRequestStartTime = Date.now();
 
+      const REQUEST_TIMEOUT = 120000;
+      const timeoutId = setTimeout(() => {
+        if (networkMonitor.pendingRequests.has(requestId)) {
+          networkMonitor.pendingRequests.delete(requestId);
+          if (networkMonitor.pendingRequests.size === 0) {
+            networkMonitor.isGenerating = false;
+            networkMonitor.lastRequestEndTime = Date.now();
+            const callbacks = [...networkMonitor.completionCallbacks];
+            networkMonitor.completionCallbacks = [];
+            callbacks.forEach((cb) => cb());
+          }
+        }
+      }, REQUEST_TIMEOUT);
+
       const onComplete = () => {
+        clearTimeout(timeoutId);
         networkMonitor.pendingRequests.delete(requestId);
         if (networkMonitor.pendingRequests.size === 0) {
           networkMonitor.isGenerating = false;
           networkMonitor.lastRequestEndTime = Date.now();
-          // Notify all waiting callbacks
           const callbacks = [...networkMonitor.completionCallbacks];
           networkMonitor.completionCallbacks = [];
           callbacks.forEach((cb) => cb());
@@ -174,41 +205,36 @@ function initNetworkMonitor(): void {
   }
 }
 
-// Wait for network generation to complete
 function waitForNetworkComplete(timeout = 180000): Promise<boolean> {
   return new Promise((resolve) => {
     const startTime = Date.now();
+    let resolved = false;
+    const POLL_INTERVAL = 500;
+    const IDLE_BUFFER = 2000;
 
-    const checkComplete = () => {
-      // If no pending requests and we've seen at least one request complete recently
-      if (!networkMonitor.isGenerating && networkMonitor.pendingRequests.size === 0) {
-        // Give a small buffer to ensure streaming is truly done
-        const timeSinceLastRequest = Date.now() - networkMonitor.lastRequestEndTime;
-        if (timeSinceLastRequest > 500 && networkMonitor.lastRequestEndTime > 0) {
-          resolve(true);
-          return;
-        }
-      }
+    const poll = () => {
+      if (resolved) return;
 
-      // Check timeout
       if (Date.now() - startTime > timeout) {
+        resolved = true;
         resolve(true);
         return;
       }
 
-      // If still generating, register callback
-      if (networkMonitor.isGenerating || networkMonitor.pendingRequests.size > 0) {
-        networkMonitor.completionCallbacks.push(() => {
-          // Small delay after completion to ensure DOM updates
-          setTimeout(() => resolve(true), 1000);
-        });
-      } else {
-        // Check again after a short delay
-        setTimeout(checkComplete, 500);
+      const isIdle = !networkMonitor.isGenerating && networkMonitor.pendingRequests.size === 0;
+      const hasCompletedRequest = networkMonitor.lastRequestEndTime > 0;
+      const timeSinceLastRequest = Date.now() - networkMonitor.lastRequestEndTime;
+
+      if (isIdle && hasCompletedRequest && timeSinceLastRequest > IDLE_BUFFER) {
+        resolved = true;
+        resolve(true);
+        return;
       }
+
+      setTimeout(poll, POLL_INTERVAL);
     };
 
-    checkComplete();
+    poll();
   });
 }
 
@@ -343,104 +369,130 @@ function base64ToFile(base64: string, filename: string): File {
   return new File([byteArray], filename, { type: mime });
 }
 
-// Upload images to Gemini
 async function uploadImages(images: string[]): Promise<boolean> {
   if (!images || images.length === 0) {
-    return true; // No images to upload
+    return true;
   }
 
-  // Find the upload button
-  let uploadBtn = findElement(
-    SELECTORS.uploadButton,
-    SELECTORS.uploadButtonAlt,
-    SELECTORS.uploadButtonAlt2,
-    SELECTORS.uploadButtonAlt3
+  console.log("[NanoFlow] uploadImages: Starting paste approach for", images.length, "files");
+
+  const editor = findElement(
+    SELECTORS.textInput,
+    SELECTORS.textInputAlt,
+    SELECTORS.textInputAlt2,
+    SELECTORS.textInputAlt3
   );
 
-  // Fallback: find by icon
-  if (!uploadBtn) {
-    const addIcons = document.querySelectorAll(
-      'mat-icon[fonticon="add_2"], mat-icon[fonticon="add"], mat-icon[data-mat-icon-name="add"]'
-    );
-    for (const icon of addIcons) {
-      const btn = icon.closest("button");
-      if (btn) {
-        uploadBtn = btn;
-        break;
-      }
-    }
-  }
-
-  // Fallback: find by aria-label patterns
-  if (!uploadBtn) {
-    const buttons = document.querySelectorAll("button");
-    for (const btn of buttons) {
-      const ariaLabel = (btn.getAttribute("aria-label") ?? "").toLowerCase();
-      if (
-        ariaLabel.includes("upload") ||
-        ariaLabel.includes("file") ||
-        ariaLabel.includes("העלא") ||
-        ariaLabel.includes("קובץ")
-      ) {
-        uploadBtn = btn;
-        break;
-      }
-    }
-  }
-
-  if (!uploadBtn) {
-    // Upload button not found, trying to find file input directly
-  } else {
-    // Click to open upload menu
-    (uploadBtn as HTMLElement).click();
-    await sleep(500);
-  }
-
-  // Find the file input
-  let fileInput = document.querySelector(SELECTORS.fileInput) as HTMLInputElement | null;
-
-  // Sometimes the input is hidden or in a different location
-  if (!fileInput) {
-    // Look for any file input that accepts images
-    const inputs = document.querySelectorAll('input[type="file"]');
-    for (const input of inputs) {
-      const accept = input.getAttribute("accept") ?? "";
-      if (accept.includes("image") || accept === "*/*" || !accept) {
-        fileInput = input as HTMLInputElement;
-        break;
-      }
-    }
-  }
-
-  if (!fileInput) {
+  if (!editor) {
+    console.error("[NanoFlow] uploadImages: Could not find text input editor");
     return false;
   }
 
-  // Convert base64 images to File objects
-  const files: File[] = images.map((img, index) => base64ToFile(img, `image_${index + 1}.png`));
+  const editorEl = editor as HTMLElement;
 
-  // Create a DataTransfer to set files
-  const dataTransfer = new DataTransfer();
-  files.forEach((file) => dataTransfer.items.add(file));
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
 
-  // Set the files on the input
-  fileInput.files = dataTransfer.files;
+    try {
+      const mimeMatch = /data:(.*?);/.exec(img);
+      const mime = mimeMatch ? mimeMatch[1] : "image/png";
+      const ext = mime.split("/")[1] || "png";
+      const file = base64ToFile(img, `file_${i + 1}.${ext}`);
 
-  // Trigger change event
-  const changeEvent = new Event("change", { bubbles: true });
-  fileInput.dispatchEvent(changeEvent);
+      console.log("[NanoFlow] uploadImages: Processing file", i + 1, "type:", mime);
 
-  // Also trigger input event
-  const inputEvent = new Event("input", { bubbles: true });
-  fileInput.dispatchEvent(inputEvent);
+      editorEl.focus();
+      await sleep(100);
 
-  // Wait for upload to process
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+
+      // Simulate paste by creating custom event and overriding clipboardData getter
+      const pasteEvent = new Event("paste", { bubbles: true, cancelable: true }) as ClipboardEvent;
+      Object.defineProperty(pasteEvent, "clipboardData", {
+        value: dataTransfer,
+        writable: false,
+      });
+
+      const dispatched = editorEl.dispatchEvent(pasteEvent);
+      console.log("[NanoFlow] uploadImages: Paste event dispatched, result:", dispatched);
+
+      await sleep(300);
+
+      // Also try on the rich-textarea container
+      const richTextarea = editorEl.closest("rich-textarea");
+      if (richTextarea) {
+        const pasteEvent2 = new Event("paste", {
+          bubbles: true,
+          cancelable: true,
+        }) as ClipboardEvent;
+        Object.defineProperty(pasteEvent2, "clipboardData", {
+          value: dataTransfer,
+          writable: false,
+        });
+        richTextarea.dispatchEvent(pasteEvent2);
+        console.log("[NanoFlow] uploadImages: Paste event dispatched on rich-textarea");
+      }
+
+      await sleep(300);
+
+      try {
+        const clipboardItem = new ClipboardItem({ [mime]: file });
+        await navigator.clipboard.write([clipboardItem]);
+        console.log("[NanoFlow] uploadImages: Wrote to clipboard, simulating Ctrl+V");
+
+        editorEl.focus();
+        const keyDown = new KeyboardEvent("keydown", {
+          key: "v",
+          code: "KeyV",
+          keyCode: 86,
+          ctrlKey: true,
+          metaKey: true,
+          bubbles: true,
+        });
+        editorEl.dispatchEvent(keyDown);
+        document.dispatchEvent(keyDown);
+        await sleep(300);
+      } catch (clipErr) {
+        console.log("[NanoFlow] uploadImages: Clipboard approach failed:", clipErr);
+      }
+
+      const dropTarget = richTextarea || editorEl;
+
+      const dragEnter = new DragEvent("dragenter", {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dataTransfer,
+      });
+      dropTarget.dispatchEvent(dragEnter);
+
+      const dragOver = new DragEvent("dragover", {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dataTransfer,
+      });
+      dropTarget.dispatchEvent(dragOver);
+
+      await sleep(100);
+
+      const dropEvent = new DragEvent("drop", {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dataTransfer,
+      });
+      dropTarget.dispatchEvent(dropEvent);
+      console.log("[NanoFlow] uploadImages: Full drag sequence dispatched");
+
+      await sleep(500);
+    } catch (err) {
+      console.error("[NanoFlow] uploadImages: Error processing file", i, err);
+    }
+  }
+
   await sleep(1000);
-
   return true;
 }
 
-// Paste text into the Quill editor
 async function pastePromptToInput(prompt: string): Promise<boolean> {
   const editor = findElement(
     SELECTORS.textInput,
@@ -737,10 +789,15 @@ async function selectTool(tool: GeminiTool): Promise<boolean> {
 function isModeCurrentlyActive(mode: GeminiMode): boolean {
   const modeInfo = GEMINI_MODE_INFO[mode];
 
-  // Method 1: Check by data-test-id attribute (most reliable)
   const modeButton = document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`);
   if (modeButton) {
-    // Check if this button is in a selected/active state
+    const hasCheckIcon = modeButton.querySelector(
+      'mat-icon[fonticon="check_circle"], mat-icon[data-mat-icon-name="check_circle"]'
+    );
+    if (hasCheckIcon) {
+      return true;
+    }
+
     const isPressed = modeButton.getAttribute("aria-pressed") === "true";
     const isSelected = modeButton.getAttribute("aria-selected") === "true";
     const hasActiveClass =
@@ -752,7 +809,6 @@ function isModeCurrentlyActive(mode: GeminiMode): boolean {
     }
   }
 
-  // Method 2: Check for active mode indicator with Hebrew text
   const activeIndicators = document.querySelectorAll(
     '[aria-pressed="true"], [aria-selected="true"], .selected, .active, .mdc-tab--active'
   );
@@ -766,7 +822,6 @@ function isModeCurrentlyActive(mode: GeminiMode): boolean {
     }
   }
 
-  // Method 3: Check URL for mode parameter (some modes change URL)
   const url = window.location.href.toLowerCase();
   if (mode === GeminiMode.Pro && url.includes("pro")) {
     return true;
@@ -775,9 +830,48 @@ function isModeCurrentlyActive(mode: GeminiMode): boolean {
   return false;
 }
 
-// Select a specific Gemini mode (Quick/Deep/Pro)
+async function openModeMenu(): Promise<boolean> {
+  const modeMenuTriggers = [
+    '[data-test-id="bard-mode-menu-trigger"]',
+    '[data-test-id="mobile-nested-mode-menu-trigger"]',
+    'button[aria-haspopup="menu"][aria-expanded]',
+    ".gds-mode-switch-menu-list",
+  ];
+
+  for (const selector of modeMenuTriggers) {
+    const trigger = document.querySelector(selector) as HTMLElement | null;
+    if (trigger) {
+      trigger.click();
+      await sleep(400);
+      return true;
+    }
+  }
+
+  const buttons = document.querySelectorAll("button");
+  for (const btn of buttons) {
+    const text = btn.textContent?.toLowerCase() ?? "";
+    const ariaLabel = btn.getAttribute("aria-label")?.toLowerCase() ?? "";
+    if (
+      text.includes("gemini") ||
+      text.includes("fast") ||
+      text.includes("thinking") ||
+      text.includes("pro") ||
+      ariaLabel.includes("mode") ||
+      ariaLabel.includes("model")
+    ) {
+      const hasPopup = btn.getAttribute("aria-haspopup");
+      if (hasPopup) {
+        btn.click();
+        await sleep(400);
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 async function selectMode(mode: GeminiMode): Promise<boolean> {
-  // Check if mode is already active - no need to select again
   if (isModeCurrentlyActive(mode)) {
     currentActiveMode = mode;
     return true;
@@ -785,27 +879,30 @@ async function selectMode(mode: GeminiMode): Promise<boolean> {
 
   const modeInfo = GEMINI_MODE_INFO[mode];
 
-  // Method 1: Find by data-test-id (most reliable for Gemini modes)
   let modeBtn = document.querySelector(
     `[data-test-id="${modeInfo.dataTestId}"]`
   ) as HTMLElement | null;
 
-  // Method 2: Find by text content containing Hebrew label
   if (!modeBtn) {
-    const buttons = document.querySelectorAll("button, [role='tab'], [role='button']");
+    await openModeMenu();
+    await sleep(300);
+
+    modeBtn = document.querySelector(
+      `[data-test-id="${modeInfo.dataTestId}"]`
+    ) as HTMLElement | null;
+  }
+
+  if (!modeBtn) {
+    const buttons = document.querySelectorAll("button, [role='menuitem'], [role='option']");
     for (const btn of buttons) {
-      const text = btn.textContent?.trim() ?? "";
-      if (
-        text.includes(modeInfo.labelHebrew) ||
-        text.toLowerCase().includes(modeInfo.label.toLowerCase())
-      ) {
+      const text = btn.textContent?.trim().toLowerCase() ?? "";
+      if (text.includes(modeInfo.label.toLowerCase())) {
         modeBtn = btn as HTMLElement;
         break;
       }
     }
   }
 
-  // Method 3: Find mode selector tabs
   if (!modeBtn) {
     const tabs = document.querySelectorAll("[role='tablist'] [role='tab']");
     for (const tab of tabs) {
@@ -827,13 +924,11 @@ async function selectMode(mode: GeminiMode): Promise<boolean> {
   modeBtn.click();
   await sleep(300);
 
-  // Verify mode was selected
   if (isModeCurrentlyActive(mode)) {
     currentActiveMode = mode;
     return true;
   }
 
-  // Even if verification fails, assume success since we clicked
   currentActiveMode = mode;
   return true;
 }
@@ -1380,8 +1475,7 @@ async function waitForGenerationComplete(
     startTime
   );
 
-  // Wait for either network or DOM detection to complete
-  await Promise.race([networkCompletePromise, domCompletePromise]);
+  await Promise.all([networkCompletePromise, domCompletePromise]);
 
   // After network/DOM completion, give extra time for specific content types
   if (tool === GeminiTool.VIDEO || isVideoGenerating()) {
@@ -1444,7 +1538,7 @@ async function waitForDOMGenerationComplete(
   let wasVideoGenerating = false;
   let wasCanvasGenerating = false;
   let consecutiveIdleChecks = 0;
-  const requiredIdleChecks = 2; // Reduced since we have network monitoring
+  const requiredIdleChecks = 4;
 
   while (Date.now() - startTime < timeout) {
     const isThinking = isGeminiThinking();
@@ -1491,68 +1585,83 @@ async function processPromptThroughUI(
   tool: GeminiTool = GeminiTool.IMAGE,
   images?: string[],
   mode?: GeminiMode
-): Promise<boolean> {
+): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log("[NanoFlow Content] processPromptThroughUI starting", {
+      tool,
+      mode,
+      hasImages: !!images?.length,
+    });
+
     if (mode) {
+      console.log("[NanoFlow Content] Selecting mode:", mode);
       await selectMode(mode);
     }
 
     if (tool !== GeminiTool.NONE) {
-      await selectTool(tool);
+      console.log("[NanoFlow Content] Selecting tool:", tool);
+      const toolSelected = await selectTool(tool);
+      if (!toolSelected) {
+        return { success: false, error: `Failed to select tool: ${tool}` };
+      }
     }
 
-    // Step 2: Upload reference images if provided (mainly for image tool)
     if (images && images.length > 0) {
+      console.log("[NanoFlow Content] Uploading", images.length, "images");
       const uploaded = await uploadImages(images);
       if (!uploaded) {
-        // Could not upload images, continuing with text only
+        console.log("[NanoFlow Content] Image upload failed, continuing with text only");
       }
-      await sleep(500); // Wait for images to be processed
+      await sleep(500);
     }
 
-    // Step 3: Paste the prompt
+    console.log("[NanoFlow Content] Pasting prompt...");
     const pasted = await pastePromptToInput(prompt);
     if (!pasted) {
-      throw new Error("Failed to paste prompt");
+      return { success: false, error: "Failed to paste prompt - input field not found" };
     }
 
-    // Step 4: Submit the prompt
+    console.log("[NanoFlow Content] Submitting prompt...");
     const submitted = await submitPrompt();
     if (!submitted) {
-      throw new Error("Failed to submit prompt");
+      return { success: false, error: "Failed to submit - send button not found or disabled" };
     }
 
-    // Step 5: Wait for completion (pass tool type for proper detection)
+    console.log("[NanoFlow Content] Waiting for generation to complete...");
     await waitForGenerationComplete(tool);
 
-    return true;
-  } catch {
-    return false;
+    console.log("[NanoFlow Content] Generation complete!");
+    return { success: true };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("[NanoFlow Content] processPromptThroughUI error:", errorMsg);
+    return { success: false, error: errorMsg };
   }
 }
 
-// Automation module that handles message passing
 export const automationModule = {
   selectMode,
   processPrompt: processPromptThroughUI,
   init() {
-    // Initialize network monitoring for better generation detection
+    console.log("[NanoFlow Content] automationModule.init() called");
     initNetworkMonitor();
 
-    // Notify background that we're on a Gemini page and ready
     chrome.runtime
       .sendMessage({
         type: MessageType.CONTENT_SCRIPT_READY,
       })
-      .catch(() => {
-        // Ignore errors - background might not be listening yet
-      });
+      .then(() => console.log("[NanoFlow Content] CONTENT_SCRIPT_READY sent"))
+      .catch((e) => console.log("[NanoFlow Content] CONTENT_SCRIPT_READY failed:", e));
 
-    // Handle messages from background script
     chrome.runtime.onMessage.addListener(
       (message: ExtensionMessage, _sender, sendResponse: (response: ExtensionResponse) => void) => {
+        console.log("[NanoFlow Content] Received message:", message.type);
         const handleAsync = async () => {
           switch (message.type) {
+            case MessageType.PING: {
+              return { success: true };
+            }
+
             case MessageType.PASTE_PROMPT: {
               const payload = message.payload as {
                 prompt: string;
@@ -1560,13 +1669,13 @@ export const automationModule = {
                 images?: string[];
                 mode?: GeminiMode;
               };
-              const success = await processPromptThroughUI(
+              const result = await processPromptThroughUI(
                 payload.prompt,
                 payload.tool || GeminiTool.IMAGE,
                 payload.images,
                 payload.mode
               );
-              return { success };
+              return { success: result.success, error: result.error };
             }
 
             case MessageType.ENABLE_IMAGE_CREATION: {
