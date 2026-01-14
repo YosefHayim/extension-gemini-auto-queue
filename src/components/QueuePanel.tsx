@@ -18,10 +18,13 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   Brain,
   Camera,
+  Clock,
   Cpu,
+  Download,
   Gem,
   Layers,
   Maximize2,
+  Sparkles,
   Trash2,
   TrendingUp,
   Type,
@@ -156,6 +159,8 @@ interface QueuePanelProps {
   onBulkAIOptimize?: (instructions: string) => Promise<void>;
   onBulkModify?: (text: string, position: "prepend" | "append") => void;
   onBulkReset?: (filter: ResetFilter) => void;
+  onClearCompleted?: () => void;
+  onOpenExport?: () => void;
 }
 
 interface TextSelection {
@@ -187,6 +192,8 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onBulkAIOptimize,
   onBulkModify,
   onBulkReset,
+  onClearCompleted,
+  onOpenExport,
 }) => {
   const [bulkInput, setBulkInput] = useState("");
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -685,7 +692,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
                     }`}
                   >
                     <Layers size={14} />
-                    <span>Bulk ({pendingCount})</span>
+                    <span>Bulk Actions</span>
                   </button>
                 )}
                 <button

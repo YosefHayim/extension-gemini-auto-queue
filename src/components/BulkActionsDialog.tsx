@@ -1,15 +1,16 @@
 import { Check, ClipboardCopy, File, Paperclip, Pencil, RefreshCw, Wand2, X } from "lucide-react";
 import React, { useRef, useState } from "react";
 
-import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/types";
+import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool, QueueStatus } from "@/types";
 
 type BulkActionType = "attach" | "ai" | "modify" | "reset" | "copy" | null;
 
 export interface ResetFilter {
-  type: "all" | "text" | "hasImages" | "tool" | "mode";
+  type: "all" | "text" | "hasImages" | "tool" | "mode" | "status";
   textMatch?: string;
   tool?: GeminiTool;
   mode?: GeminiMode;
+  status?: QueueStatus;
 }
 
 interface BulkActionsDialogProps {
@@ -55,6 +56,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   const [resetTextMatch, setResetTextMatch] = useState("");
   const [resetTool, setResetTool] = useState<GeminiTool | null>(null);
   const [resetMode, setResetMode] = useState<GeminiMode | null>(null);
+  const [resetStatus, setResetStatus] = useState<QueueStatus | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,29 +64,44 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
+    e.target.value = "";
+
     const readPromises = files.map((file) => {
-      return new Promise<{ data: string; name: string; type: string }>((resolve) => {
+      return new Promise<{ data: string; name: string; type: string } | null>((resolve) => {
         const reader = new FileReader();
         reader.onload = (event) => {
-          resolve({
-            data: event.target?.result as string,
-            name: file.name,
-            type: file.type,
-          });
+          const data = event.target?.result;
+          if (typeof data === "string" && data.length > 0) {
+            resolve({
+              data,
+              name: file.name,
+              type: file.type,
+            });
+          } else {
+            console.warn(`[NanoFlow] Failed to read file: ${file.name}`);
+            resolve(null);
+          }
+        };
+        reader.onerror = () => {
+          console.warn(`[NanoFlow] Error reading file: ${file.name}`);
+          resolve(null);
         };
         reader.readAsDataURL(file);
       });
     });
 
-    Promise.all(readPromises).then((newFiles) => {
-      setSelectedFiles((prev) => [...prev, ...newFiles]);
-    });
+    const newFiles = await Promise.all(readPromises);
+    const validFiles = newFiles.filter(
+      (f): f is { data: string; name: string; type: string } => f !== null
+    );
 
-    e.target.value = "";
+    if (validFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...validFiles]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -104,6 +121,8 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           filter.tool = resetTool;
         } else if (resetFilterType === "mode" && resetMode) {
           filter.mode = resetMode;
+        } else if (resetFilterType === "status" && resetStatus) {
+          filter.status = resetStatus;
         }
         onBulkReset(filter);
       }
@@ -123,6 +142,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
     setResetTextMatch("");
     setResetTool(null);
     setResetMode(null);
+    setResetStatus(null);
     setCopySuccess(false);
     onClose();
   };
@@ -453,6 +473,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                   {(
                     [
                       { type: "all", label: "All" },
+                      { type: "status", label: "By Status" },
                       { type: "text", label: "By Text" },
                       { type: "hasImages", label: "With Images" },
                       { type: "tool", label: "By Tool" },
@@ -494,6 +515,35 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                         : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500"
                     }`}
                   />
+                </div>
+              )}
+
+              {resetFilterType === "status" && (
+                <div>
+                  <label
+                    className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                  >
+                    Select Status
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {[QueueStatus.Completed, QueueStatus.Failed, QueueStatus.Processing].map(
+                      (status) => (
+                        <button
+                          key={status}
+                          onClick={() => setResetStatus(status)}
+                          className={`rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
+                            resetStatus === status
+                              ? "border-amber-500 bg-amber-500/20 text-amber-500"
+                              : isDark
+                                ? "border-slate-700 text-slate-400 hover:border-slate-600"
+                                : "border-slate-200 text-slate-500 hover:border-slate-300"
+                          }`}
+                        >
+                          {status}
+                        </button>
+                      )
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -563,6 +613,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
               <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
                 {resetFilterType === "all" &&
                   `Reset all ${resettableCount} completed/failed prompts to pending`}
+                {resetFilterType === "status" && "Reset prompts with the selected status"}
                 {resetFilterType === "text" && "Reset prompts containing the specified text"}
                 {resetFilterType === "hasImages" && "Reset prompts that have attached images"}
                 {resetFilterType === "tool" && "Reset prompts using the selected tool"}
@@ -585,7 +636,8 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                   resetFilterType === "text" &&
                   !resetTextMatch.trim()) ||
                 (activeAction === "reset" && resetFilterType === "tool" && !resetTool) ||
-                (activeAction === "reset" && resetFilterType === "mode" && !resetMode)
+                (activeAction === "reset" && resetFilterType === "mode" && !resetMode) ||
+                (activeAction === "reset" && resetFilterType === "status" && !resetStatus)
               }
               className={`w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all disabled:opacity-50 ${
                 activeAction === "ai"

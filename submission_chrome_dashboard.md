@@ -22,6 +22,7 @@ BATCH QUEUE PROCESSING
 - Add multiple prompts and process them automatically
 - Smart prompt parsing - each paragraph becomes a queue item
 - Real-time progress tracking with processing time display
+- Fast/Thinking/Pro model selection per prompt
 
 MULTI-TOOL SUPPORT
 - Image Generation
@@ -31,10 +32,18 @@ MULTI-TOOL SUPPORT
 - Learning Mode
 - Visual Layout
 
+BULK ACTIONS
+- Attach multiple reference images to all pending prompts at once
+- AI-powered bulk prompt optimization
+- Bulk text modification (prepend/append)
+- Reset prompts by status, text, images, tool, or mode
+- Copy all prompts to clipboard
+
 REFERENCE IMAGES
 - Attach multiple images per prompt as creative references
 - Support for local files and cloud URLs
 - Drag-and-drop image upload
+- Bulk attach to entire queue
 
 CSV IMPORT
 - Bulk import prompts from CSV files
@@ -57,11 +66,13 @@ USER EXPERIENCE
 - Left or right sidebar positioning
 - Light/Dark theme support
 - Real-time queue status
+- Drag-and-drop queue reordering
 
 ADVANCED SETTINGS
 - Drip-feed mode with random delays
 - Auto-stop on error option
-- Model selection
+- Model selection (Fast/Thinking/Pro)
+- Export queue to TXT, JSON, or CSV
 
 PRIVACY FOCUSED
 - All data stored locally in your browser
@@ -97,34 +108,46 @@ English
 Version 2.0 - Major Update
 
 ARCHITECTURE OVERHAUL
-- Complete modular redesign for improved reliability and maintainability
-- Separated automation into dedicated modules for each function
+- Complete modular redesign for improved reliability
+- Separated automation into dedicated modules
 - Better state management across all operations
 
-IMPROVED FILE ATTACHMENT
-- Redesigned file upload mechanism with multiple fallback methods
-- Enhanced event dispatching for better Gemini compatibility
-- Support for drag-and-drop, paste, and file input approaches
+NEW BULK ACTIONS SYSTEM
+- Attach multiple files to all pending prompts at once
+- AI-powered bulk prompt optimization
+- Bulk text modification (prepend/append to prompts)
+- Advanced reset filters: by status, text, images, tool, or mode
+- Copy all prompts to clipboard for backup
 
-ENHANCED AUTOMATION
-- More reliable tool selection with retry logic
-- Improved mode switching detection
-- Better generation completion detection using network monitoring
+IMPROVED MODEL SELECTION
+- Fast/Thinking/Pro mode selection now works reliably
+- Fixed model switching detection
+- Per-prompt model assignment
+
+FASTER QUEUE PROCESSING
+- Reduced wait times between prompts (was ~200s, now ~3s)
+- Improved generation completion detection
+- Better network monitoring for reliable automation
+
+ENHANCED FILE ATTACHMENT
+- Fixed bulk file attachment (multiple files now work correctly)
+- Redesigned upload mechanism with fallback methods
+- Support for drag-and-drop, paste, and file input
 
 DEVELOPER IMPROVEMENTS
 - Comprehensive logging system for debugging
 - Action timing and performance tracking
-- Persistent log storage for troubleshooting
 
 BUG FIXES
 - Fixed file attachment not working in some scenarios
 - Fixed mode selection edge cases
+- Fixed bulk attachment only keeping 1 file
 - Improved error handling throughout
 
 PERFORMANCE
 - Optimized content script initialization
 - Reduced memory footprint
-- Faster queue processing
+- Significantly faster queue processing
 ```
 
 ---
@@ -146,20 +169,20 @@ PERFORMANCE
 - Multiple items in different states
 - Caption: "Batch process multiple prompts automatically"
 
-**Screenshot 3 - Reference Images**
+**Screenshot 3 - Bulk Actions**
+- Show the bulk actions dialog with options
+- Attach files, AI optimize, modify, reset visible
+- Caption: "Powerful bulk actions for managing large queues"
+
+**Screenshot 4 - Reference Images**
 - Show prompts with attached reference images
 - Image thumbnails visible
 - Caption: "Attach reference images to guide your generations"
 
-**Screenshot 4 - Template Library**
+**Screenshot 5 - Template Library**
 - Show the templates panel with folders
 - Some saved templates visible
 - Caption: "Save and organize your favorite prompts"
-
-**Screenshot 5 - Settings & Customization**
-- Show settings panel with options
-- Theme toggle, position control visible
-- Caption: "Customize your workflow with advanced settings"
 
 ### Promotional Images (Optional)
 - Small tile: 440x280
@@ -263,8 +286,9 @@ Testing Instructions:
 1. Navigate to gemini.google.com and sign in
 2. The Nano Flow sidebar will appear automatically on the right side
 3. Enter a prompt in the text area and click "Add to Queue"
-4. Click the Start button to begin processing
-5. The extension automates clicking the appropriate tool and submitting prompts
+4. Select a tool (Image, Video, Canvas, etc.) and mode (Fast/Thinking/Pro)
+5. Click the Start button to begin processing
+6. The extension automates clicking the appropriate tool and submitting prompts
 
 Note: This extension automates the Gemini web interface - it does not make direct API calls. Users need an active Gemini account to use this extension.
 ```
@@ -291,3 +315,70 @@ Note: This extension automates the Gemini web interface - it does not make direc
 1. **Extension Package**: `.output/gemini-nano-flow-2.0.0-chrome.zip`
 2. **Store Icon**: `public/icons/icon-128.png`
 3. **Screenshots**: 5 images showing key features
+
+---
+
+## Marketing Description (For Extension Page)
+
+### Headline Copy
+```
+Transform Your Gemini Workflow: Batch Process Hundreds of Prompts Automatically
+```
+
+### Marketing Description (Ready to Copy-Paste)
+```
+Stop submitting prompts one by one. Gemini Nano Flow lets you queue up hundreds of prompts and process them automatically while you focus on what matters.
+
+WHY CREATORS LOVE NANO FLOW:
+
+Batch Processing That Actually Works
+Queue unlimited prompts, attach reference images, and let Nano Flow handle the rest. Each prompt is processed automatically with your chosen tool and model settings.
+
+Bulk Actions = Time Saved
+- Attach reference images to ALL pending prompts with one click
+- Optimize entire queues with AI assistance
+- Reset failed prompts by status, tool, or mode
+- Export your work to TXT, JSON, or CSV
+
+Professional Workflow Features
+- Fast/Thinking/Pro model selection per prompt
+- Drag-and-drop queue reordering
+- Real-time progress tracking
+- Template library for reusable prompts
+
+Built for Power Users
+Import hundreds of prompts from CSV files with image references. Use global prefix/suffix to maintain consistency. Apply text weighting for emphasis control.
+
+Privacy First
+Everything stays in your browser. No accounts, no data collection, no external servers. Your prompts, your images, your privacy.
+
+PERFECT FOR:
+- AI Artists generating image variations
+- Content creators batch-producing visuals
+- Researchers running multiple queries
+- Anyone tired of manual prompt submission
+
+Works seamlessly with gemini.google.com and aistudio.google.com.
+
+Download now and reclaim your time.
+```
+
+### Short Marketing Bullets (For Ads/Banners)
+```
+- Queue unlimited prompts, process automatically
+- Attach reference images in bulk
+- Fast/Thinking/Pro model selection
+- Export to TXT, JSON, CSV
+- 100% private - all data stays local
+```
+
+### Social Media Copy (Twitter/X - 280 chars)
+```
+Tired of submitting Gemini prompts one by one? 
+
+Nano Flow lets you queue hundreds of prompts, attach reference images in bulk, and process everything automatically.
+
+Free Chrome extension. Your data stays local.
+
+#GoogleGemini #AIArt #Productivity
+```

@@ -443,8 +443,27 @@ export default function App() {
       let resetCount = 0;
       const updatedQueue = queue.map((item) => {
         const isResettable =
-          item.status === QueueStatus.Completed || item.status === QueueStatus.Failed;
-        if (!isResettable) return item;
+          item.status === QueueStatus.Completed ||
+          item.status === QueueStatus.Failed ||
+          item.status === QueueStatus.Processing;
+
+        if (filter.type === "status") {
+          if (filter.status && item.status === filter.status) {
+            resetCount++;
+            return {
+              ...item,
+              status: QueueStatus.Pending,
+              startTime: undefined,
+              endTime: undefined,
+              completionTimeSeconds: undefined,
+              error: undefined,
+              results: undefined,
+            };
+          }
+          return item;
+        }
+
+        if (!isResettable || item.status === QueueStatus.Processing) return item;
 
         let shouldReset = false;
         switch (filter.type) {
