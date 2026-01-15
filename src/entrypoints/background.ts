@@ -62,13 +62,24 @@ export default defineBackground(() => {
   // The popup will handle the UI, but we can still listen for clicks if popup is removed
   // For now, the popup handles the toggle UI
 
-  // Enable side panel on supported sites and track Gemini tabs
+  // Permitted hosts where the sidebar is allowed
+  const PERMITTED_HOSTS = ["gemini.google.com", "aistudio.google.com"];
+
+  const isPermittedHost = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return PERMITTED_HOSTS.some((host) => urlObj.hostname === host || urlObj.hostname.endsWith(`.${host}`));
+    } catch {
+      return false;
+    }
+  };
+
+  // Enable side panel ONLY on permitted hosts, disable on all others
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url) {
-      const isGeminiSite =
-        tab.url.includes("gemini.google.com") || tab.url.includes("aistudio.google.com");
+      const isPermitted = isPermittedHost(tab.url);
 
-      if (isGeminiSite) {
+      if (isPermitted) {
         await chrome.sidePanel.setOptions({
           tabId,
           path: "sidepanel.html",
@@ -76,16 +87,37 @@ export default defineBackground(() => {
         });
         // Track this tab as potential target for automation
         activeGeminiTabId = tabId;
+      } else {
+        // Explicitly disable the sidebar on non-permitted hosts
+        await chrome.sidePanel.setOptions({
+          tabId,
+          enabled: false,
+        });
       }
     }
   });
 
-  // Handle tab activation to track active Gemini tab
+  // Handle tab activation to track active Gemini tab and gate sidebar
   chrome.tabs.onActivated.addListener(async (activeInfo) => {
     try {
       const tab = await chrome.tabs.get(activeInfo.tabId);
-      if (tab.url?.includes("gemini.google.com")) {
-        activeGeminiTabId = activeInfo.tabId;
+      if (tab.url) {
+        const isPermitted = isPermittedHost(tab.url);
+        if (isPermitted) {
+          activeGeminiTabId = activeInfo.tabId;
+          // Ensure sidebar is enabled when switching to permitted host
+          await chrome.sidePanel.setOptions({
+            tabId: activeInfo.tabId,
+            path: "sidepanel.html",
+            enabled: true,
+          });
+        } else {
+          // Ensure sidebar is disabled when switching to non-permitted host
+          await chrome.sidePanel.setOptions({
+            tabId: activeInfo.tabId,
+            enabled: false,
+          });
+        }
       }
     } catch {
       // Tab might not exist
@@ -194,7 +226,11 @@ export default defineBackground(() => {
       case MessageType.OPEN_SIDE_PANEL: {
         try {
           const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-          if (activeTab?.id) {
+          if (activeTab?.id && activeTab.url) {
+            // Only allow opening sidebar on permitted hosts
+            if (!isPermittedHost(activeTab.url)) {
+              return { success: false, error: "Sidebar is only available on Gemini sites" };
+            }
             await chrome.sidePanel.setOptions({
               tabId: activeTab.id,
               path: "sidepanel.html",
