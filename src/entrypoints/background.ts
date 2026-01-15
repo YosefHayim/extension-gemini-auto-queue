@@ -338,11 +338,8 @@ export default defineBackground(() => {
         startTime,
       });
 
-      // Broadcast update
-      broadcastMessage({
-        type: MessageType.UPDATE_QUEUE,
-        payload: await getQueue(),
-      });
+      // Notify listeners that queue changed (they fetch from storage)
+      broadcastMessage({ type: MessageType.UPDATE_QUEUE });
 
       try {
         // Determine which tool to use
@@ -401,11 +398,7 @@ export default defineBackground(() => {
         });
       }
 
-      // Broadcast queue update
-      broadcastMessage({
-        type: MessageType.UPDATE_QUEUE,
-        payload: await getQueue(),
-      });
+      broadcastMessage({ type: MessageType.UPDATE_QUEUE });
     }
 
     if (isPaused) {

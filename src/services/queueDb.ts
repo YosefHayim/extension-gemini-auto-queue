@@ -141,17 +141,18 @@ function getBroadcastChannel(): BroadcastChannel {
   return broadcastChannel;
 }
 
-function notifyQueueChange(queue: QueueItem[]): void {
+function notifyQueueChange(_queue: QueueItem[]): void {
   try {
-    getBroadcastChannel().postMessage({ type: "QUEUE_UPDATED", queue });
+    getBroadcastChannel().postMessage({ type: "QUEUE_UPDATED" });
   } catch {}
 }
 
 export function onQueueChange(callback: (queue: QueueItem[]) => void): () => void {
   const channel = getBroadcastChannel();
-  const handler = (event: MessageEvent) => {
+  const handler = async (event: MessageEvent) => {
     if (event.data?.type === "QUEUE_UPDATED") {
-      callback(event.data.queue);
+      const queue = await getAllQueueItems();
+      callback(queue);
     }
   };
   channel.addEventListener("message", handler);

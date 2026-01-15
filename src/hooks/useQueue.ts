@@ -70,15 +70,13 @@ export function useQueue(): UseQueueReturn {
     return cleanup;
   }, []);
 
-  // Listen for messages from background
+  // Listen for processing state messages from background
   useEffect(() => {
-    const handleMessage = (message: { type: MessageType; payload?: unknown }) => {
+    const handleMessage = (message: { type: MessageType }) => {
       if (message.type === MessageType.PROCESS_QUEUE) {
         setIsProcessing(true);
       } else if (message.type === MessageType.STOP_PROCESSING) {
         setIsProcessing(false);
-      } else if (message.type === MessageType.UPDATE_QUEUE) {
-        setQueueState(message.payload as QueueItem[]);
       }
     };
 
