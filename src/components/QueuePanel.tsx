@@ -221,6 +221,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   const [selectedToolFilters, setSelectedToolFilters] = useState<GeminiTool[]>([]);
   const [selectedModeFilters, setSelectedModeFilters] = useState<GeminiMode[]>([]);
   const [selectedContentFilters, setSelectedContentFilters] = useState<ContentType[]>([]);
+  const [selectedStatusFilters, setSelectedStatusFilters] = useState<QueueStatus[]>([]);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [showClearMenu, setShowClearMenu] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
@@ -273,9 +274,13 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
 
         if (!matchesFilter) return false;
       }
+      // Status filter - if statuses are selected, item must match one of them
+      if (selectedStatusFilters.length > 0 && !selectedStatusFilters.includes(item.status)) {
+        return false;
+      }
       return true;
     });
-  }, [queue, searchText, selectedToolFilters, selectedModeFilters, selectedContentFilters]);
+  }, [queue, searchText, selectedToolFilters, selectedModeFilters, selectedContentFilters, selectedStatusFilters]);
 
   const pendingCount = useMemo(() => {
     return queue.filter((item) => item.status === QueueStatus.Pending).length;
@@ -730,6 +735,8 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
               onModesChange={setSelectedModeFilters}
               selectedContentTypes={selectedContentFilters}
               onContentTypesChange={setSelectedContentFilters}
+              selectedStatuses={selectedStatusFilters}
+              onStatusesChange={setSelectedStatusFilters}
               isDark={isDark}
               totalItems={queue.length}
               filteredCount={filteredQueue.length}

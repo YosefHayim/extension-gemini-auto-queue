@@ -1,7 +1,26 @@
-import { ChevronDown, Filter, Image, Layers, Search, Type, X } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  Circle,
+  Filter,
+  Image,
+  Layers,
+  Loader2,
+  Search,
+  Type,
+  X,
+  XCircle,
+} from "lucide-react";
 import React, { useState } from "react";
 
-import { ContentType, GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/types";
+import {
+  ContentType,
+  GEMINI_MODE_INFO,
+  GEMINI_TOOL_INFO,
+  GeminiMode,
+  GeminiTool,
+  QueueStatus,
+} from "@/types";
 
 interface SearchFilterProps {
   searchText: string;
@@ -12,6 +31,8 @@ interface SearchFilterProps {
   onModesChange: (modes: GeminiMode[]) => void;
   selectedContentTypes: ContentType[];
   onContentTypesChange: (types: ContentType[]) => void;
+  selectedStatuses: QueueStatus[];
+  onStatusesChange: (statuses: QueueStatus[]) => void;
   isDark: boolean;
   totalItems: number;
   filteredCount: number;
@@ -38,6 +59,36 @@ const CONTENT_TYPE_INFO: Record<ContentType, { label: string; icon: typeof Type 
   [ContentType.TextAndImages]: { label: "Text + Images", icon: Layers },
 };
 
+const STATUS_INFO: Record<
+  QueueStatus,
+  { label: string; icon: typeof Circle; selectedStyle: string; unselectedStyle: string }
+> = {
+  [QueueStatus.Pending]: {
+    label: "Pending",
+    icon: Circle,
+    selectedStyle: "bg-slate-500 text-white border-slate-500 shadow-slate-500/25",
+    unselectedStyle: "border-slate-400/40 text-slate-500 hover:bg-slate-500/10",
+  },
+  [QueueStatus.Processing]: {
+    label: "Processing",
+    icon: Loader2,
+    selectedStyle: "bg-amber-500 text-white border-amber-500 shadow-amber-500/25",
+    unselectedStyle: "border-amber-500/40 text-amber-500 hover:bg-amber-500/10",
+  },
+  [QueueStatus.Completed]: {
+    label: "Completed",
+    icon: CheckCircle,
+    selectedStyle: "bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/25",
+    unselectedStyle: "border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10",
+  },
+  [QueueStatus.Failed]: {
+    label: "Failed",
+    icon: XCircle,
+    selectedStyle: "bg-red-500 text-white border-red-500 shadow-red-500/25",
+    unselectedStyle: "border-red-500/40 text-red-500 hover:bg-red-500/10",
+  },
+};
+
 export const SearchFilter: React.FC<SearchFilterProps> = ({
   searchText,
   onSearchChange,
@@ -47,6 +98,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   onModesChange,
   selectedContentTypes,
   onContentTypesChange,
+  selectedStatuses,
+  onStatusesChange,
   isDark,
   totalItems,
   filteredCount,
@@ -57,7 +110,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
     searchText.length > 0 ||
     selectedTools.length > 0 ||
     selectedModes.length > 0 ||
-    selectedContentTypes.length > 0;
+    selectedContentTypes.length > 0 ||
+    selectedStatuses.length > 0;
   const isFiltered = filteredCount !== totalItems;
 
   const handleToolToggle = (tool: GeminiTool) => {
@@ -84,11 +138,20 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
     }
   };
 
+  const handleStatusToggle = (status: QueueStatus) => {
+    if (selectedStatuses.includes(status)) {
+      onStatusesChange(selectedStatuses.filter((s) => s !== status));
+    } else {
+      onStatusesChange([...selectedStatuses, status]);
+    }
+  };
+
   const handleClearAll = () => {
     onSearchChange("");
     onToolsChange([]);
     onModesChange([]);
     onContentTypesChange([]);
+    onStatusesChange([]);
   };
 
   const allTools = Object.values(GeminiTool);
@@ -165,6 +228,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
               {selectedTools.length +
                 selectedModes.length +
                 selectedContentTypes.length +
+                selectedStatuses.length +
                 (searchText ? 1 : 0)}
             </span>
           )}
@@ -277,6 +341,38 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                     >
                       <Icon size={10} />
                       <span>{typeInfo.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <div
+                className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
+                  isDark ? "text-white/40" : "text-slate-500"
+                }`}
+              >
+                Filter by Status
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {Object.values(QueueStatus).map((status) => {
+                  const statusInfo = STATUS_INFO[status];
+                  const isSelected = selectedStatuses.includes(status);
+                  const Icon = statusInfo.icon;
+                  return (
+                    <button
+                      key={status}
+                      onClick={() => handleStatusToggle(status)}
+                      title={`Filter by ${statusInfo.label} items`}
+                      className={`flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-all duration-200 ${
+                        isSelected
+                          ? `${statusInfo.selectedStyle} shadow-sm`
+                          : `${statusInfo.unselectedStyle} bg-transparent`
+                      }`}
+                    >
+                      <Icon size={10} className={status === QueueStatus.Processing ? "animate-spin" : ""} />
+                      <span>{statusInfo.label}</span>
                     </button>
                   );
                 })}
