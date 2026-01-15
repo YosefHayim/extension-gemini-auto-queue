@@ -21,6 +21,7 @@ declare global {
   const QueuePanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel')['default']
   const SELECTORS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/selectors')['SELECTORS']
   const SIZE_PRESETS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['SIZE_PRESETS']
+  const ScheduleButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ScheduleButton')['default']
   const SearchFilter: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/SearchFilter')['default']
   const SettingsPanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/SettingsPanel')['default']
   const StatusBadge: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/StatusBadge')['default']

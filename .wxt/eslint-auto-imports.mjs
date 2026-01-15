@@ -26,6 +26,7 @@ const globals = {
   "ResetFilter": true,
   "SELECTORS": true,
   "SIZE_PRESETS": true,
+  "ScheduleButton": true,
   "SearchFilter": true,
   "SelectorKey": true,
   "SettingsPanel": true,
