@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getQueue, onStorageChange, setQueue } from "@/services/storageService";
+import { getQueue, onQueueChange, setQueue } from "@/services/storageService";
 import {
   type GeminiTool,
   MessageType,
   QueueStatus,
-  STORAGE_KEYS,
   type AppSettings,
   type QueueItem,
 } from "@/types";
@@ -52,19 +51,12 @@ export function useQueue(): UseQueueReturn {
     loadQueue();
   }, []);
 
-  // Listen for storage changes
+  // Listen for queue changes from IndexedDB
   useEffect(() => {
-    const cleanup = onStorageChange((changes) => {
-      if (STORAGE_KEYS.QUEUE in changes && changes[STORAGE_KEYS.QUEUE]) {
-        const newQueue = changes[STORAGE_KEYS.QUEUE].newValue as QueueItem[];
-        setQueueState(newQueue ?? []);
-
-        // Check processing status
-        const hasProcessing = (newQueue ?? []).some(
-          (item) => item.status === QueueStatus.Processing
-        );
-        setIsProcessing(hasProcessing);
-      }
+    const cleanup = onQueueChange((newQueue) => {
+      setQueueState(newQueue);
+      const hasProcessing = newQueue.some((item) => item.status === QueueStatus.Processing);
+      setIsProcessing(hasProcessing);
     });
 
     return cleanup;
