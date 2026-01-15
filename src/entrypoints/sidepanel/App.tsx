@@ -128,7 +128,7 @@ export default function App() {
     };
   }, []);
 
-  // Listen for messages from background
+  // Listen for processing state messages from background
   useEffect(() => {
     const handleMessage = (message: ExtensionMessage) => {
       if (message.type === MessageType.PROCESS_QUEUE) {
@@ -140,8 +140,6 @@ export default function App() {
       } else if (message.type === MessageType.STOP_PROCESSING) {
         setIsProcessing(false);
         setIsPaused(false);
-      } else if (message.type === MessageType.UPDATE_QUEUE) {
-        setQueueState(message.payload as QueueItem[]);
       }
     };
 
