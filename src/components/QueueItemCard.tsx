@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   Clock,
   Copy,
   File,
@@ -17,6 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { StatusBadge } from "@/components/StatusBadge";
 import {
+  ErrorCategory,
   GEMINI_MODE_INFO,
   GEMINI_TOOL_INFO,
   GeminiMode,
@@ -24,6 +26,7 @@ import {
   QueueItem,
   QueueStatus,
 } from "@/types";
+import { getErrorCategoryLabel } from "@/utils/retryStrategy";
 
 const MAX_IMAGES_PER_CARD = 10;
 
@@ -263,6 +266,26 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
               >
                 <Clock size={10} />
                 <span>{item.completionTimeSeconds?.toFixed(1)}s</span>
+              </span>
+            )}
+
+            {item.retryInfo && item.retryInfo.attempts > 0 && (
+              <span
+                title={`${getErrorCategoryLabel(item.retryInfo.errorCategory)} - Attempt ${item.retryInfo.attempts}/${item.retryInfo.maxAttempts}`}
+                className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                  item.retryInfo.errorCategory === ErrorCategory.CONTENT_POLICY
+                    ? isDark
+                      ? "bg-red-500/10 text-red-400"
+                      : "bg-red-50 text-red-600"
+                    : isDark
+                      ? "bg-amber-500/10 text-amber-400"
+                      : "bg-amber-50 text-amber-600"
+                }`}
+              >
+                <AlertTriangle size={10} />
+                <span>
+                  {item.retryInfo.attempts}/{item.retryInfo.maxAttempts}
+                </span>
               </span>
             )}
           </div>

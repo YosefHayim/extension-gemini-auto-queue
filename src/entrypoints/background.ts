@@ -1,5 +1,5 @@
 import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
-import { ErrorCategory, GeminiTool, MessageType, QueueStatus } from "@/types";
+import { GeminiTool, MessageType, QueueStatus } from "@/types";
 import { calculateBackoff, categorizeError, shouldRetry } from "@/utils/retryStrategy";
 import {
   getFolders,
@@ -16,6 +16,8 @@ import {
 
 import { generateImage } from "@/services/geminiService";
 
+const SCHEDULE_ALARM_NAME = "nano_flow_schedule";
+
 export default defineBackground(() => {
   let isProcessing = false;
   let isPaused = false;
@@ -23,6 +25,38 @@ export default defineBackground(() => {
   let activeGeminiTabId: number | null = null;
 
   initializeQueueStorage();
+
+  chrome.alarms.onAlarm.addListener(async (alarm) => {
+    if (alarm.name === SCHEDULE_ALARM_NAME) {
+      const settings = await getSettings();
+      if (!settings.schedule.enabled) return;
+
+      const queue = await getQueue();
+      const hasPending = queue.some((item) => item.status === QueueStatus.Pending);
+      if (!hasPending) {
+        await setSettings({
+          schedule: { enabled: false, scheduledTime: null, repeatDaily: false },
+        });
+        return;
+      }
+
+      if (!isProcessing) {
+        startProcessing();
+      }
+
+      if (settings.schedule.repeatDaily && settings.schedule.scheduledTime) {
+        const nextTime = settings.schedule.scheduledTime + 24 * 60 * 60 * 1000;
+        await setSettings({
+          schedule: { ...settings.schedule, scheduledTime: nextTime },
+        });
+        chrome.alarms.create(SCHEDULE_ALARM_NAME, { when: nextTime });
+      } else {
+        await setSettings({
+          schedule: { enabled: false, scheduledTime: null, repeatDaily: false },
+        });
+      }
+    }
+  });
 
   // Note: chrome.action.onClicked is not fired when a popup is defined
   // The popup will handle the UI, but we can still listen for clicks if popup is removed
@@ -200,6 +234,31 @@ export default defineBackground(() => {
       case MessageType.PASTE_PROMPT: {
         const response = await sendToContentScript(message);
         return response;
+      }
+
+      case MessageType.SET_SCHEDULE: {
+        const { scheduledTime, repeatDaily } = message.payload as {
+          scheduledTime: number;
+          repeatDaily: boolean;
+        };
+
+        await chrome.alarms.clear(SCHEDULE_ALARM_NAME);
+
+        if (scheduledTime) {
+          chrome.alarms.create(SCHEDULE_ALARM_NAME, { when: scheduledTime });
+          await setSettings({
+            schedule: { enabled: true, scheduledTime, repeatDaily },
+          });
+        }
+        return { success: true };
+      }
+
+      case MessageType.CANCEL_SCHEDULE: {
+        await chrome.alarms.clear(SCHEDULE_ALARM_NAME);
+        await setSettings({
+          schedule: { enabled: false, scheduledTime: null, repeatDaily: false },
+        });
+        return { success: true };
       }
 
       default:
@@ -393,10 +452,51 @@ export default defineBackground(() => {
 
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {
-        await updateQueueItem(nextItem.id, {
-          status: QueueStatus.Failed,
-          error: error instanceof Error ? error.message : "Generation failed",
-        });
+        const errorMessage = error instanceof Error ? error.message : "Generation failed";
+        const category = categorizeError(errorMessage);
+        const settings = await getSettings();
+        const { retryConfig } = settings;
+
+        const currentRetry = nextItem.retryInfo ?? {
+          attempts: 0,
+          maxAttempts: retryConfig.maxAttempts,
+          lastAttemptTime: 0,
+          nextRetryTime: null,
+          errorCategory: category,
+        };
+
+        currentRetry.attempts++;
+        currentRetry.lastAttemptTime = Date.now();
+        currentRetry.errorCategory = category;
+
+        const canRetry =
+          retryConfig.enabled &&
+          shouldRetry(category) &&
+          currentRetry.attempts < currentRetry.maxAttempts;
+
+        if (canRetry && retryConfig.autoRetry) {
+          const delay = calculateBackoff(
+            currentRetry.attempts,
+            retryConfig.baseDelayMs,
+            retryConfig.maxDelayMs,
+            category
+          );
+          currentRetry.nextRetryTime = Date.now() + delay;
+
+          await updateQueueItem(nextItem.id, {
+            status: QueueStatus.Pending,
+            retryInfo: currentRetry,
+            error: errorMessage,
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          await updateQueueItem(nextItem.id, {
+            status: QueueStatus.Failed,
+            retryInfo: currentRetry,
+            error: errorMessage,
+          });
+        }
       }
 
       broadcastMessage({ type: MessageType.UPDATE_QUEUE });

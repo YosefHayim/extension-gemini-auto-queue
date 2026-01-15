@@ -30,10 +30,13 @@ declare global {
   const base64ToFile: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['base64ToFile']
   const browser: typeof import('wxt/browser')['browser']
   const buildGoogleImageUrl: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/googleImageUrl')['buildGoogleImageUrl']
+  const calculateBackoff: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['calculateBackoff']
   const canUseServerSideProcessing: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/googleImageUrl')['canUseServerSideProcessing']
+  const categorizeError: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['categorizeError']
   const clickElement: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['clickElement']
   const clickNativeDownloadButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['clickNativeDownloadButton']
   const constructFinalPrompt: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['constructFinalPrompt']
+  const countExpandedPrompts: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['countExpandedPrompts']
   const createIframeUi: typeof import('wxt/client')['createIframeUi']
   const createIntegratedUi: typeof import('wxt/client')['createIntegratedUi']
   const createQueueItems: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['createQueueItems']
@@ -51,6 +54,8 @@ declare global {
   const downloadFromUrl: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imageProcessor')['downloadFromUrl']
   const downloadMedia: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['downloadMedia']
   const downloadSingleFile: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/batchProcessor')['downloadSingleFile']
+  const expandPromptWithVariables: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['expandPromptWithVariables']
+  const expandVariables: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['expandVariables']
   const fakeBrowser: typeof import('wxt/testing')['fakeBrowser']
   const findAllMedia: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findAllMedia']
   const findByAriaLabel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['findByAriaLabel']
@@ -60,7 +65,9 @@ declare global {
   const findElements: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['findElements']
   const findGeneratedImages: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findGeneratedImages']
   const findGeneratedVideos: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['findGeneratedVideos']
+  const formatRetryDelay: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['formatRetryDelay']
   const getAspectRatioById: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['getAspectRatioById']
+  const getErrorCategoryLabel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['getErrorCategoryLabel']
   const getExtFromMime: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['getExtFromMime']
   const getMimeFromBase64: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['getMimeFromBase64']
   const getPresetById: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['getPresetById']
@@ -68,8 +75,11 @@ declare global {
   const injectScript: typeof import('wxt/client')['injectScript']
   const isGoogleCdnUrl: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/googleImageUrl')['isGoogleCdnUrl']
   const logger: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/logger')['logger']
+  const parseInlineVariables: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['parseInlineVariables']
+  const parseVariableReferences: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['parseVariableReferences']
   const processBatch: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/batchProcessor')['processBatch']
   const processWithCanvas: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imageProcessor')['processWithCanvas']
+  const shouldRetry: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['shouldRetry']
   const sleep: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/timing')['sleep']
   const storage: typeof import('wxt/storage')['storage']
   const stripGoogleUrlParams: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/googleImageUrl')['stripGoogleUrlParams']
@@ -77,6 +87,7 @@ declare global {
   const useCallback: typeof import('react')['useCallback']
   const useContext: typeof import('react')['useContext']
   const useEffect: typeof import('react')['useEffect']
+  const useFormSubmit: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useFormSubmit')['useFormSubmit']
   const useMemo: typeof import('react')['useMemo']
   const useQueue: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['default']
   const useReducer: typeof import('react')['useReducer']
@@ -105,4 +116,7 @@ declare global {
   // @ts-ignore
   export type { SelectorKey } from '/Applications/Github/extension-gemini-auto-queue/src/utils/selectors'
   import('/Applications/Github/extension-gemini-auto-queue/src/utils/selectors')
+  // @ts-ignore
+  export type { ParsedVariable } from '/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander'
+  import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')
 }

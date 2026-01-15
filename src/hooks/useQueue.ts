@@ -8,6 +8,7 @@ import {
   type AppSettings,
   type QueueItem,
 } from "@/types";
+import { expandPromptWithVariables } from "@/utils/variableExpander";
 
 interface UseQueueReturn {
   queue: QueueItem[];
@@ -152,16 +153,23 @@ export function constructFinalPrompt(
   return prompt;
 }
 
-/**
- * Helper function to create queue items from prompts
- */
 export function createQueueItems(
   prompts: string[],
-  settings: Pick<AppSettings, "prefix" | "suffix" | "globalNegatives" | "globalNegativesEnabled">,
+  settings: Pick<
+    AppSettings,
+    "prefix" | "suffix" | "globalNegatives" | "globalNegativesEnabled" | "globalVariables"
+  >,
   images?: string[],
   tool?: GeminiTool
 ): QueueItem[] {
-  return prompts.map((prompt) => ({
+  const expandedPrompts: string[] = [];
+
+  for (const prompt of prompts) {
+    const expanded = expandPromptWithVariables(prompt, settings.globalVariables ?? []);
+    expandedPrompts.push(...expanded);
+  }
+
+  return expandedPrompts.map((prompt) => ({
     id: Math.random().toString(36).substring(2, 9),
     originalPrompt: prompt,
     finalPrompt: constructFinalPrompt(prompt, settings),
