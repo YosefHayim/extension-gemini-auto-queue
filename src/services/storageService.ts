@@ -37,7 +37,20 @@ export const DEFAULT_SETTINGS: AppSettings = {
   useToolSequence: false,
   aiApiKeys: {},
   preferredAIProvider: AIProvider.GEMINI,
-  sidebarWidth: 320, // Default sidebar width in pixels
+  sidebarWidth: 320,
+  retryConfig: {
+    enabled: true,
+    maxAttempts: 3,
+    baseDelayMs: 5000,
+    maxDelayMs: 300000,
+    autoRetry: true,
+  },
+  globalVariables: [],
+  schedule: {
+    enabled: false,
+    scheduledTime: null,
+    repeatDaily: false,
+  },
 };
 
 /**

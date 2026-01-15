@@ -70,6 +70,22 @@ export interface ModelResult {
   timestamp: number;
 }
 
+export enum ErrorCategory {
+  RATE_LIMIT = "rate_limit",
+  NETWORK = "network",
+  CONTENT_POLICY = "content_policy",
+  TIMEOUT = "timeout",
+  UNKNOWN = "unknown",
+}
+
+export interface RetryInfo {
+  attempts: number;
+  maxAttempts: number;
+  lastAttemptTime: number;
+  nextRetryTime: number | null;
+  errorCategory: ErrorCategory;
+}
+
 export interface QueueItem {
   id: string;
   originalPrompt: string;
@@ -86,6 +102,32 @@ export interface QueueItem {
     pro?: ModelResult;
   };
   error?: string;
+  retryInfo?: RetryInfo;
+}
+
+export interface PromptVariable {
+  name: string;
+  values: string[];
+}
+
+export interface VariableSet {
+  id: string;
+  name: string;
+  variables: PromptVariable[];
+}
+
+export interface RetryConfig {
+  enabled: boolean;
+  maxAttempts: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
+  autoRetry: boolean;
+}
+
+export interface ScheduleConfig {
+  enabled: boolean;
+  scheduledTime: number | null;
+  repeatDaily: boolean;
 }
 
 export enum SidebarPosition {
@@ -202,15 +244,15 @@ export interface AppSettings {
   theme: ThemeMode;
   /** @deprecated Use aiApiKeys.gemini instead */
   apiKey?: string;
-  // Tool settings
-  defaultTool: GeminiTool; // Default tool for new prompts
-  toolSequence: GeminiTool[]; // Sequence pattern for cycling tools (e.g., [IMAGE, VIDEO, CANVAS])
-  useToolSequence: boolean; // Whether to use the sequence pattern
-  // AI Provider settings for prompt optimization
-  aiApiKeys: AIApiKeys; // API keys for each supported AI provider
-  preferredAIProvider: AIProvider; // Which AI provider to use for prompt optimization
-  // Sidebar settings
-  sidebarWidth: number; // Width of sidebar in pixels (min: 280, max: 600)
+  defaultTool: GeminiTool;
+  toolSequence: GeminiTool[];
+  useToolSequence: boolean;
+  aiApiKeys: AIApiKeys;
+  preferredAIProvider: AIProvider;
+  sidebarWidth: number;
+  retryConfig: RetryConfig;
+  globalVariables: VariableSet[];
+  schedule: ScheduleConfig;
 }
 
 // Chrome Extension Message Types
@@ -240,6 +282,9 @@ export enum MessageType {
   // Media download messages
   DOWNLOAD_CHAT_MEDIA = "DOWNLOAD_CHAT_MEDIA",
   SCAN_CHAT_MEDIA = "SCAN_CHAT_MEDIA",
+  // Scheduling messages
+  SET_SCHEDULE = "SET_SCHEDULE",
+  CANCEL_SCHEDULE = "CANCEL_SCHEDULE",
 }
 
 export interface ExtensionMessage<T = unknown> {

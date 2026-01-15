@@ -1,5 +1,6 @@
 import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
-import { GeminiTool, MessageType, QueueStatus } from "@/types";
+import { ErrorCategory, GeminiTool, MessageType, QueueStatus } from "@/types";
+import { calculateBackoff, categorizeError, shouldRetry } from "@/utils/retryStrategy";
 import {
   getFolders,
   getQueue,
