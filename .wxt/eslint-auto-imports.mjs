@@ -1,4 +1,5 @@
 const globals = {
+  "AIOptimizationDialog": true,
   "ASPECT_RATIOS": true,
   "ApiKeyDialog": true,
   "BatchOptions": true,

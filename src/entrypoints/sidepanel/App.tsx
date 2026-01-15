@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
+import { AIOptimizationDialog } from "@/components/AIOptimizationDialog";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { ChatMediaCounts, ResetFilter } from "@/components/BulkActionsDialog";
 import { BulkDownloadDialog } from "@/components/BulkDownloadDialog";
@@ -56,6 +57,7 @@ import {
 type TabType = "queue" | "templates" | "settings";
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [queue, setQueueState] = useState<QueueItem[]>([]);
   const [folders, setFoldersState] = useState<Folder[]>([]);
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -69,6 +71,7 @@ export default function App() {
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showBulkDownloadDialog, setShowBulkDownloadDialog] = useState(false);
+  const [showAIOptimizationDialog, setShowAIOptimizationDialog] = useState(false);
 
   // Determine if dark mode based on theme setting
   const [systemPrefersDark, setSystemPrefersDark] = useState(
@@ -103,6 +106,7 @@ export default function App() {
       setSettingsState(settingsData);
       setFoldersState(foldersData);
       setShowOnboarding(!onboardingDone);
+      setIsLoading(false);
     };
 
     loadData();
@@ -182,7 +186,13 @@ export default function App() {
   );
 
   const handleAddToQueue = useCallback(
-    async (text?: string, templateText?: string, images?: string[], tool?: GeminiTool) => {
+    async (
+      text?: string,
+      templateText?: string,
+      images?: string[],
+      tool?: GeminiTool,
+      mode?: GeminiMode
+    ) => {
       const sourceText = text ?? "";
 
       // Smart parsing: prioritize newlines, only split by commas when they appear to be list separators
@@ -238,6 +248,7 @@ export default function App() {
           finalPrompt: constructFinalPrompt(combinedPrompt),
           status: QueueStatus.Pending,
           tool: tool ?? settings.defaultTool,
+          mode: mode,
           images: images && images.length > 0 ? [...images] : undefined,
         };
       });
@@ -977,6 +988,37 @@ export default function App() {
     setActiveTab(tab);
   }, []);
 
+  if (isLoading) {
+    return (
+      <div
+        className={`flex h-screen w-full flex-col items-center justify-center ${
+          isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
+        }`}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <img src="/icons/icon-32.png" alt="Nano Flow" className="h-12 w-12 animate-pulse" />
+          <div className="flex items-center gap-2">
+            <div
+              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
+              style={{ animationDelay: "0ms" }}
+            />
+            <div
+              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
+              style={{ animationDelay: "150ms" }}
+            />
+            <div
+              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
+              style={{ animationDelay: "300ms" }}
+            />
+          </div>
+          <span className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            Loading...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`flex h-screen w-full flex-col overflow-hidden transition-colors duration-500 ${
@@ -1046,6 +1088,20 @@ export default function App() {
           if (type === "success") toast.success(message);
           else if (type === "error") toast.error(message);
           else toast.info(message);
+        }}
+      />
+
+      {/* AI Optimization Dialog */}
+      <AIOptimizationDialog
+        isOpen={showAIOptimizationDialog}
+        onClose={() => setShowAIOptimizationDialog(false)}
+        isDark={isDark}
+        hasApiKey={hasAnyAIKey(settings)}
+        pendingCount={queue.filter((item) => item.status === QueueStatus.Pending).length}
+        pendingItems={queue.filter((item) => item.status === QueueStatus.Pending)}
+        onOptimize={(instructions, persona) => {
+          setShowAIOptimizationDialog(false);
+          handleBulkAIOptimize(`${instructions}\nPersona: ${persona}`).catch(() => {});
         }}
       />
 
@@ -1143,6 +1199,7 @@ export default function App() {
               onUpdateItemImages={handleUpdateItemImages}
               onBulkAttachImages={handleBulkAttachImages}
               onBulkAIOptimize={handleBulkAIOptimize}
+              onOpenAIOptimization={() => setShowAIOptimizationDialog(true)}
               onBulkModify={handleBulkModify}
               onBulkReset={handleBulkReset}
               onBulkRemoveText={handleBulkRemoveText}

@@ -1,21 +1,39 @@
-import { Coffee, Github, Heart, Linkedin, MessageSquare, PanelRight, Power } from "lucide-react";
+import {
+  Coffee,
+  ExternalLink,
+  Github,
+  Heart,
+  Linkedin,
+  MessageSquare,
+  PanelRight,
+  Power,
+} from "lucide-react";
 import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 import { useEffect, useState } from "react";
+
+function isGeminiSite(url: string | undefined): boolean {
+  if (!url) return false;
+  return url.includes("gemini.google.com") || url.includes("aistudio.google.com");
+}
 
 export default function Popup() {
   const [enabled, setEnabled] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isOnGemini, setIsOnGemini] = useState<boolean>(false);
 
   useEffect(() => {
-    // Load current enabled state
-    isExtensionEnabled()
-      .then((isEnabled) => {
+    const init = async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        setIsOnGemini(isGeminiSite(tab?.url));
+
+        const isEnabled = await isExtensionEnabled();
         setEnabled(isEnabled);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      }
+    };
+    init();
   }, []);
 
   const handleToggle = async () => {
@@ -72,30 +90,42 @@ export default function Popup() {
         </div>
       </div>
 
-      {/* Open Side Panel Button */}
       <div className="px-4 pb-4">
-        <button
-          onClick={async () => {
-            try {
-              const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-              if (tab?.id) {
-                await chrome.sidePanel.setOptions({
-                  tabId: tab.id,
-                  path: "sidepanel.html",
-                  enabled: true,
-                });
-                await chrome.sidePanel.open({ tabId: tab.id });
-                window.close();
+        {isOnGemini ? (
+          <button
+            onClick={async () => {
+              try {
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (tab?.id) {
+                  await chrome.sidePanel.setOptions({
+                    tabId: tab.id,
+                    path: "sidepanel.html",
+                    enabled: true,
+                  });
+                  await chrome.sidePanel.open({ tabId: tab.id });
+                  window.close();
+                }
+              } catch (error) {
+                console.error("Failed to open side panel:", error);
               }
-            } catch (error) {
-              console.error("Failed to open side panel:", error);
-            }
-          }}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-3 text-sm font-medium text-blue-400 transition-all hover:border-blue-500/50 hover:from-blue-500/20 hover:to-purple-500/20"
-        >
-          <PanelRight className="h-4 w-4" />
-          Open Side Panel
-        </button>
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-4 py-3 text-sm font-medium text-blue-400 transition-all hover:border-blue-500/50 hover:from-blue-500/20 hover:to-purple-500/20"
+          >
+            <PanelRight className="h-4 w-4" />
+            Open Side Panel
+          </button>
+        ) : (
+          <a
+            href="https://gemini.google.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => window.close()}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 px-4 py-3 text-sm font-medium text-emerald-400 transition-all hover:border-emerald-500/50 hover:from-emerald-500/20 hover:to-teal-500/20"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Open Gemini
+          </a>
+        )}
       </div>
 
       {/* Contact/Feedback Section */}

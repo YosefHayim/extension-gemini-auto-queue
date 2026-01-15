@@ -1,4 +1,4 @@
-# Chrome Web Store Submission - Version 2.0
+# Chrome Web Store Submission - Version 2.1.0
 
 ## Basic Information
 
@@ -97,39 +97,27 @@ English
 
 ### Version Number
 ```
-2.0.0
+2.1.0
 ```
 
 ### What's New in This Version (Changelog)
 ```
-Version 2.0 - Major Update
+Version 2.1.0 - Stability Update
 
-NEW FEATURES
-- Bulk download all generated media from chat (images, videos)
-- Remove specific text from prompts in bulk
-- Remove attached images from prompts in bulk
-- Estimated time remaining display during processing
+CRITICAL FIX
+- Fixed page crash when starting queue processing
+- Removed invasive network interception that corrupted Gemini's streaming responses
 
-ARCHITECTURE OVERHAUL
-- Migrated queue storage to IndexedDB (unlimited capacity)
-- Modular automation system for improved reliability
-- Better state management across operations
+STABILITY IMPROVEMENTS
+- Switched to passive PerformanceObserver for network monitoring
+- No longer patches window.fetch or XMLHttpRequest
+- Generation detection now relies purely on DOM-based polling
 
-IMPROVED BULK ACTIONS
-- Attach multiple files to all pending prompts
+PREVIOUS (2.0.0)
+- Bulk download all generated media from chat
+- IndexedDB storage for unlimited queue capacity
 - AI-powered bulk prompt optimization
-- Advanced reset filters by status
-
-FASTER PROCESSING
-- Reduced wait times between prompts
-- Improved generation completion detection
-- Better network monitoring
-
-BUG FIXES
-- Fixed bulk file attachment issues
-- Fixed mode selection edge cases
-- Fixed storage quota errors with large queues
-- Improved error handling throughout
+- Multi-tool support (Image, Video, Canvas, Research, Learning)
 ```
 
 ---
@@ -274,8 +262,8 @@ Note: This extension automates the Gemini web interface through DOM manipulation
 
 ## Checklist Before Submission
 
-- [x] Version 2.0.0 in package.json
-- [x] Version 2.0.0 in wxt.config.ts
+- [ ] Version 2.1.0 in package.json
+- [ ] Version 2.1.0 in wxt.config.ts
 - [ ] Run `pnpm run build` for production build
 - [ ] Run `pnpm run zip` for distribution ZIP
 - [ ] Test ZIP by loading unpacked in Chrome
@@ -289,6 +277,6 @@ Note: This extension automates the Gemini web interface through DOM manipulation
 
 ## Files to Upload
 
-1. **Extension Package**: `.output/gemini-nano-flow-2.0.0-chrome.zip`
+1. **Extension Package**: `.output/gemini-nano-flow-2.1.0-chrome.zip`
 2. **Store Icon**: `public/icons/icon-128.png`
 3. **Screenshots**: 5 images showing key features

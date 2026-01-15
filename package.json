@@ -1,7 +1,7 @@
 {
   "name": "gemini-nano-flow",
   "displayName": "Gemini Nano Flow",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "description": "A bulk image generation and automation tool for Gemini and AI Studio, featuring queue management and batch processing.",

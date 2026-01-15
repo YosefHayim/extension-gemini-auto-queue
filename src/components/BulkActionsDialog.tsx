@@ -59,6 +59,7 @@ interface BulkActionsDialogProps {
   pendingItems: QueueItem[];
   onBulkAttach: (images: string[]) => void;
   onBulkAIOptimize: (instructions: string) => void;
+  onOpenAIOptimization?: () => void;
   onBulkModify: (text: string, position: "prepend" | "append") => void;
   onBulkReset: (filter: ResetFilter) => void;
   onCopyAllPrompts: () => string;
@@ -83,6 +84,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   pendingItems,
   onBulkAttach,
   onBulkAIOptimize,
+  onOpenAIOptimization,
   onBulkModify,
   onBulkReset,
   onCopyAllPrompts,
@@ -383,6 +385,9 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                     if (!action.available) return;
                     if (action.type === "copy") {
                       handleCopyAll();
+                    } else if (action.type === "ai" && onOpenAIOptimization) {
+                      handleClose();
+                      onOpenAIOptimization();
                     } else {
                       setActiveAction(action.type);
                     }

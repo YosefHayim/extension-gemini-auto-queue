@@ -157,6 +157,7 @@ interface QueuePanelProps {
   onModeChange?: (mode: GeminiMode) => void;
   onBulkAttachImages?: (images: string[]) => void;
   onBulkAIOptimize?: (instructions: string) => Promise<void>;
+  onOpenAIOptimization?: () => void;
   onBulkModify?: (text: string, position: "prepend" | "append") => void;
   onBulkReset?: (filter: ResetFilter) => void;
   onBulkRemoveText?: (text: string) => void;
@@ -202,6 +203,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   onModeChange,
   onBulkAttachImages,
   onBulkAIOptimize,
+  onOpenAIOptimization,
   onBulkModify,
   onBulkReset,
   onBulkRemoveText,
@@ -486,6 +488,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
           await onBulkAIOptimize?.(instructions);
           setShowBulkActions(false);
         }}
+        onOpenAIOptimization={onOpenAIOptimization}
         onBulkModify={(text, position) => {
           onBulkModify?.(text, position);
           setShowBulkActions(false);

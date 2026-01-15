@@ -18,13 +18,59 @@ import { generateImage } from "@/services/geminiService";
 
 const SCHEDULE_ALARM_NAME = "nano_flow_schedule";
 
+interface ProcessingState {
+  isProcessing: boolean;
+  isPaused: boolean;
+  activeGeminiTabId: number | null;
+}
+
+const DEFAULT_PROCESSING_STATE: ProcessingState = {
+  isProcessing: false,
+  isPaused: false,
+  activeGeminiTabId: null,
+};
+
+async function getProcessingState(): Promise<ProcessingState> {
+  try {
+    const result = await chrome.storage.session.get([
+      "isProcessing",
+      "isPaused",
+      "activeGeminiTabId",
+    ]);
+    return {
+      isProcessing: result.isProcessing ?? false,
+      isPaused: result.isPaused ?? false,
+      activeGeminiTabId: result.activeGeminiTabId ?? null,
+    };
+  } catch {
+    return DEFAULT_PROCESSING_STATE;
+  }
+}
+
+async function setProcessingState(state: Partial<ProcessingState>): Promise<void> {
+  try {
+    await chrome.storage.session.set(state);
+  } catch {
+    console.error("[NanoFlow] Failed to persist processing state");
+  }
+}
+
 export default defineBackground(() => {
-  let isProcessing = false;
-  let isPaused = false;
   let processingController: AbortController | null = null;
-  let activeGeminiTabId: number | null = null;
 
   initializeQueueStorage();
+
+  restoreProcessingStateOnStartup();
+
+  async function restoreProcessingStateOnStartup(): Promise<void> {
+    const state = await getProcessingState();
+    console.log("[NanoFlow] Service worker started, restored state:", state);
+
+    if (state.isProcessing && !state.isPaused) {
+      console.log("[NanoFlow] Resuming processing after service worker restart");
+      startProcessing();
+    }
+  }
 
   chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name === SCHEDULE_ALARM_NAME) {
@@ -40,7 +86,8 @@ export default defineBackground(() => {
         return;
       }
 
-      if (!isProcessing) {
+      const state = await getProcessingState();
+      if (!state.isProcessing) {
         startProcessing();
       }
 
@@ -62,19 +109,19 @@ export default defineBackground(() => {
   // The popup will handle the UI, but we can still listen for clicks if popup is removed
   // For now, the popup handles the toggle UI
 
-  // Permitted hosts where the sidebar is allowed
   const PERMITTED_HOSTS = ["gemini.google.com", "aistudio.google.com"];
 
   const isPermittedHost = (url: string): boolean => {
     try {
       const urlObj = new URL(url);
-      return PERMITTED_HOSTS.some((host) => urlObj.hostname === host || urlObj.hostname.endsWith(`.${host}`));
+      return PERMITTED_HOSTS.some(
+        (host) => urlObj.hostname === host || urlObj.hostname.endsWith(`.${host}`)
+      );
     } catch {
       return false;
     }
   };
 
-  // Enable side panel ONLY on permitted hosts, disable on all others
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url) {
       const isPermitted = isPermittedHost(tab.url);
@@ -85,10 +132,8 @@ export default defineBackground(() => {
           path: "sidepanel.html",
           enabled: true,
         });
-        // Track this tab as potential target for automation
-        activeGeminiTabId = tabId;
+        await setProcessingState({ activeGeminiTabId: tabId });
       } else {
-        // Explicitly disable the sidebar on non-permitted hosts
         await chrome.sidePanel.setOptions({
           tabId,
           enabled: false,
@@ -97,22 +142,19 @@ export default defineBackground(() => {
     }
   });
 
-  // Handle tab activation to track active Gemini tab and gate sidebar
   chrome.tabs.onActivated.addListener(async (activeInfo) => {
     try {
       const tab = await chrome.tabs.get(activeInfo.tabId);
       if (tab.url) {
         const isPermitted = isPermittedHost(tab.url);
         if (isPermitted) {
-          activeGeminiTabId = activeInfo.tabId;
-          // Ensure sidebar is enabled when switching to permitted host
+          await setProcessingState({ activeGeminiTabId: activeInfo.tabId });
           await chrome.sidePanel.setOptions({
             tabId: activeInfo.tabId,
             path: "sidepanel.html",
             enabled: true,
           });
         } else {
-          // Ensure sidebar is disabled when switching to non-permitted host
           await chrome.sidePanel.setOptions({
             tabId: activeInfo.tabId,
             enabled: false,
@@ -186,7 +228,8 @@ export default defineBackground(() => {
       }
 
       case MessageType.PROCESS_QUEUE: {
-        if (!isProcessing) {
+        const procState = await getProcessingState();
+        if (!procState.isProcessing) {
           startProcessing();
         }
         return { success: true };
@@ -249,9 +292,8 @@ export default defineBackground(() => {
       }
 
       case MessageType.CONTENT_SCRIPT_READY: {
-        // Content script is ready - update active tab
         if (sender?.tab?.id) {
-          activeGeminiTabId = sender.tab.id;
+          await setProcessingState({ activeGeminiTabId: sender.tab.id });
         }
         return { success: true };
       }
@@ -302,25 +344,24 @@ export default defineBackground(() => {
     }
   }
 
-  // Find a Gemini tab to send messages to
   async function findGeminiTab(): Promise<number | null> {
-    // First try the active tracked tab
-    if (activeGeminiTabId) {
+    const state = await getProcessingState();
+
+    if (state.activeGeminiTabId) {
       try {
-        const tab = await chrome.tabs.get(activeGeminiTabId);
+        const tab = await chrome.tabs.get(state.activeGeminiTabId);
         if (tab.url?.includes("gemini.google.com")) {
-          return activeGeminiTabId;
+          return state.activeGeminiTabId;
         }
       } catch {
-        activeGeminiTabId = null;
+        await setProcessingState({ activeGeminiTabId: null });
       }
     }
 
-    // Search for any Gemini tab
     const tabs = await chrome.tabs.query({ url: "https://gemini.google.com/*" });
     if (tabs.length > 0 && tabs[0].id) {
-      activeGeminiTabId = tabs[0].id;
-      return activeGeminiTabId;
+      await setProcessingState({ activeGeminiTabId: tabs[0].id });
+      return tabs[0].id;
     }
 
     return null;
@@ -395,166 +436,173 @@ export default defineBackground(() => {
   async function startProcessing(): Promise<void> {
     console.log("[NanoFlow] startProcessing() called");
 
-    const enabled = await isExtensionEnabled();
-    console.log("[NanoFlow] Extension enabled:", enabled);
-    if (!enabled) {
-      console.log("[NanoFlow] Extension disabled, stopping");
-      broadcastMessage({ type: MessageType.STOP_PROCESSING });
-      return;
-    }
-
-    isProcessing = true;
-    isPaused = false;
-    processingController = new AbortController();
-
-    broadcastMessage({ type: MessageType.PROCESS_QUEUE });
-
-    const tabId = await findGeminiTab();
-    console.log("[NanoFlow] Found Gemini tab:", tabId);
-    if (!tabId) {
-      console.log("[NanoFlow] No Gemini tab found, stopping");
-      broadcastMessage({ type: MessageType.STOP_PROCESSING });
-      isProcessing = false;
-      return;
-    }
-
-    while (isProcessing && !isPaused) {
-      const queue = await getQueue();
-      const nextItem = queue.find((item) => item.status === QueueStatus.Pending);
-
-      if (!nextItem) {
-        isProcessing = false;
-        break;
+    try {
+      const enabled = await isExtensionEnabled();
+      console.log("[NanoFlow] Extension enabled:", enabled);
+      if (!enabled) {
+        console.log("[NanoFlow] Extension disabled, stopping");
+        broadcastMessage({ type: MessageType.STOP_PROCESSING });
+        return;
       }
 
-      // Update item to processing status
-      const startTime = Date.now();
-      await updateQueueItem(nextItem.id, {
-        status: QueueStatus.Processing,
-        startTime,
-      });
+      await setProcessingState({ isProcessing: true, isPaused: false });
+      processingController = new AbortController();
 
-      // Notify listeners that queue changed (they fetch from storage)
-      broadcastMessage({ type: MessageType.UPDATE_QUEUE });
+      broadcastMessage({ type: MessageType.PROCESS_QUEUE });
 
-      try {
-        // Determine which tool to use
-        const settings = await getSettings();
-        let tool = nextItem.tool || settings.defaultTool || GeminiTool.IMAGE;
+      const tabId = await findGeminiTab();
+      console.log("[NanoFlow] Found Gemini tab:", tabId);
+      if (!tabId) {
+        console.log("[NanoFlow] No Gemini tab found, stopping");
+        broadcastMessage({ type: MessageType.STOP_PROCESSING });
+        await setProcessingState({ isProcessing: false });
+        return;
+      }
 
-        // If using tool sequence, calculate which tool to use based on queue position
-        if (settings.useToolSequence && settings.toolSequence.length > 0) {
-          const queueData = await getQueue();
-          const itemIndex = queueData.findIndex((item) => item.id === nextItem.id);
-          if (itemIndex >= 0) {
-            tool = settings.toolSequence[itemIndex % settings.toolSequence.length];
+      let state = await getProcessingState();
+      while (state.isProcessing && !state.isPaused) {
+        const queue = await getQueue();
+        const nextItem = queue.find((item) => item.status === QueueStatus.Pending);
+
+        if (!nextItem) {
+          await setProcessingState({ isProcessing: false });
+          break;
+        }
+
+        // Update item to processing status
+        const startTime = Date.now();
+        await updateQueueItem(nextItem.id, {
+          status: QueueStatus.Processing,
+          startTime,
+        });
+
+        // Notify listeners that queue changed (they fetch from storage)
+        broadcastMessage({ type: MessageType.UPDATE_QUEUE });
+
+        try {
+          // Determine which tool to use
+          const settings = await getSettings();
+          let tool = nextItem.tool || settings.defaultTool || GeminiTool.IMAGE;
+
+          // If using tool sequence, calculate which tool to use based on queue position
+          if (settings.useToolSequence && settings.toolSequence.length > 0) {
+            const queueData = await getQueue();
+            const itemIndex = queueData.findIndex((item) => item.id === nextItem.id);
+            if (itemIndex >= 0) {
+              tool = settings.toolSequence[itemIndex % settings.toolSequence.length];
+            }
+          }
+
+          // Send prompt to content script for web automation
+          const response = await sendToContentScript({
+            type: MessageType.PASTE_PROMPT,
+            payload: {
+              prompt: nextItem.finalPrompt,
+              tool,
+              images: nextItem.images ?? [],
+              mode: nextItem.mode,
+            },
+          });
+
+          const endTime = Date.now();
+          const completionTimeSeconds = startTime ? (endTime - startTime) / 1000 : undefined;
+
+          if (response.success) {
+            await updateQueueItem(nextItem.id, {
+              status: QueueStatus.Completed,
+              endTime,
+              completionTimeSeconds,
+              results: {
+                flash: {
+                  url: "", // No URL from web automation
+                  modelName: "Gemini Web",
+                  timestamp: endTime,
+                },
+              },
+            });
+          } else {
+            throw new Error(response.error || "Web automation failed");
+          }
+
+          // Wait between items
+          const waitTime = settings.dripFeed
+            ? 8000 + Math.random() * 7000 // 8-15 seconds with drip feed
+            : 1500 + Math.random() * 1500; // 1.5-3 seconds normally
+
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : "Generation failed";
+          const category = categorizeError(errorMessage);
+          const settings = await getSettings();
+          const { retryConfig } = settings;
+
+          const currentRetry = nextItem.retryInfo ?? {
+            attempts: 0,
+            maxAttempts: retryConfig.maxAttempts,
+            lastAttemptTime: 0,
+            nextRetryTime: null,
+            errorCategory: category,
+          };
+
+          currentRetry.attempts++;
+          currentRetry.lastAttemptTime = Date.now();
+          currentRetry.errorCategory = category;
+
+          const canRetry =
+            retryConfig.enabled &&
+            shouldRetry(category) &&
+            currentRetry.attempts < currentRetry.maxAttempts;
+
+          if (canRetry && retryConfig.autoRetry) {
+            const delay = calculateBackoff(
+              currentRetry.attempts,
+              retryConfig.baseDelayMs,
+              retryConfig.maxDelayMs,
+              category
+            );
+            currentRetry.nextRetryTime = Date.now() + delay;
+
+            await updateQueueItem(nextItem.id, {
+              status: QueueStatus.Pending,
+              retryInfo: currentRetry,
+              error: errorMessage,
+            });
+
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          } else {
+            await updateQueueItem(nextItem.id, {
+              status: QueueStatus.Failed,
+              retryInfo: currentRetry,
+              error: errorMessage,
+            });
           }
         }
 
-        // Send prompt to content script for web automation
-        const response = await sendToContentScript({
-          type: MessageType.PASTE_PROMPT,
-          payload: {
-            prompt: nextItem.finalPrompt,
-            tool,
-            images: nextItem.images ?? [],
-          },
-        });
+        broadcastMessage({ type: MessageType.UPDATE_QUEUE });
 
-        const endTime = Date.now();
-        const completionTimeSeconds = startTime ? (endTime - startTime) / 1000 : undefined;
-
-        if (response.success) {
-          await updateQueueItem(nextItem.id, {
-            status: QueueStatus.Completed,
-            endTime,
-            completionTimeSeconds,
-            results: {
-              flash: {
-                url: "", // No URL from web automation
-                modelName: "Gemini Web",
-                timestamp: endTime,
-              },
-            },
-          });
-        } else {
-          throw new Error(response.error || "Web automation failed");
-        }
-
-        // Wait between items
-        const waitTime = settings.dripFeed
-          ? 8000 + Math.random() * 7000 // 8-15 seconds with drip feed
-          : 1500 + Math.random() * 1500; // 1.5-3 seconds normally
-
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Generation failed";
-        const category = categorizeError(errorMessage);
-        const settings = await getSettings();
-        const { retryConfig } = settings;
-
-        const currentRetry = nextItem.retryInfo ?? {
-          attempts: 0,
-          maxAttempts: retryConfig.maxAttempts,
-          lastAttemptTime: 0,
-          nextRetryTime: null,
-          errorCategory: category,
-        };
-
-        currentRetry.attempts++;
-        currentRetry.lastAttemptTime = Date.now();
-        currentRetry.errorCategory = category;
-
-        const canRetry =
-          retryConfig.enabled &&
-          shouldRetry(category) &&
-          currentRetry.attempts < currentRetry.maxAttempts;
-
-        if (canRetry && retryConfig.autoRetry) {
-          const delay = calculateBackoff(
-            currentRetry.attempts,
-            retryConfig.baseDelayMs,
-            retryConfig.maxDelayMs,
-            category
-          );
-          currentRetry.nextRetryTime = Date.now() + delay;
-
-          await updateQueueItem(nextItem.id, {
-            status: QueueStatus.Pending,
-            retryInfo: currentRetry,
-            error: errorMessage,
-          });
-
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        } else {
-          await updateQueueItem(nextItem.id, {
-            status: QueueStatus.Failed,
-            retryInfo: currentRetry,
-            error: errorMessage,
-          });
-        }
+        state = await getProcessingState();
       }
 
-      broadcastMessage({ type: MessageType.UPDATE_QUEUE });
-    }
-
-    if (isPaused) {
-      isProcessing = false;
-      broadcastMessage({ type: MessageType.PAUSE_PROCESSING });
-    } else {
+      const finalState = await getProcessingState();
+      if (finalState.isPaused) {
+        await setProcessingState({ isProcessing: false });
+        broadcastMessage({ type: MessageType.PAUSE_PROCESSING });
+      } else {
+        broadcastMessage({ type: MessageType.STOP_PROCESSING });
+      }
+    } catch (error) {
+      console.error("[NanoFlow] startProcessing error:", error);
+      await setProcessingState({ isProcessing: false, isPaused: false });
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
     }
   }
 
-  function pauseProcessing(): void {
-    isPaused = true;
-    // Don't set isProcessing = false yet - let the current item finish
-    // The while loop will check isPaused and exit gracefully
+  async function pauseProcessing(): Promise<void> {
+    await setProcessingState({ isPaused: true });
   }
 
-  function stopProcessing(): void {
-    isProcessing = false;
-    isPaused = false;
+  async function stopProcessing(): Promise<void> {
+    await setProcessingState({ isProcessing: false, isPaused: false });
     if (processingController) {
       processingController.abort();
       processingController = null;

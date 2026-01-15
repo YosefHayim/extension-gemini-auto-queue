@@ -1,8 +1,9 @@
 import {
   BookMarked,
-  ChevronDown,
   Folder as FolderIcon,
   FolderPlus,
+  Image as ImageIcon,
+  Layers,
   Loader2,
   Pencil,
   Plus,
@@ -12,16 +13,14 @@ import {
   Wand2,
   X,
 } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
 import type { Folder, PromptTemplate } from "@/types";
-
-import { Tooltip } from "./Tooltip";
 
 interface TemplatesPanelProps {
   folders: Folder[];
   isDark: boolean;
-  hasAIKey: boolean; // Whether any AI API key is configured
+  hasAIKey: boolean;
   onCreateFolder: (name: string) => void;
   onDeleteFolder: (id: string) => void;
   onToggleFolder: (id: string) => void;
@@ -52,8 +51,29 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     folderId: string;
     template: Partial<PromptTemplate>;
   } | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   const templateImageInputRef = useRef<HTMLInputElement>(null);
+
+  const displayedTemplates = useMemo(() => {
+    if (selectedFolderId === null) {
+      return folders.flatMap((folder) =>
+        folder.templates.map((template) => ({
+          ...template,
+          folderId: folder.id,
+          folderName: folder.name,
+        }))
+      );
+    }
+    const folder = folders.find((f) => f.id === selectedFolderId);
+    return (
+      folder?.templates.map((template) => ({
+        ...template,
+        folderId: folder.id,
+        folderName: folder.name,
+      })) ?? []
+    );
+  }, [folders, selectedFolderId]);
 
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) return;
@@ -66,6 +86,9 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     e.stopPropagation();
     if (!confirm("Delete folder and all templates inside?")) return;
     onDeleteFolder(id);
+    if (selectedFolderId === id) {
+      setSelectedFolderId(null);
+    }
   };
 
   const handleDeleteTemplate = (folderId: string, templateId: string, e: React.MouseEvent) => {
@@ -147,7 +170,6 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
-    // Read all files in parallel and collect results before updating state
     const readPromises = files.map((file) => {
       return new Promise<string>((resolve) => {
         const reader = new FileReader();
@@ -178,184 +200,273 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     e.target.value = "";
   };
 
+  const totalTemplateCount = folders.reduce((sum, f) => sum + f.templates.length, 0);
+  const selectedFolder = selectedFolderId ? folders.find((f) => f.id === selectedFolderId) : null;
+  const isImprovingFolder = selectedFolderId ? improvingIds.has(selectedFolderId) : false;
+
   return (
     <>
-      <div className="animate-in fade-in space-y-2 duration-300">
-        <div className="flex items-center justify-between px-1">
-          <span className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Collections
-            <Tooltip
-              text="Organize your favorite prompts into folders. Use AI to improve them!"
-              isDark={isDark}
-            />
-          </span>
-          <button
-            onClick={() => {
-              setIsCreatingFolder(true);
-            }}
-            title="Create new folder"
-            className="rounded-lg bg-indigo-500/10 p-2 text-indigo-500 transition-colors duration-150 hover:bg-indigo-500 hover:text-white"
-          >
-            <FolderPlus size={14} />
-          </button>
-        </div>
+      <div className="flex h-full flex-col">
+        <div className="no-scrollbar flex-shrink-0 overflow-x-auto">
+          <div className="flex flex-nowrap gap-2 p-2">
+            <button
+              onClick={() => setIsCreatingFolder(true)}
+              title="Create new folder"
+              className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-xl border-2 border-dashed px-4 py-3 transition-all ${
+                isDark
+                  ? "border-slate-600 bg-slate-800/50 hover:border-blue-500/50 hover:bg-slate-800"
+                  : "border-slate-300 bg-slate-100/50 hover:border-blue-400 hover:bg-slate-100"
+              }`}
+            >
+              <FolderPlus size={20} className={isDark ? "text-slate-400" : "text-slate-500"} />
+              <span
+                className={`text-[10px] font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}
+              >
+                New
+              </span>
+            </button>
 
-        <div className="space-y-2">
-          {folders.map((folder) => (
-            <div key={folder.id} className="space-y-1">
-              <div className="flex items-center gap-1">
+            <button
+              onClick={() => setSelectedFolderId(null)}
+              className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 transition-all ${
+                selectedFolderId === null
+                  ? isDark
+                    ? "bg-slate-700 shadow-md"
+                    : "bg-slate-200 shadow-md"
+                  : isDark
+                    ? "bg-slate-800/50 opacity-60 hover:opacity-100"
+                    : "bg-slate-100/50 opacity-60 hover:opacity-100"
+              }`}
+            >
+              <Layers size={20} className={isDark ? "text-blue-400" : "text-blue-500"} />
+              <span
+                className={`max-w-[60px] truncate text-[10px] font-semibold ${isDark ? "text-slate-300" : "text-slate-600"}`}
+              >
+                All ({totalTemplateCount})
+              </span>
+            </button>
+
+            {folders.map((folder) => (
+              <div key={folder.id} className="group/folder relative flex-shrink-0">
                 <button
                   onClick={() => {
+                    setSelectedFolderId(folder.id);
                     onToggleFolder(folder.id);
                   }}
-                  className={`flex min-h-[44px] flex-1 items-center gap-2 rounded-lg border p-3 text-xs font-semibold transition-colors duration-150 ${
-                    isDark
-                      ? "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
-                      : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                  className={`flex flex-col items-center gap-1 rounded-xl px-4 py-3 transition-all ${
+                    selectedFolderId === folder.id
+                      ? isDark
+                        ? "bg-slate-700 shadow-md"
+                        : "bg-slate-200 shadow-md"
+                      : isDark
+                        ? "bg-slate-800/50 opacity-60 hover:opacity-100"
+                        : "bg-slate-100/50 opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <FolderIcon size={14} className="text-indigo-500" />
-                  <span className="flex-1 text-left">{folder.name}</span>
-                  <ChevronDown
-                    size={14}
-                    className={`text-slate-400 transition-transform duration-200 ${folder.isOpen ? "rotate-180" : ""}`}
-                  />
+                  <FolderIcon size={20} className={isDark ? "text-amber-400" : "text-amber-500"} />
+                  <span
+                    className={`max-w-[60px] truncate text-[10px] font-semibold ${isDark ? "text-slate-300" : "text-slate-600"}`}
+                  >
+                    {folder.name}
+                  </span>
                 </button>
                 <button
-                  onClick={(e) => hasAIKey && handleImproveFolder(folder.id, e)}
-                  disabled={!hasAIKey || improvingIds.has(folder.id)}
-                  title={
-                    hasAIKey
-                      ? "Improve all prompts in folder"
-                      : "Configure an AI API key in Settings to enable prompt optimization"
-                  }
-                  className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors duration-150 ${
-                    !hasAIKey
-                      ? "cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-slate-800 dark:text-slate-600"
-                      : improvingIds.has(folder.id)
-                        ? "animate-pulse bg-amber-500 text-white"
-                        : "bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white"
-                  }`}
-                >
-                  {improvingIds.has(folder.id) ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Wand2 size={14} />
-                  )}
-                </button>
-                <button
-                  onClick={(e) => {
-                    handleDeleteFolder(folder.id, e);
-                  }}
+                  onClick={(e) => handleDeleteFolder(folder.id, e)}
                   title="Delete folder"
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg bg-red-500/10 p-2 text-red-500 transition-colors duration-150 hover:bg-red-500 hover:text-white"
+                  className="absolute -right-1 -top-1 rounded-full bg-red-500 p-1 text-white opacity-0 shadow-lg transition-all hover:bg-red-600 group-hover/folder:opacity-100"
                 >
-                  <Trash2 size={14} />
+                  <X size={10} />
                 </button>
               </div>
+            ))}
+          </div>
+        </div>
 
-              {folder.isOpen && (
-                <div className="animate-in slide-in-from-top-1 mt-1.5 space-y-1.5">
-                  {folder.templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`group flex flex-col rounded-lg border p-3 transition-colors duration-150 ${
-                        isDark
-                          ? "border-slate-700 bg-slate-800/30 hover:border-indigo-500/30"
-                          : "border-slate-100 bg-white hover:border-indigo-300"
-                      }`}
+        {selectedFolder && selectedFolder.templates.length > 0 && hasAIKey && (
+          <div className="flex-shrink-0 px-2 pb-2">
+            <button
+              onClick={(e) => handleImproveFolder(selectedFolder.id, e)}
+              disabled={isImprovingFolder}
+              title="Improve all templates in this folder with AI"
+              className={`flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                isImprovingFolder
+                  ? "animate-pulse bg-amber-500 text-white"
+                  : isDark
+                    ? "bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
+                    : "bg-amber-100 text-amber-600 hover:bg-amber-200"
+              }`}
+            >
+              {isImprovingFolder ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Wand2 size={14} />
+              )}
+              Improve All in Folder
+            </button>
+          </div>
+        )}
+
+        <div className="no-scrollbar flex-1 space-y-3 overflow-y-auto px-2 py-3">
+          {displayedTemplates.length > 0 ? (
+            displayedTemplates.map((template) => (
+              <article
+                key={`${template.folderId}-${template.id}`}
+                className={`space-y-3 rounded-2xl p-4 transition-all ${
+                  isDark ? "bg-slate-800" : "border border-slate-200 bg-white shadow-sm"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3
+                      className={`truncate text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}
                     >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="min-w-0 flex-1 cursor-pointer"
-                          onClick={() => {
-                            onUseTemplate(folder.id, template.id);
-                          }}
-                        >
-                          <p className="truncate text-xs font-semibold text-indigo-500">
-                            {template.name}
-                          </p>
-                          <p className="truncate text-[11px] text-slate-400">"{template.text}"</p>
-                        </div>
-                        <div className="flex gap-1 opacity-0 transition-all group-hover:opacity-100">
-                          <button
-                            onClick={(e) =>
-                              hasAIKey && handleImproveTemplate(folder.id, template.id, e)
-                            }
-                            disabled={!hasAIKey || improvingIds.has(template.id)}
-                            title={
-                              hasAIKey
-                                ? "Enhance with AI"
-                                : "Configure an AI API key in Settings to enable prompt optimization"
-                            }
-                            className={`rounded-md p-1 transition-all ${
-                              !hasAIKey
-                                ? "cursor-not-allowed text-white/20"
-                                : improvingIds.has(template.id)
-                                  ? "animate-pulse bg-amber-500 text-white"
-                                  : "text-amber-500 hover:bg-amber-500/20"
-                            }`}
-                          >
-                            {improvingIds.has(template.id) ? (
-                              <Loader2 size={12} className="animate-spin" />
-                            ) : (
-                              <Wand2 size={12} />
-                            )}
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              handleStartTemplateEdit(folder.id, template.id, e);
-                            }}
-                            title="Edit template"
-                            className="rounded-md p-1 hover:bg-blue-500/20"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              handleDeleteTemplate(folder.id, template.id, e);
-                            }}
-                            title="Delete template"
-                            className="rounded-md p-1 text-red-500 hover:bg-red-500/20"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              onUseTemplate(folder.id, template.id);
-                            }}
-                            title="Add to queue"
-                            className="rounded-md bg-blue-600 p-1 text-white shadow-lg"
-                          >
-                            <Plus size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      {template.name}
+                    </h3>
+                    {selectedFolderId === null && (
+                      <span
+                        className={`text-[10px] ${isDark ? "text-slate-500" : "text-slate-400"}`}
+                      >
+                        {template.folderName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-shrink-0 gap-1">
+                    {template.images && template.images.length > 0 && (
+                      <span
+                        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] ${
+                          isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        <ImageIcon size={10} />
+                        {template.images.length}
+                      </span>
+                    )}
+                    {template.timesUsed > 0 && (
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] ${
+                          isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-600"
+                        }`}
+                      >
+                        x{template.timesUsed}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <p
+                  className={`line-clamp-2 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                >
+                  {template.text || "No prompt text"}
+                </p>
+
+                <div className="flex justify-end gap-1 pt-2">
                   <button
-                    onClick={(e) => {
-                      handleStartTemplateEdit(folder.id, undefined, e);
-                    }}
-                    title="Create new template"
-                    className="min-h-[44px] w-full rounded-md border-2 border-dashed border-white/5 p-2 text-xs font-black uppercase opacity-20 transition-all hover:opacity-100"
+                    onClick={(e) =>
+                      hasAIKey && handleImproveTemplate(template.folderId, template.id, e)
+                    }
+                    disabled={!hasAIKey || improvingIds.has(template.id)}
+                    title={hasAIKey ? "Enhance with AI" : "Configure an AI API key in Settings"}
+                    className={`flex flex-col items-center gap-1 rounded-lg p-2 transition-all ${
+                      !hasAIKey
+                        ? "cursor-not-allowed opacity-30"
+                        : improvingIds.has(template.id)
+                          ? "animate-pulse bg-amber-500 text-white"
+                          : isDark
+                            ? "text-slate-400 hover:bg-amber-500/20 hover:text-amber-400"
+                            : "text-slate-500 hover:bg-amber-100 hover:text-amber-600"
+                    }`}
                   >
-                    New Style
+                    {improvingIds.has(template.id) ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Wand2 size={16} />
+                    )}
+                    <span className="text-[9px] font-medium uppercase tracking-wide">AI</span>
+                  </button>
+
+                  <button
+                    onClick={(e) => handleStartTemplateEdit(template.folderId, template.id, e)}
+                    title="Edit template"
+                    className={`flex flex-col items-center gap-1 rounded-lg p-2 transition-all ${
+                      isDark
+                        ? "text-slate-400 hover:bg-slate-700 hover:text-white"
+                        : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                    }`}
+                  >
+                    <Pencil size={16} />
+                    <span className="text-[9px] font-medium uppercase tracking-wide">Edit</span>
+                  </button>
+
+                  <button
+                    onClick={(e) => handleDeleteTemplate(template.folderId, template.id, e)}
+                    title="Delete template"
+                    className={`flex flex-col items-center gap-1 rounded-lg p-2 transition-all ${
+                      isDark
+                        ? "text-slate-400 hover:bg-red-500/20 hover:text-red-400"
+                        : "text-slate-500 hover:bg-red-100 hover:text-red-600"
+                    }`}
+                  >
+                    <Trash2 size={16} />
+                    <span className="text-[9px] font-medium uppercase tracking-wide">Delete</span>
+                  </button>
+
+                  <button
+                    onClick={() => onUseTemplate(template.folderId, template.id)}
+                    title="Add to queue"
+                    className={`flex flex-col items-center gap-1 rounded-lg p-2 transition-all ${
+                      isDark
+                        ? "text-slate-400 hover:bg-blue-500/20 hover:text-blue-400"
+                        : "text-slate-500 hover:bg-blue-100 hover:text-blue-600"
+                    }`}
+                  >
+                    <Plus size={16} />
+                    <span className="text-[9px] font-medium uppercase tracking-wide">Use</span>
                   </button>
                 </div>
+              </article>
+            ))
+          ) : (
+            <div
+              className={`flex flex-col items-center justify-center py-16 ${isDark ? "opacity-30" : "opacity-40"}`}
+            >
+              <BookMarked size={32} className={isDark ? "text-slate-400" : "text-slate-500"} />
+              <span
+                className={`mt-2 text-xs font-bold uppercase tracking-widest ${isDark ? "text-slate-400" : "text-slate-500"}`}
+              >
+                No Templates
+              </span>
+              {selectedFolderId !== null && folders.length > 0 && (
+                <button
+                  onClick={(e) => {
+                    const folder = folders.find((f) => f.id === selectedFolderId);
+                    if (folder) handleStartTemplateEdit(folder.id, undefined, e);
+                  }}
+                  className={`mt-4 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${
+                    isDark
+                      ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
+                      : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                  }`}
+                >
+                  Create First Template
+                </button>
               )}
             </div>
-          ))}
-          {folders.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-white/5 py-12 opacity-10">
-              <BookMarked size={24} />
-              <span className="text-xs font-black uppercase tracking-widest">Library Empty</span>
-            </div>
+          )}
+
+          {selectedFolderId !== null && displayedTemplates.length > 0 && (
+            <button
+              onClick={(e) => handleStartTemplateEdit(selectedFolderId, undefined, e)}
+              className={`w-full rounded-xl border-2 border-dashed p-4 text-xs font-semibold uppercase tracking-wide transition-all ${
+                isDark
+                  ? "border-slate-700 text-slate-500 hover:border-blue-500/50 hover:text-blue-400"
+                  : "border-slate-300 text-slate-400 hover:border-blue-400 hover:text-blue-500"
+              }`}
+            >
+              + New Template
+            </button>
           )}
         </div>
       </div>
-
-      {/* Create Folder Modal */}
       {isCreatingFolder && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
           <div
@@ -397,7 +508,6 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         </div>
       )}
 
-      {/* Edit Template Modal */}
       {editingTemplate && (
         <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
           <div
