@@ -35,14 +35,12 @@ export function useQueue(): UseQueueReturn {
   useEffect(() => {
     const loadQueue = async () => {
       try {
-        const queueData = await getQueue();
+        const queueData = (await getQueue()) ?? [];
         setQueueState(queueData);
-
-        // Check if any items are processing
         const hasProcessing = queueData.some((item) => item.status === QueueStatus.Processing);
         setIsProcessing(hasProcessing);
       } catch {
-        // Error loading queue
+        setQueueState([]);
       } finally {
         setIsLoading(false);
       }
@@ -54,8 +52,9 @@ export function useQueue(): UseQueueReturn {
   // Listen for queue changes from IndexedDB
   useEffect(() => {
     const cleanup = onQueueChange((newQueue) => {
-      setQueueState(newQueue);
-      const hasProcessing = newQueue.some((item) => item.status === QueueStatus.Processing);
+      const safeQueue = newQueue ?? [];
+      setQueueState(safeQueue);
+      const hasProcessing = safeQueue.some((item) => item.status === QueueStatus.Processing);
       setIsProcessing(hasProcessing);
     });
 

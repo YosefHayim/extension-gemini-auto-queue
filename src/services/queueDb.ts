@@ -151,8 +151,12 @@ export function onQueueChange(callback: (queue: QueueItem[]) => void): () => voi
   const channel = getBroadcastChannel();
   const handler = async (event: MessageEvent) => {
     if (event.data?.type === "QUEUE_UPDATED") {
-      const queue = await getAllQueueItems();
-      callback(queue);
+      try {
+        const queue = await getAllQueueItems();
+        callback(queue ?? []);
+      } catch {
+        callback([]);
+      }
     }
   };
   channel.addEventListener("message", handler);
