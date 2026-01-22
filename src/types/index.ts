@@ -38,21 +38,24 @@ export const GEMINI_MODE_INFO: Record<
     labelHebrew: string;
     description: string;
     dataTestId: string;
+    dataTestIdHebrew: string;
     color: string;
   }
 > = {
   [GeminiMode.Quick]: {
     label: "Fast",
-    labelHebrew: "מהיר",
+    labelHebrew: "זריז",
     description: "Answers quickly, best for simple tasks",
     dataTestId: "bard-mode-option-fast",
+    dataTestIdHebrew: "bard-mode-option-זריז",
     color: "emerald",
   },
   [GeminiMode.Deep]: {
     label: "Thinking",
-    labelHebrew: "חשיבה",
+    labelHebrew: "מעמיק",
     description: "Solves complex problems with deeper reasoning",
     dataTestId: "bard-mode-option-thinking",
+    dataTestIdHebrew: "bard-mode-option-מעמיק",
     color: "blue",
   },
   [GeminiMode.Pro]: {
@@ -60,6 +63,7 @@ export const GEMINI_MODE_INFO: Record<
     labelHebrew: "Pro",
     description: "Advanced math & code, thinks longer",
     dataTestId: "bard-mode-option-pro",
+    dataTestIdHebrew: "bard-mode-option-pro",
     color: "purple",
   },
 };

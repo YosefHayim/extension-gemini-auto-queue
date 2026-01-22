@@ -4,7 +4,7 @@ declare global {
   const AIOptimizationDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/AIOptimizationDialog')['default']
   const ASPECT_RATIOS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['ASPECT_RATIOS']
   const ApiKeyDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ApiKeyDialog')['default']
-  const BulkActionsDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')['default']
+  const BulkActionsDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')['BulkActionsDialog']
   const BulkDownloadButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkDownloadButton')['default']
   const BulkDownloadDialog: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkDownloadDialog')['default']
   const ContentScriptContext: typeof import('wxt/client')['ContentScriptContext']
@@ -19,7 +19,7 @@ declare global {
   const OnboardingModal: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/OnboardingModal')['default']
   const QUICK_PRESETS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['QUICK_PRESETS']
   const QueueItemCard: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/QueueItemCard')['default']
-  const QueuePanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel')['default']
+  const QueuePanel: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel')['QueuePanel']
   const SELECTORS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/selectors')['SELECTORS']
   const SIZE_PRESETS: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/imagePresets')['SIZE_PRESETS']
   const ScheduleButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/ScheduleButton')['default']
@@ -43,6 +43,7 @@ declare global {
   const createIntegratedUi: typeof import('wxt/client')['createIntegratedUi']
   const createQueueItems: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['createQueueItems']
   const createShadowRootUi: typeof import('wxt/client')['createShadowRootUi']
+  const default: typeof import('/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel')['default']
   const defineAppConfig: typeof import('wxt/sandbox')['defineAppConfig']
   const defineBackground: typeof import('wxt/sandbox')['defineBackground']
   const defineConfig: typeof import('wxt')['defineConfig']
@@ -104,8 +105,11 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { ResetFilter, ChatMediaCounts } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
+  export type { BulkActionsDialogProps, ResetFilter, ChatMediaCounts } from '/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog'
   import('/Applications/Github/extension-gemini-auto-queue/src/components/BulkActionsDialog')
+  // @ts-ignore
+  export type { QueuePanelProps } from '/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel'
+  import('/Applications/Github/extension-gemini-auto-queue/src/components/QueuePanel')
   // @ts-ignore
   export type { BatchOptions } from '/Applications/Github/extension-gemini-auto-queue/src/utils/batchProcessor'
   import('/Applications/Github/extension-gemini-auto-queue/src/utils/batchProcessor')

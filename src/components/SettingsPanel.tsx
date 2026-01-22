@@ -85,7 +85,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const toggleKnobClasses = (isActive: boolean) =>
     `absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all duration-150 ${
-      isActive ? "left-[22px]" : "left-0.5"
+      isActive ? "ltr:left-[22px] rtl:right-[22px]" : "ltr:left-0.5 rtl:right-0.5"
     }`;
 
   return (

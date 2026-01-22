@@ -82,8 +82,10 @@ export default function Popup() {
             aria-label={enabled ? "Disable extension" : "Enable extension"}
           >
             <span
-              className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white transition-transform duration-200 ${
-                enabled ? "translate-x-5" : "translate-x-0"
+              className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-transform duration-200 ${
+                enabled
+                  ? "ltr:left-0.5 ltr:translate-x-5 rtl:right-0.5 rtl:-translate-x-5"
+                  : "ltr:left-0.5 ltr:translate-x-0 rtl:right-0.5 rtl:translate-x-0"
               }`}
             />
           </button>

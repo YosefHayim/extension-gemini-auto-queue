@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  Check,
   Clock,
   Copy,
   File,
@@ -43,6 +44,9 @@ interface QueueItemCardProps {
   onUpdateImages?: (id: string, images: string[]) => void;
   isEditing?: boolean;
   dragHandleProps?: Record<string, unknown>;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
+  showCheckbox?: boolean;
 }
 
 const HighlightedText: React.FC<{ text: string; search: string; isDark: boolean }> = ({
@@ -108,6 +112,9 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   onUpdateImages,
   isEditing = false,
   dragHandleProps,
+  isSelected = false,
+  onToggleSelect,
+  showCheckbox = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
@@ -230,6 +237,23 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
       }`}
     >
       <div className="relative flex items-start gap-2 p-3">
+        {(showCheckbox || isSelected) && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect?.(item.id);
+            }}
+            className={`mt-0.5 flex min-h-[28px] min-w-[28px] items-center justify-center rounded-md border-2 transition-all ${
+              isSelected
+                ? "border-indigo-500 bg-indigo-500 text-white"
+                : isDark
+                  ? "border-slate-600 hover:border-slate-500"
+                  : "border-slate-300 hover:border-slate-400"
+            }`}
+          >
+            {isSelected && <Check size={14} strokeWidth={3} />}
+          </button>
+        )}
         <div
           {...dragHandleProps}
           className={`mt-0.5 flex min-h-[28px] min-w-[28px] cursor-grab items-center justify-center rounded transition-colors active:cursor-grabbing ${isDark ? "text-slate-600 hover:text-slate-400" : "text-slate-300 hover:text-slate-400"}`}

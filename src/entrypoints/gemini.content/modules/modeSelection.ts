@@ -27,7 +27,10 @@ function simulateClick(element: HTMLElement): void {
 function isModeCurrentlyActive(mode: GeminiMode): boolean {
   const modeInfo = GEMINI_MODE_INFO[mode];
 
-  const modeButton = document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`);
+  // Try both English and Hebrew data-test-id selectors
+  const modeButton =
+    document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`) ??
+    document.querySelector(`[data-test-id="${modeInfo.dataTestIdHebrew}"]`);
   if (modeButton) {
     const hasCheckIcon = modeButton.querySelector(
       'mat-icon[fonticon="check_circle"], mat-icon[data-mat-icon-name="check_circle"]'
@@ -131,24 +134,27 @@ export async function selectMode(mode: GeminiMode): Promise<boolean> {
 
   const modeInfo = GEMINI_MODE_INFO[mode];
 
-  let modeBtn = document.querySelector(
-    `[data-test-id="${modeInfo.dataTestId}"]`
-  ) as HTMLElement | null;
+  let modeBtn = (document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`) ??
+    document.querySelector(`[data-test-id="${modeInfo.dataTestIdHebrew}"]`)) as HTMLElement | null;
 
   if (!modeBtn) {
     await openModeMenu();
     await sleep(300);
 
-    modeBtn = document.querySelector(
-      `[data-test-id="${modeInfo.dataTestId}"]`
-    ) as HTMLElement | null;
+    modeBtn = (document.querySelector(`[data-test-id="${modeInfo.dataTestId}"]`) ??
+      document.querySelector(
+        `[data-test-id="${modeInfo.dataTestIdHebrew}"]`
+      )) as HTMLElement | null;
   }
 
   if (!modeBtn) {
     const buttons = document.querySelectorAll("button, [role='menuitem'], [role='option']");
     for (const btn of buttons) {
       const text = btn.textContent?.trim().toLowerCase() ?? "";
-      if (text.includes(modeInfo.label.toLowerCase())) {
+      if (
+        text.includes(modeInfo.label.toLowerCase()) ||
+        text.includes(modeInfo.labelHebrew.toLowerCase())
+      ) {
         modeBtn = btn as HTMLElement;
         break;
       }

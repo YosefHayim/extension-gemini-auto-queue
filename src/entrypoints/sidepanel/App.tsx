@@ -1,19 +1,8 @@
-import {
-  BookMarked,
-  Clock,
-  Cpu,
-  Download,
-  Info,
-  Pause,
-  Play,
-  Settings as SettingsIcon,
-} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 
 import { AIOptimizationDialog } from "@/components/AIOptimizationDialog";
 import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { ChatMediaCounts, ResetFilter } from "@/components/BulkActionsDialog";
 import { BulkDownloadDialog } from "@/components/BulkDownloadDialog";
 import { CsvDialog } from "@/components/CsvDialog";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -22,7 +11,6 @@ import { OnboardingModal } from "@/components/OnboardingModal";
 import { QueuePanel } from "@/components/QueuePanel";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { TemplatesPanel } from "@/components/TemplatesPanel";
-import { improvePrompt } from "@/services/geminiService";
 import {
   DEFAULT_SETTINGS,
   getFolders,
@@ -33,15 +21,9 @@ import {
   isOnboardingComplete,
   onQueueChange,
   onStorageChange,
-  setFolders,
   setOnboardingComplete,
-  setQueue,
-  setSettings,
-  StorageQuotaError,
 } from "@/services/storageService";
 import {
-  GeminiMode,
-  GeminiTool,
   MessageType,
   QueueStatus,
   STORAGE_KEYS,
@@ -50,11 +32,21 @@ import {
   type ExtensionMessage,
   type ExtensionResponse,
   type Folder,
-  type PromptTemplate,
   type QueueItem,
 } from "@/types";
 
-type TabType = "queue" | "templates" | "settings";
+import { ClearAllConfirm, FooterControls, Header, LoadingScreen, Navigation } from "./components";
+import {
+  useBulkModifyActions,
+  useBulkResetActions,
+  useChatMediaHandlers,
+  useFolderHandlers,
+  useProcessingHandlers,
+  useQueueHandlers,
+  useQueueItemHandlers,
+  useSettingsHandlers,
+} from "./hooks";
+import type { TabType } from "./types";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -73,12 +65,10 @@ export default function App() {
   const [showBulkDownloadDialog, setShowBulkDownloadDialog] = useState(false);
   const [showAIOptimizationDialog, setShowAIOptimizationDialog] = useState(false);
 
-  // Determine if dark mode based on theme setting
   const [systemPrefersDark, setSystemPrefersDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 
-  // Listen for system theme changes
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
@@ -88,7 +78,6 @@ export default function App() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Resolve actual dark mode: SYSTEM follows OS preference, otherwise explicit choice
   const isDark =
     settings.theme === ThemeMode.SYSTEM ? systemPrefersDark : settings.theme === ThemeMode.DARK;
 
@@ -132,7 +121,6 @@ export default function App() {
     };
   }, []);
 
-  // Listen for processing state messages from background
   useEffect(() => {
     const handleMessage = (message: ExtensionMessage) => {
       if (message.type === MessageType.PROCESS_QUEUE) {
@@ -153,7 +141,6 @@ export default function App() {
     };
   }, []);
 
-  // Active timer
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isProcessing) {
@@ -168,12 +155,13 @@ export default function App() {
     };
   }, [isProcessing]);
 
-  // Helper function to send messages to background
-  const sendMessage = async <T,>(message: ExtensionMessage): Promise<ExtensionResponse<T>> => {
-    return chrome.runtime.sendMessage(message);
-  };
+  const sendMessage = useCallback(
+    async <T,>(message: ExtensionMessage): Promise<ExtensionResponse<T>> => {
+      return chrome.runtime.sendMessage(message);
+    },
+    []
+  );
 
-  // Queue handlers
   const constructFinalPrompt = useCallback(
     (original: string) => {
       let p = `${settings.prefix} ${original} ${settings.suffix}`.trim();
@@ -185,838 +173,99 @@ export default function App() {
     [settings.prefix, settings.suffix, settings.globalNegatives, settings.globalNegativesEnabled]
   );
 
-  const handleAddToQueue = useCallback(
-    async (
-      text?: string,
-      templateText?: string,
-      images?: string[],
-      tool?: GeminiTool,
-      mode?: GeminiMode
-    ) => {
-      const sourceText = text ?? "";
+  const {
+    handleAddToQueue,
+    handleRemoveFromQueue,
+    handleRetryQueueItem,
+    handleReorderQueue,
+    handleEditItem,
+    handleUpdateItemImages,
+  } = useQueueHandlers({
+    queue,
+    setQueueState,
+    constructFinalPrompt,
+    defaultTool: settings.defaultTool,
+  });
+
+  const { handleDuplicateItem, handleDuplicateWithAI, handleRunSingleItem, handleCsvUpload } =
+    useQueueItemHandlers({
+      queue,
+      setQueueState,
+      constructFinalPrompt,
+      settings,
+      sendMessage,
+    });
+
+  const {
+    handleBulkAttachImages,
+    handleBulkAIOptimize,
+    handleBulkModify,
+    handleBulkRemoveText,
+    handleBulkRemoveFiles,
+  } = useBulkModifyActions({
+    queue,
+    setQueueState,
+    constructFinalPrompt,
+    settings,
+  });
+
+  const { handleBulkReset, handleClearByFilter, handleClearCompleted, handleClearAll } =
+    useBulkResetActions({
+      queue,
+      setQueueState,
+    });
+
+  const { handleScanChatMedia, handleDownloadChatMedia } = useChatMediaHandlers({ sendMessage });
+
+  const { toggleProcessing } = useProcessingHandlers({
+    isProcessing,
+    isPaused,
+    setIsProcessing,
+    setIsPaused,
+    sendMessage,
+  });
+
+  const { handleUpdateSettings, handleSaveApiKey } = useSettingsHandlers({
+    settings,
+    setSettingsState,
+  });
+
+  const {
+    handleCreateFolder,
+    handleDeleteFolder,
+    handleToggleFolder,
+    handleUseTemplate,
+    handleDeleteTemplate,
+    handleSaveTemplate,
+    handleImproveTemplate,
+    handleImproveFolder,
+  } = useFolderHandlers({
+    folders,
+    setFoldersState,
+    handleAddToQueue,
+    setActiveTab,
+  });
 
-      // Smart parsing: prioritize newlines, only split by commas when they appear to be list separators
-      // Detect numbered patterns (e.g., "Prompt 1:", "1.", "1)") to preserve full prompts
-      const numberedPattern = /^(?:Prompt\s+)?\d+[.:)]\s+/i;
-
-      // Split by newlines first
-      const newlineSplit = sourceText.split(/\n/);
-      let lines = newlineSplit.flatMap((line) => {
-        const trimmed = line.trim();
-        if (!trimmed) return [];
-
-        // If line starts with a numbered pattern, treat entire line as one prompt
-        // This handles cases like "Prompt 1: ..." or "1. ..."
-        if (numberedPattern.test(trimmed)) {
-          return [trimmed];
-        }
-
-        // Only split by commas if they appear to be explicit list separators
-        // (comma followed by space and capital letter, indicating start of new item)
-        // or if there are multiple commas suggesting a list format
-        const hasMultipleCommas = (trimmed.match(/,/g) ?? []).length > 1;
-        const commaBeforeCapital = /,\s+[A-Z]/;
-
-        if (hasMultipleCommas && commaBeforeCapital.test(trimmed)) {
-          // Split on commas that are followed by space and capital letter
-          return trimmed
-            .split(/,\s+(?=[A-Z])/)
-            .map((item) => item.trim())
-            .filter((item) => item !== "");
-        }
-
-        // Otherwise, treat the entire line as one prompt
-        return [trimmed];
-      });
-
-      // If no text but images are provided, create a single item with empty prompt
-      // This handles templates that only have reference images
-      if (lines.length === 0 && images && images.length > 0) {
-        lines = [""];
-      }
-
-      // Don't add anything if there's no text and no images
-      if (lines.length === 0) {
-        return;
-      }
-
-      const newItems: QueueItem[] = lines.map((line) => {
-        const combinedPrompt = templateText ? `${line} ${templateText}` : line;
-        return {
-          id: Math.random().toString(36).substring(2, 9),
-          originalPrompt: line,
-          finalPrompt: constructFinalPrompt(combinedPrompt),
-          status: QueueStatus.Pending,
-          tool: tool ?? settings.defaultTool,
-          mode: mode,
-          images: images && images.length > 0 ? [...images] : undefined,
-        };
-      });
-
-      const updatedQueue = [...queue, ...newItems];
-      setQueueState(updatedQueue);
-      try {
-        await setQueue(updatedQueue);
-        toast.success(
-          `Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`
-        );
-      } catch (error) {
-        setQueueState(queue);
-        if (error instanceof StorageQuotaError) {
-          toast.error("Storage full! Clear completed items or reduce attached images.");
-        } else {
-          toast.error("Failed to save queue. Please try again.");
-        }
-      }
-    },
-    [queue, constructFinalPrompt, settings.defaultTool]
-  );
-
-  const handleRemoveFromQueue = useCallback(
-    async (id: string) => {
-      const updatedQueue = queue.filter((item) => item.id !== id);
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-    },
-    [queue]
-  );
-
-  const handleRetryQueueItem = useCallback(
-    async (id: string) => {
-      const updatedQueue = queue.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: QueueStatus.Pending,
-              error: undefined,
-              startTime: undefined,
-              endTime: undefined,
-              completionTimeSeconds: undefined,
-              results: undefined,
-            }
-          : item
-      );
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.info("Prompt queued for retry");
-    },
-    [queue]
-  );
-
-  const handleReorderQueue = useCallback(async (newQueue: QueueItem[]) => {
-    setQueueState(newQueue);
-    await setQueue(newQueue);
-  }, []);
-
-  const handleDuplicateItem = useCallback(
-    async (id: string) => {
-      const item = queue.find((i) => i.id === id);
-      if (!item) return;
-      const newItem: QueueItem = {
-        ...item,
-        id: Math.random().toString(36).substring(2, 9),
-        status: QueueStatus.Pending,
-        error: undefined,
-        completionTimeSeconds: undefined,
-        startTime: undefined,
-        endTime: undefined,
-      };
-      const updatedQueue = [...queue, newItem];
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success("Prompt duplicated and added to end of queue");
-    },
-    [queue]
-  );
-
-  const handleDuplicateWithAI = useCallback(
-    async (id: string) => {
-      if (!hasAnyAIKey(settings)) {
-        toast.error("No API key configured. Add one in Settings > API to use AI optimization.");
-        return;
-      }
-
-      const item = queue.find((i) => i.id === id);
-      if (!item) return;
-
-      toast.info("Optimizing prompt with AI...");
-
-      try {
-        const improvedPrompt = await improvePrompt(item.originalPrompt);
-        const newItem: QueueItem = {
-          ...item,
-          id: Math.random().toString(36).substring(2, 9),
-          originalPrompt: improvedPrompt,
-          finalPrompt: constructFinalPrompt(improvedPrompt),
-          status: QueueStatus.Pending,
-          error: undefined,
-          completionTimeSeconds: undefined,
-          startTime: undefined,
-          endTime: undefined,
-        };
-        const updatedQueue = [...queue, newItem];
-        setQueueState(updatedQueue);
-        await setQueue(updatedQueue);
-        toast.success("AI-optimized prompt added to queue");
-      } catch (error) {
-        toast.error("Failed to optimize prompt. Check your API key.");
-      }
-    },
-    [queue, constructFinalPrompt, settings]
-  );
-
-  const handleEditItem = useCallback(
-    async (id: string, newPrompt: string) => {
-      const updatedQueue = queue.map((item) =>
-        item.id === id
-          ? { ...item, originalPrompt: newPrompt, finalPrompt: constructFinalPrompt(newPrompt) }
-          : item
-      );
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-    },
-    [queue, constructFinalPrompt]
-  );
-
-  const handleBulkAttachImages = useCallback(
-    async (images: string[]) => {
-      const updatedQueue = queue.map((item) =>
-        item.status === QueueStatus.Pending
-          ? { ...item, images: [...(item.images ?? []), ...images] }
-          : item
-      );
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      const pendingCount = queue.filter((i) => i.status === QueueStatus.Pending).length;
-      toast.success(`Attached ${images.length} image(s) to ${pendingCount} pending prompts`);
-    },
-    [queue]
-  );
-
-  const handleBulkAIOptimize = useCallback(
-    async (instructions: string) => {
-      if (!hasAnyAIKey(settings)) {
-        toast.error("No API key configured. Add one in Settings > API.");
-        return;
-      }
-
-      const pendingItems = queue.filter((item) => item.status === QueueStatus.Pending);
-      if (pendingItems.length === 0) {
-        toast.error("No pending prompts to optimize");
-        return;
-      }
-
-      toast.info(`Optimizing ${pendingItems.length} prompts with AI...`);
-
-      try {
-        const optimizedPromises = pendingItems.map(async (item) => {
-          const enhancedPrompt = await improvePrompt(
-            `${item.originalPrompt}\n\nInstructions: ${instructions}`
-          );
-          return {
-            id: item.id,
-            originalPrompt: enhancedPrompt,
-            finalPrompt: constructFinalPrompt(enhancedPrompt),
-          };
-        });
-
-        const optimizedResults = await Promise.all(optimizedPromises);
-
-        const updatedQueue = queue.map((item) => {
-          const optimized = optimizedResults.find((r) => r.id === item.id);
-          return optimized
-            ? {
-                ...item,
-                originalPrompt: optimized.originalPrompt,
-                finalPrompt: optimized.finalPrompt,
-              }
-            : item;
-        });
-
-        setQueueState(updatedQueue);
-        await setQueue(updatedQueue);
-        toast.success(`Optimized ${pendingItems.length} prompts with AI`);
-      } catch (error) {
-        toast.error("Failed to optimize prompts. Check your API key.");
-      }
-    },
-    [queue, constructFinalPrompt, settings]
-  );
-
-  const handleBulkModify = useCallback(
-    async (text: string, position: "prepend" | "append") => {
-      const updatedQueue = queue.map((item) => {
-        if (item.status !== QueueStatus.Pending) return item;
-        const newPrompt =
-          position === "prepend"
-            ? `${text} ${item.originalPrompt}`
-            : `${item.originalPrompt} ${text}`;
-        return {
-          ...item,
-          originalPrompt: newPrompt,
-          finalPrompt: constructFinalPrompt(newPrompt),
-        };
-      });
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      const pendingCount = queue.filter((i) => i.status === QueueStatus.Pending).length;
-      toast.success(`Modified ${pendingCount} pending prompts`);
-    },
-    [queue, constructFinalPrompt]
-  );
-
-  const handleBulkReset = useCallback(
-    async (filter: ResetFilter) => {
-      let resetCount = 0;
-      const updatedQueue = queue.map((item) => {
-        const isResettable =
-          item.status === QueueStatus.Completed ||
-          item.status === QueueStatus.Failed ||
-          item.status === QueueStatus.Processing;
-
-        if (filter.type === "status") {
-          if (filter.status && item.status === filter.status) {
-            resetCount++;
-            return {
-              ...item,
-              status: QueueStatus.Pending,
-              startTime: undefined,
-              endTime: undefined,
-              completionTimeSeconds: undefined,
-              error: undefined,
-              results: undefined,
-            };
-          }
-          return item;
-        }
-
-        if (!isResettable || item.status === QueueStatus.Processing) return item;
-
-        let shouldReset = false;
-        switch (filter.type) {
-          case "all":
-            shouldReset = true;
-            break;
-          case "text":
-            shouldReset = filter.textMatch
-              ? item.originalPrompt.toLowerCase().includes(filter.textMatch.toLowerCase())
-              : false;
-            break;
-          case "hasImages":
-            shouldReset = !!(item.images && item.images.length > 0);
-            break;
-          case "tool":
-            shouldReset = filter.tool ? item.tool === filter.tool : false;
-            break;
-          case "mode":
-            shouldReset = filter.mode ? item.mode === filter.mode : false;
-            break;
-        }
-
-        if (shouldReset) {
-          resetCount++;
-          return {
-            ...item,
-            status: QueueStatus.Pending,
-            startTime: undefined,
-            endTime: undefined,
-            completionTimeSeconds: undefined,
-            error: undefined,
-            results: undefined,
-          };
-        }
-        return item;
-      });
-
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(`Reset ${resetCount} prompt${resetCount !== 1 ? "s" : ""} to pending`);
-    },
-    [queue]
-  );
-
-  const handleBulkRemoveText = useCallback(
-    async (textToRemove: string) => {
-      if (!textToRemove.trim()) return;
-
-      let modifiedCount = 0;
-      const updatedQueue = queue.map((item) => {
-        if (item.status !== QueueStatus.Pending) return item;
-        if (!item.finalPrompt.toLowerCase().includes(textToRemove.toLowerCase())) return item;
-
-        modifiedCount++;
-        const newOriginalPrompt = item.originalPrompt
-          .split(textToRemove)
-          .join("")
-          .replace(/\s+/g, " ")
-          .trim();
-        return {
-          ...item,
-          originalPrompt: newOriginalPrompt,
-          finalPrompt: constructFinalPrompt(newOriginalPrompt),
-        };
-      });
-
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(`Removed text from ${modifiedCount} prompt${modifiedCount !== 1 ? "s" : ""}`);
-    },
-    [queue, constructFinalPrompt]
-  );
-
-  const handleBulkRemoveFiles = useCallback(
-    async (indices: number[] | "all") => {
-      const pendingItems = queue.filter((item) => item.status === QueueStatus.Pending);
-      const allUniqueImages: string[] = [];
-      pendingItems.forEach((item) => {
-        item.images?.forEach((img) => {
-          if (!allUniqueImages.includes(img)) {
-            allUniqueImages.push(img);
-          }
-        });
-      });
-
-      const imagesToRemove =
-        indices === "all"
-          ? new Set(allUniqueImages)
-          : new Set(indices.map((i) => allUniqueImages[i]));
-
-      let totalRemoved = 0;
-      const updatedQueue = queue.map((item) => {
-        if (item.status !== QueueStatus.Pending || !item.images?.length) return item;
-
-        const newImages = item.images.filter((img) => !imagesToRemove.has(img));
-        const removedFromThis = item.images.length - newImages.length;
-        totalRemoved += removedFromThis;
-
-        return { ...item, images: newImages };
-      });
-
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(`Removed ${totalRemoved} image${totalRemoved !== 1 ? "s" : ""} from prompts`);
-    },
-    [queue]
-  );
-
-  const handleScanChatMedia = useCallback(async (): Promise<ChatMediaCounts | null> => {
-    try {
-      const response = await sendMessage<{ items: unknown[]; counts: ChatMediaCounts }>({
-        type: MessageType.SCAN_CHAT_MEDIA,
-      });
-      if (response?.success && response.data?.counts) {
-        return response.data.counts;
-      }
-      return null;
-    } catch {
-      toast.error("Failed to scan chat for media");
-      return null;
-    }
-  }, []);
-
-  const handleDownloadChatMedia = useCallback(
-    async (method: "native" | "direct", filterType?: "image" | "video" | "file") => {
-      toast.info("Starting download...");
-      try {
-        const response = await sendMessage<{
-          downloadCount?: number;
-          success?: number;
-          failed?: number;
-        }>({
-          type: MessageType.DOWNLOAD_CHAT_MEDIA,
-          payload: { method, filterType },
-        });
-        if (response?.success) {
-          if (method === "native") {
-            toast.success(`Started ${response.data?.downloadCount ?? 0} downloads via Gemini`);
-          } else {
-            const successCount = response.data?.success ?? 0;
-            const failedCount = response.data?.failed ?? 0;
-            toast.success(
-              `Downloaded ${successCount} file${successCount !== 1 ? "s" : ""}${failedCount > 0 ? ` (${failedCount} failed)` : ""}`
-            );
-          }
-        } else {
-          toast.error(response?.error ?? "Download failed");
-        }
-      } catch {
-        toast.error("Failed to download media");
-      }
-    },
-    []
-  );
-
-  const handleUpdateItemImages = useCallback(
-    async (id: string, images: string[]) => {
-      const updatedQueue = queue.map((item) => (item.id === id ? { ...item, images } : item));
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-    },
-    [queue]
-  );
-
-  const handleClearAll = useCallback(() => {
-    setShowClearAllConfirm(true);
-  }, []);
-
-  const confirmClearAll = useCallback(async () => {
-    const count = queue.length;
-    setQueueState([]);
-    await setQueue([]);
-    setShowClearAllConfirm(false);
-    toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""} from queue`);
-  }, [queue.length]);
-
-  const handleClearCompleted = useCallback(async () => {
-    const completedCount = queue.filter((item) => item.status === QueueStatus.Completed).length;
-    const updatedQueue = queue.filter((item) => item.status !== QueueStatus.Completed);
-    setQueueState(updatedQueue);
-    await setQueue(updatedQueue);
-    if (completedCount > 0) {
-      toast.success(`Cleared ${completedCount} completed item${completedCount !== 1 ? "s" : ""}`);
-    }
-  }, [queue]);
-
-  const handleClearByFilter = useCallback(
-    async (filter: { status?: QueueStatus; tool?: GeminiTool; mode?: GeminiMode }) => {
-      const itemsToRemove = queue.filter((item) => {
-        if (filter.status && item.status !== filter.status) return false;
-        if (filter.tool && item.tool !== filter.tool) return false;
-        if (filter.mode && item.mode !== filter.mode) return false;
-        return true;
-      });
-      const count = itemsToRemove.length;
-      const updatedQueue = queue.filter((item) => !itemsToRemove.includes(item));
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(`Cleared ${count} item${count !== 1 ? "s" : ""}`);
-    },
-    [queue]
-  );
-
-  const handleRunSingleItem = useCallback(
-    async (id: string) => {
-      const item = queue.find((i) => i.id === id);
-      if (!item) return;
-
-      const startTime = Date.now();
-      const updatedQueue = queue.map((i) =>
-        i.id === id ? { ...i, status: QueueStatus.Processing, startTime } : i
-      );
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-
-      toast.info("Running prompt...");
-
-      try {
-        const response = await sendMessage<boolean>({
-          type: MessageType.PASTE_PROMPT,
-          payload: {
-            prompt: item.finalPrompt,
-            tool: item.tool || settings.defaultTool,
-            images: item.images ?? [],
-            mode: item.mode,
-          },
-        });
-
-        const endTime = Date.now();
-        const completionTimeSeconds = (endTime - startTime) / 1000;
-
-        if (response?.success) {
-          const completedQueue = queue.map((i) =>
-            i.id === id
-              ? {
-                  ...i,
-                  status: QueueStatus.Completed,
-                  endTime,
-                  completionTimeSeconds,
-                }
-              : i
-          );
-          setQueueState(completedQueue);
-          await setQueue(completedQueue);
-          toast.success("Prompt completed!");
-        } else {
-          const errorMsg = response?.error || "Unknown error";
-          throw new Error(errorMsg);
-        }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : "Unknown error";
-        const failedQueue = queue.map((i) =>
-          i.id === id
-            ? {
-                ...i,
-                status: QueueStatus.Failed,
-                error: errorMsg,
-              }
-            : i
-        );
-        setQueueState(failedQueue);
-        await setQueue(failedQueue);
-        toast.error(errorMsg);
-      }
-    },
-    [queue, settings.defaultTool]
-  );
-
-  const handleCsvUpload = useCallback(
-    async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
-      const newItems: QueueItem[] = items.map((item) => {
-        // Map tool string to GeminiTool enum
-        let tool: GeminiTool | undefined = undefined;
-        if (item.tool) {
-          const toolLower = item.tool.toLowerCase().trim();
-          // Map common tool names to enum values
-          if (toolLower === "image" || toolLower === "imagen") {
-            tool = GeminiTool.IMAGE;
-          } else if (toolLower === "canvas") {
-            tool = GeminiTool.CANVAS;
-          } else if (toolLower === "video" || toolLower === "veo") {
-            tool = GeminiTool.VIDEO;
-          } else if (toolLower === "research" || toolLower === "deep_research") {
-            tool = GeminiTool.DEEP_RESEARCH;
-          } else if (toolLower === "learning") {
-            tool = GeminiTool.LEARNING;
-          } else if (toolLower === "layout" || toolLower === "visual_layout") {
-            tool = GeminiTool.VISUAL_LAYOUT;
-          } else if (toolLower === "none" || toolLower === "") {
-            tool = GeminiTool.NONE;
-          } else {
-            // Try to match by enum key
-            const toolKey = Object.keys(GeminiTool).find(
-              (key) =>
-                key.toLowerCase() === toolLower ||
-                GeminiTool[key as keyof typeof GeminiTool].toLowerCase() === toolLower
-            );
-            if (toolKey) {
-              tool = GeminiTool[toolKey as keyof typeof GeminiTool] as GeminiTool;
-            }
-          }
-        }
-
-        return {
-          id: Math.random().toString(36).substring(2, 9),
-          originalPrompt: item.prompt,
-          finalPrompt: constructFinalPrompt(item.prompt),
-          status: QueueStatus.Pending,
-          tool: tool ?? settings.defaultTool,
-          images: item.images && item.images.length > 0 ? [...item.images] : undefined,
-        };
-      });
-
-      const updatedQueue = [...queue, ...newItems];
-      setQueueState(updatedQueue);
-      await setQueue(updatedQueue);
-      toast.success(
-        `Imported ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} from CSV`
-      );
-    },
-    [queue, constructFinalPrompt, settings.defaultTool]
-  );
-
-  // Processing handlers
-  const toggleProcessing = useCallback(async () => {
-    if (isProcessing) {
-      await sendMessage({ type: MessageType.PAUSE_PROCESSING });
-      setIsProcessing(false);
-      setIsPaused(true);
-      toast.info("Processing paused");
-    } else {
-      await sendMessage({ type: MessageType.PROCESS_QUEUE });
-      setIsProcessing(true);
-      setIsPaused(false);
-      toast.success(isPaused ? "Processing resumed" : "Processing started");
-    }
-  }, [isProcessing, isPaused]);
-
-  // Settings handlers
-  const handleUpdateSettings = useCallback(
-    async (updates: Partial<AppSettings>) => {
-      const updatedSettings = { ...settings, ...updates };
-      setSettingsState(updatedSettings);
-      await setSettings(updatedSettings);
-    },
-    [settings]
-  );
-
-  const handleSaveApiKey = useCallback(
-    async (apiKey: string) => {
-      await handleUpdateSettings({ apiKey });
-    },
-    [handleUpdateSettings]
-  );
-
-  // Folder handlers
-  const handleCreateFolder = useCallback(
-    async (name: string) => {
-      const newFolder: Folder = {
-        id: Math.random().toString(36).substring(2, 9),
-        name,
-        templates: [],
-        isOpen: true,
-      };
-      const updatedFolders = [...folders, newFolder];
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  const handleDeleteFolder = useCallback(
-    async (id: string) => {
-      const updatedFolders = folders.filter((f) => f.id !== id);
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  const handleToggleFolder = useCallback(
-    async (id: string) => {
-      const updatedFolders = folders.map((f) => (f.id === id ? { ...f, isOpen: !f.isOpen } : f));
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  const handleUseTemplate = useCallback(
-    (folderId: string, templateId: string) => {
-      const folder = folders.find((f) => f.id === folderId);
-      const template = folder?.templates.find((t) => t.id === templateId);
-      if (template) {
-        handleAddToQueue(template.text, undefined, template.images);
-        setActiveTab("queue");
-      }
-    },
-    [folders, handleAddToQueue]
-  );
-
-  const handleDeleteTemplate = useCallback(
-    async (folderId: string, templateId: string) => {
-      const updatedFolders = folders.map((f) =>
-        f.id === folderId ? { ...f, templates: f.templates.filter((t) => t.id !== templateId) } : f
-      );
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  const handleSaveTemplate = useCallback(
-    async (folderId: string, template: Partial<PromptTemplate>) => {
-      const updatedFolders = folders.map((f) => {
-        if (f.id === folderId) {
-          const existingIdx = f.templates.findIndex((t) => t.id === template.id);
-          const updatedTemplate: PromptTemplate = {
-            id: template.id ?? Math.random().toString(36).substring(2, 9),
-            name: template.name ?? "Unnamed",
-            text: template.text ?? "",
-            createdAt: template.createdAt ?? Date.now(),
-            lastEditedAt: Date.now(),
-            timesUsed: template.timesUsed ?? 0,
-            images: template.images ?? [],
-          };
-
-          if (existingIdx > -1) {
-            const newTemplates = [...f.templates];
-            newTemplates[existingIdx] = updatedTemplate;
-            return { ...f, templates: newTemplates };
-          } else {
-            return { ...f, templates: [...f.templates, updatedTemplate] };
-          }
-        }
-        return f;
-      });
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  const handleImproveTemplate = useCallback(
-    async (folderId: string, templateId: string) => {
-      const folder = folders.find((f) => f.id === folderId);
-      const template = folder?.templates.find((t) => t.id === templateId);
-      if (template) {
-        const improvedText = await improvePrompt(template.text);
-        const updatedFolders = folders.map((f) =>
-          f.id === folderId
-            ? {
-                ...f,
-                templates: f.templates.map((t) =>
-                  t.id === templateId ? { ...t, text: improvedText, lastEditedAt: Date.now() } : t
-                ),
-              }
-            : f
-        );
-        setFoldersState(updatedFolders);
-        await setFolders(updatedFolders);
-      }
-    },
-    [folders]
-  );
-
-  const handleImproveFolder = useCallback(
-    async (folderId: string) => {
-      const folder = folders.find((f) => f.id === folderId);
-      if (!folder) return;
-
-      const improvedTemplates = await Promise.all(
-        folder.templates.map(async (t) => {
-          const improvedText = await improvePrompt(t.text);
-          return { ...t, text: improvedText, lastEditedAt: Date.now() };
-        })
-      );
-
-      const updatedFolders = folders.map((f) =>
-        f.id === folderId ? { ...f, templates: improvedTemplates } : f
-      );
-      setFoldersState(updatedFolders);
-      await setFolders(updatedFolders);
-    },
-    [folders]
-  );
-
-  // Onboarding
   const handleCompleteOnboarding = useCallback(async () => {
     await setOnboardingComplete(true);
     setShowOnboarding(false);
   }, []);
 
-  const handleSwitchTab = useCallback((tab: "queue" | "templates" | "settings") => {
+  const handleSwitchTab = useCallback((tab: TabType) => {
     setActiveTab(tab);
   }, []);
 
+  const handleClearAllClick = useCallback(() => {
+    setShowClearAllConfirm(true);
+  }, []);
+
+  const confirmClearAll = useCallback(async () => {
+    await handleClearAll();
+    setShowClearAllConfirm(false);
+  }, [handleClearAll]);
+
   if (isLoading) {
-    return (
-      <div
-        className={`flex h-screen w-full flex-col items-center justify-center ${
-          isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
-        }`}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <img src="/icons/icon-32.png" alt="Nano Flow" className="h-12 w-12 animate-pulse" />
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
-              style={{ animationDelay: "0ms" }}
-            />
-            <div
-              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
-              style={{ animationDelay: "150ms" }}
-            />
-            <div
-              className={`h-2 w-2 animate-bounce rounded-full ${isDark ? "bg-blue-500" : "bg-blue-600"}`}
-              style={{ animationDelay: "300ms" }}
-            />
-          </div>
-          <span className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-            Loading...
-          </span>
-        </div>
-      </div>
-    );
+    return <LoadingScreen isDark={isDark} />;
   }
 
   return (
@@ -1034,7 +283,6 @@ export default function App() {
         }}
       />
 
-      {/* Onboarding */}
       {showOnboarding && (
         <OnboardingModal
           onComplete={() => {
@@ -1045,32 +293,25 @@ export default function App() {
         />
       )}
 
-      {/* CSV Dialog */}
       <CsvDialog
         isOpen={showCsvDialog}
         isDark={isDark}
-        onClose={() => {
-          setShowCsvDialog(false);
-        }}
+        onClose={() => setShowCsvDialog(false)}
         onUpload={(items) => {
           handleCsvUpload(items).catch(() => {});
         }}
       />
 
-      {/* API Key Dialog */}
       <ApiKeyDialog
         isOpen={showApiKeyDialog}
         isDark={isDark}
         currentKey={settings.aiApiKeys.gemini}
-        onClose={() => {
-          setShowApiKeyDialog(false);
-        }}
+        onClose={() => setShowApiKeyDialog(false)}
         onSave={(key) => {
           handleSaveApiKey(key).catch(() => {});
         }}
       />
 
-      {/* Export Dialog */}
       <ExportDialog
         isOpen={showExportDialog}
         onClose={() => setShowExportDialog(false)}
@@ -1078,7 +319,6 @@ export default function App() {
         isDark={isDark}
       />
 
-      {/* Bulk Download Dialog */}
       <BulkDownloadDialog
         isOpen={showBulkDownloadDialog}
         onClose={() => setShowBulkDownloadDialog(false)}
@@ -1091,7 +331,6 @@ export default function App() {
         }}
       />
 
-      {/* AI Optimization Dialog */}
       <AIOptimizationDialog
         isOpen={showAIOptimizationDialog}
         onClose={() => setShowAIOptimizationDialog(false)}
@@ -1105,76 +344,10 @@ export default function App() {
         }}
       />
 
-      {/* Header */}
-      <div
-        data-onboarding="sidebar-header"
-        className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
-      >
-        <div className="flex items-center gap-2">
-          <img src="/icons/icon-32.png" alt="Gemini" className="h-6 w-6" />
-          <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
-        </div>
-        {isProcessing && (
-          <div className="flex items-center gap-1 rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5">
-            <Clock size={10} className="animate-spin text-blue-500" />
-            <span className="text-[10px] font-black text-blue-500">
-              {(activeTimer / 1000).toFixed(1)}s
-            </span>
-          </div>
-        )}
-      </div>
+      <Header isDark={isDark} isProcessing={isProcessing} activeTimer={activeTimer} />
 
-      {/* Navigation */}
-      <nav
-        className={`flex overflow-hidden border-b ${isDark ? "bg-white/2 border-white/5" : "border-slate-100"}`}
-      >
-        {[
-          {
-            id: "queue" as const,
-            icon: Cpu,
-            label: "Queue",
-            tooltip: "Add prompts and process them in batch through Gemini",
-          },
-          {
-            id: "templates" as const,
-            icon: BookMarked,
-            label: "Templates",
-            tooltip: "Save your favorite prompts and improve them with AI",
-          },
-          {
-            id: "settings" as const,
-            icon: SettingsIcon,
-            label: "Settings",
-            tooltip: "Configure API key, prefixes, negatives, and more",
-          },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id);
-            }}
-            className={`group relative flex min-h-[48px] flex-1 flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-bold uppercase tracking-wide transition-all ${
-              activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
-            }`}
-          >
-            <div className="flex items-center gap-1">
-              <tab.icon size={16} />
-              <Info
-                size={8}
-                className="opacity-0 transition-opacity group-hover:opacity-50"
-                data-tooltip-id="tooltip"
-                data-tooltip-content={tab.tooltip}
-              />
-            </div>
-            <span className="w-full truncate px-1 text-center">{tab.label}</span>
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-t-md bg-blue-500" />
-            )}
-          </button>
-        ))}
-      </nav>
+      <Navigation isDark={isDark} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Content */}
       <div className="no-scrollbar flex-1 overflow-y-auto p-3">
         {activeTab === "queue" && (
           <div data-onboarding="queue-panel">
@@ -1186,12 +359,10 @@ export default function App() {
               onAddToQueue={handleAddToQueue}
               onRemoveFromQueue={handleRemoveFromQueue}
               onRetryQueueItem={handleRetryQueueItem}
-              onClearAll={handleClearAll}
+              onClearAll={handleClearAllClick}
               onClearByFilter={handleClearByFilter}
               onRunSingleItem={handleRunSingleItem}
-              onOpenCsvDialog={() => {
-                setShowCsvDialog(true);
-              }}
+              onOpenCsvDialog={() => setShowCsvDialog(true)}
               onReorderQueue={handleReorderQueue}
               onDuplicateItem={handleDuplicateItem}
               onDuplicateWithAI={handleDuplicateWithAI}
@@ -1243,129 +414,27 @@ export default function App() {
         )}
       </div>
 
-      {/* Clear All Confirmation Dialog */}
       {showClearAllConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div
-            className={`mx-4 w-full max-w-sm rounded-lg border p-4 shadow-2xl ${
-              isDark ? "border-white/20 bg-gray-900" : "border-slate-200 bg-white"
-            }`}
-          >
-            <h3 className={`mb-2 text-sm font-black ${isDark ? "text-white" : "text-gray-900"}`}>
-              Clear All Queue Items?
-            </h3>
-            <p className={`mb-4 text-xs ${isDark ? "text-white/70" : "text-gray-600"}`}>
-              This will permanently delete all {queue.length} item{queue.length !== 1 ? "s" : ""} in
-              the queue. This action cannot be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setShowClearAllConfirm(false);
-                }}
-                className={`min-h-[44px] flex-1 rounded-lg border px-3 py-2.5 text-xs font-semibold uppercase transition-all ${
-                  isDark
-                    ? "border-white/20 bg-white/5 hover:bg-white/10"
-                    : "border-slate-200 bg-slate-100 hover:bg-slate-200"
-                }`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  confirmClearAll().catch(() => {});
-                }}
-                className="min-h-[44px] flex-1 rounded-lg bg-red-600 px-3 py-2.5 text-xs font-semibold uppercase text-white transition-all hover:bg-red-700 active:scale-95"
-              >
-                Clear All
-              </button>
-            </div>
-          </div>
-        </div>
+        <ClearAllConfirm
+          isDark={isDark}
+          itemCount={queue.length}
+          onCancel={() => setShowClearAllConfirm(false)}
+          onConfirm={() => {
+            confirmClearAll().catch(() => {});
+          }}
+        />
       )}
 
-      {/* Footer Controls */}
-      <div
-        className={`space-y-3 border-t p-3 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
-      >
-        <div className="flex gap-3">
-          <button
-            data-onboarding="start-button"
-            onClick={() => {
-              toggleProcessing().catch(() => {});
-            }}
-            disabled={queue.length === 0}
-            title={
-              isProcessing
-                ? "Pause processing queue"
-                : isPaused
-                  ? "Continue processing queue"
-                  : "Start processing queue"
-            }
-            className={`flex min-h-[48px] flex-[4] items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-bold uppercase tracking-wide shadow-xl transition-all active:scale-[0.98] ${
-              isProcessing
-                ? "bg-amber-500 shadow-amber-500/30"
-                : isPaused
-                  ? "bg-green-600 shadow-green-600/30"
-                  : "bg-blue-600 shadow-blue-600/30"
-            } text-white disabled:opacity-30`}
-          >
-            {isProcessing ? (
-              <Pause size={18} fill="currentColor" />
-            ) : (
-              <Play size={18} fill="currentColor" />
-            )}
-            {isProcessing ? "Pause" : isPaused ? "Continue" : "Start"}
-          </button>
-        </div>
-
-        {/* Results Preview */}
-        {queue.filter((item) => item.status === QueueStatus.Completed).length > 0 && (
-          <div className="flex items-center gap-2">
-            <div className="no-scrollbar flex flex-1 gap-1 overflow-x-auto py-1">
-              {queue
-                .filter((item) => item.status === QueueStatus.Completed)
-                .slice(-5)
-                .map((item) => {
-                  const resultUrl = item.results?.flash?.url ?? item.results?.pro?.url;
-                  return resultUrl ? (
-                    <div key={item.id} className="group relative shrink-0">
-                      <img
-                        src={resultUrl}
-                        className="h-12 w-12 rounded-md border border-white/10 object-cover"
-                        alt="Result"
-                      />
-                      <button
-                        onClick={() => {
-                          const link = document.createElement("a");
-                          link.href = resultUrl;
-                          link.download = `nano_flow_${item.id}.png`;
-                          link.click();
-                        }}
-                        title="Download image"
-                        className="absolute inset-0 flex items-center justify-center rounded-md bg-black/60 opacity-0 transition-all group-hover:opacity-100"
-                      >
-                        <Download size={12} className="text-white" />
-                      </button>
-                    </div>
-                  ) : null;
-                })}
-            </div>
-            <button
-              onClick={() => setShowBulkDownloadDialog(true)}
-              title="Bulk download all results with options"
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold transition-all ${
-                isDark
-                  ? "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
-              }`}
-            >
-              <Download size={14} />
-              <span>All</span>
-            </button>
-          </div>
-        )}
-      </div>
+      <FooterControls
+        isDark={isDark}
+        queue={queue}
+        isProcessing={isProcessing}
+        isPaused={isPaused}
+        onToggleProcessing={() => {
+          toggleProcessing().catch(() => {});
+        }}
+        onOpenBulkDownload={() => setShowBulkDownloadDialog(true)}
+      />
 
       <Footer isDark={isDark} />
     </div>

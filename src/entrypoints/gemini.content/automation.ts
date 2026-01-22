@@ -101,13 +101,20 @@ function setupMessageListener(): void {
             const payload = message.payload as {
               prompt: string;
               tool?: GeminiTool;
-              images?: string[];
+              imageStorageKey?: string;
               mode?: GeminiMode;
             };
+
+            let images: string[] | undefined;
+            if (payload.imageStorageKey) {
+              const stored = await chrome.storage.session.get(payload.imageStorageKey);
+              images = stored[payload.imageStorageKey] as string[] | undefined;
+            }
+
             const result = await processPromptThroughUI(
               payload.prompt,
               payload.tool || GeminiTool.IMAGE,
-              payload.images,
+              images,
               payload.mode
             );
             return { success: result.success, error: result.error };
