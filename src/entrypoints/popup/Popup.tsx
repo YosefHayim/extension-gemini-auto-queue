@@ -8,8 +8,9 @@ import {
   PanelRight,
   Power,
 } from "lucide-react";
-import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 import { useEffect, useState } from "react";
+
+import { isExtensionEnabled, setExtensionEnabled } from "@/services/storageService";
 
 function isGeminiSite(url: string | undefined): boolean {
   if (!url) return false;

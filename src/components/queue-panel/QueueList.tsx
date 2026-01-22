@@ -1,7 +1,7 @@
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -15,9 +15,9 @@ import {
 } from "@dnd-kit/sortable";
 import React, { useState } from "react";
 
-import type { QueueItem, QueueStatus } from "@/types";
-
 import { SortableQueueItem } from "./SortableQueueItem";
+
+import type { QueueItem, QueueStatus } from "@/types";
 
 interface QueueListProps {
   queue: QueueItem[];
@@ -96,11 +96,7 @@ export const QueueList: React.FC<QueueListProps> = ({
                 onEditItem
                   ? (id, prompt) => {
                       const queueItem = queue.find((i) => i.id === id);
-                      if (
-                        queueItem &&
-                        prompt === queueItem.originalPrompt &&
-                        editingItemId !== id
-                      ) {
+                      if (prompt === queueItem?.originalPrompt && editingItemId !== id) {
                         setEditingItemId(id);
                       } else {
                         if (queueItem && prompt !== queueItem.originalPrompt) {

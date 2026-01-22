@@ -24,6 +24,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", ".wxt/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

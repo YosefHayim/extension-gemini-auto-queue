@@ -166,7 +166,7 @@ export function onQueueChange(callback: (queue: QueueItem[]) => void): () => voi
 export async function migrateFromChromeStorage(): Promise<boolean> {
   try {
     const result = await chrome.storage.local.get("nano_flow_queue");
-    const legacyQueue = result["nano_flow_queue"] as QueueItem[] | undefined;
+    const legacyQueue = result.nano_flow_queue as QueueItem[] | undefined;
 
     if (legacyQueue && legacyQueue.length > 0) {
       await setAllQueueItems(legacyQueue);

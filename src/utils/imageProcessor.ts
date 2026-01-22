@@ -1,5 +1,6 @@
-import type { ProcessingOptions } from "@/types/imageProcessing";
 import { FORMAT_INFO, getPresetById, getAspectRatioById } from "./imagePresets";
+
+import type { ProcessingOptions } from "@/types/imageProcessing";
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

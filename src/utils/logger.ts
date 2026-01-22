@@ -52,7 +52,7 @@ const LEVEL_COLORS: Record<LogLevel, string> = {
 
 class DevLogger {
   private config: LoggerConfig;
-  private actionTimers: Map<string, number> = new Map();
+  private actionTimers = new Map<string, number>();
 
   constructor(config: Partial<LoggerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };

@@ -1,8 +1,9 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
 
-import type { ProcessingOptions } from "@/types/imageProcessing";
 import { ASPECT_RATIOS, FORMAT_INFO, SIZE_PRESETS } from "@/utils/imagePresets";
+
+import type { ProcessingOptions } from "@/types/imageProcessing";
 
 interface AdvancedOptionsPanelProps {
   options: ProcessingOptions;

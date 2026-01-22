@@ -1,14 +1,15 @@
-import { GeminiTool, MessageType, QueueStatus } from "@/types";
 import {
   getQueue,
   getSettings,
   isExtensionEnabled,
   updateQueueItem,
 } from "@/services/storageService";
-import { getProcessingState, setProcessingState } from "./state";
-import { findGeminiTab } from "./tabManagement";
+import { GeminiTool, MessageType, QueueStatus } from "@/types";
+
 import { broadcastMessage, sendToContentScript } from "./contentScriptBridge";
 import { handleProcessingError } from "./errorHandling";
+import { getProcessingState, setProcessingState } from "./state";
+import { findGeminiTab } from "./tabManagement";
 
 let processingController: AbortController | null = null;
 

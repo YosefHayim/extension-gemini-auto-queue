@@ -1,7 +1,8 @@
-import type { QueueItem } from "@/types";
+import { getSettings, updateQueueItem } from "@/services/storageService";
 import { QueueStatus } from "@/types";
 import { calculateBackoff, categorizeError, shouldRetry } from "@/utils/retryStrategy";
-import { getSettings, updateQueueItem } from "@/services/storageService";
+
+import type { QueueItem } from "@/types";
 
 export async function handleProcessingError(nextItem: QueueItem, error: unknown): Promise<void> {
   const errorMessage = error instanceof Error ? error.message : "Generation failed";

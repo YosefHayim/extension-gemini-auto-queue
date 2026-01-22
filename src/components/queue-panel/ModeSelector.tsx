@@ -33,7 +33,9 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             className={`flex min-h-[36px] items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-all ${
               isSelected
                 ? styles.selected
-                : `${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`
+                : isDark
+                  ? "text-slate-400 hover:text-slate-200"
+                  : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <Icon size={12} />

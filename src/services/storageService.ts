@@ -10,6 +10,7 @@ import {
   STORAGE_KEYS,
   ThemeMode,
 } from "@/types";
+
 import {
   getAllQueueItems,
   setAllQueueItems,
@@ -101,7 +102,7 @@ export async function setSettings(updates: Partial<AppSettings>): Promise<void> 
 
 export class StorageQuotaError extends Error {
   constructor(
-    message: string = "Storage quota exceeded. Try clearing completed items or removing images from prompts."
+    message = "Storage quota exceeded. Try clearing completed items or removing images from prompts."
   ) {
     super(message);
     this.name = "StorageQuotaError";

@@ -1,18 +1,19 @@
 import { Download, Loader2, X } from "lucide-react";
 import React, { useState } from "react";
 
-import type {
-  BatchProgress,
-  DownloadableFile,
-  ImageFormat,
-  ProcessingOptions,
-} from "@/types/imageProcessing";
 import { DEFAULT_PROCESSING_OPTIONS } from "@/types/imageProcessing";
 import { processBatch } from "@/utils/batchProcessor";
 
 import { AdvancedOptionsPanel } from "./AdvancedOptionsPanel";
 import { FormatSelector } from "./FormatSelector";
 import { PresetSelector } from "./PresetSelector";
+
+import type {
+  BatchProgress,
+  DownloadableFile,
+  ImageFormat,
+  ProcessingOptions,
+} from "@/types/imageProcessing";
 
 interface DownloadOptionsDialogProps {
   isOpen: boolean;

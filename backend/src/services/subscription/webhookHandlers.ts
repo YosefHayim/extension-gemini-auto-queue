@@ -63,31 +63,24 @@ export async function handleWebhookEvent(payload: LemonSqueezyWebhookPayload): P
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_CREATED:
       await handleSubscriptionCreated(user, attributes, payload.data.id);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_UPDATED:
       await handleSubscriptionUpdated(user, attributes);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_CANCELLED:
       await handleSubscriptionCancelled(user, attributes);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_RESUMED:
       await handleSubscriptionResumed(user, attributes);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_EXPIRED:
       await handleSubscriptionExpired(user);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_PAUSED:
       await handleSubscriptionPaused(user);
       break;
-
     case LEMON_SQUEEZY_EVENTS.SUBSCRIPTION_PAYMENT_FAILED:
       await handlePaymentFailed(user);
       break;
-
     default:
       console.info(`Unhandled webhook event: ${event_name}`);
   }

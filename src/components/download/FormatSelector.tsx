@@ -1,7 +1,8 @@
 import React from "react";
 
-import type { ImageFormat } from "@/types/imageProcessing";
 import { FORMAT_INFO } from "@/utils/imagePresets";
+
+import type { ImageFormat } from "@/types/imageProcessing";
 
 interface FormatSelectorProps {
   selected: ImageFormat;

@@ -1,5 +1,6 @@
-import type { ProcessingState } from "./types";
 import { DEFAULT_PROCESSING_STATE } from "./types";
+
+import type { ProcessingState } from "./types";
 
 export async function getProcessingState(): Promise<ProcessingState> {
   try {

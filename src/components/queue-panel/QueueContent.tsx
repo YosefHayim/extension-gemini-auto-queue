@@ -1,13 +1,13 @@
 import React from "react";
 
-import type { ContentType, GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
-
 import { SearchFilter } from "../SearchFilter";
 
 import { EstimatedTime } from "./EstimatedTime";
 import { QueueActions } from "./QueueActions";
 import { QueueList } from "./QueueList";
 import { SelectionBar } from "./SelectionBar";
+
+import type { ContentType, GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
 
 interface QueueContentProps {
   queue: QueueItem[];

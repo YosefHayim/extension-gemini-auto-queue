@@ -26,6 +26,7 @@ export default tseslint.config(
       "wxt.config.ts",
       "postcss.config.js",
       "tailwind.config.js",
+      "backend/**",
     ],
   },
 
@@ -97,18 +98,23 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-import-type-side-effects": "error",
       // Relax strict rules that are causing too many issues
-      "@typescript-eslint/no-misused-promises": ["error", {
-        checksVoidReturn: { arguments: false, attributes: false },
-      }],
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: { arguments: false, attributes: false },
+        },
+      ],
       "@typescript-eslint/no-empty-function": ["error", { allow: ["arrowFunctions"] }],
-      "@typescript-eslint/restrict-template-expressions": ["error", {
-        allowNumber: true,
-        allowBoolean: true,
-      }],
+      "@typescript-eslint/restrict-template-expressions": [
+        "error",
+        {
+          allowNumber: true,
+          allowBoolean: true,
+        },
+      ],
       "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-confusing-void-expression": "off",
-
 
       // React rules
       "react/react-in-jsx-scope": "off",

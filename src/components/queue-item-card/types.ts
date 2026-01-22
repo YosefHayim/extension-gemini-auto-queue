@@ -1,4 +1,6 @@
-import type { QueueItem, QueueStatus, GeminiMode } from "@/types";
+import { QueueStatus } from "@/types";
+
+import type { QueueItem, GeminiMode } from "@/types";
 
 export const MAX_IMAGES_PER_CARD = 10;
 
@@ -21,10 +23,10 @@ export interface QueueItemCardProps {
 }
 
 export const STATUS_BORDER_STYLES: Record<QueueStatus, string> = {
-  pending: "border-l-amber-400",
-  processing: "border-l-blue-500 animate-pulse",
-  completed: "border-l-emerald-500",
-  failed: "border-l-red-500",
+  [QueueStatus.Pending]: "border-l-amber-400",
+  [QueueStatus.Processing]: "border-l-blue-500 animate-pulse",
+  [QueueStatus.Completed]: "border-l-emerald-500",
+  [QueueStatus.Failed]: "border-l-red-500",
 };
 
 export const MODE_BADGE_STYLES: Record<GeminiMode, { light: string; dark: string }> = {

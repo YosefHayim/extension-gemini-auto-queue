@@ -1,6 +1,8 @@
-import type { ExtensionMessage } from "@/types";
 import { MessageType } from "@/types";
+
 import { getProcessingState, setProcessingState } from "./state";
+
+import type { ExtensionMessage } from "@/types";
 
 export async function findGeminiTab(): Promise<number | null> {
   const state = await getProcessingState();

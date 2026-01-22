@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ContentType, GeminiMode, GeminiTool, QueueStatus, type QueueItem } from "@/types";
-
-import type { TextSelection } from "../types";
+import {
+  type ContentType,
+  type GeminiMode,
+  GeminiTool,
+  QueueStatus,
+  type QueueItem,
+} from "@/types";
 
 import { useFilteredQueue, usePromptPreviewCount } from "./useQueueFilters";
 import { useQueueStats } from "./useQueueStats";
+
+import type { TextSelection } from "../types";
 
 interface UseQueuePanelStateProps {
   queue: QueueItem[];

@@ -9,7 +9,7 @@ export { PromptInput } from "./PromptInput";
 export { QueueActions } from "./QueueActions";
 export { QueueContent } from "./QueueContent";
 export { QueueList } from "./QueueList";
-export { QueuePanel, QueuePanel as default } from "./QueuePanel";
+export { QueuePanel } from "./QueuePanel";
 export { SelectionBar } from "./SelectionBar";
 export { SortableQueueItem } from "./SortableQueueItem";
 export { ToolSelector } from "./ToolSelector";

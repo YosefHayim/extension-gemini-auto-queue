@@ -71,9 +71,9 @@ export const Footer: React.FC<FooterProps> = ({ isDark }) => {
         <span className="font-light">Made with</span>
         <Heart
           size={9}
-          className={`${
+          className={
             isDark ? "fill-rose-500/60 text-rose-500/60" : "fill-rose-400/70 text-rose-400/70"
-          }`}
+          }
         />
         <span className="font-light">by Yosef Hayim Sabag</span>
         <span className="mx-1">·</span>

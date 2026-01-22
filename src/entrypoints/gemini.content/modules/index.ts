@@ -1,6 +1,6 @@
 export { initNetworkMonitor, isNetworkGenerating, waitForNetworkComplete } from "./networkMonitor";
-export { selectTool, resetToolState } from "./toolSelection";
-export { selectMode, resetModeState } from "./modeSelection";
+export { selectTool, resetToolState } from "./toolSelection/index";
+export { selectMode, resetModeState } from "./modeSelection/index";
 export { uploadImages, pastePromptToInput, submitPrompt } from "./promptInput/index";
 export {
   isVideoGenerating,

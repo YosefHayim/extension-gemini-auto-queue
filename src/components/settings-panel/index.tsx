@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 
-import type { SettingsPanelProps, SettingsTab, TabConfig } from "./types";
 import { ApiTab } from "./ApiTab";
 import { GenerationTab } from "./GenerationTab";
 import { InterfaceTab } from "./InterfaceTab";
+
+import type { SettingsPanelProps, SettingsTab, TabConfig } from "./types";
 
 const tabConfig: TabConfig[] = [
   { id: "api", label: "API" },

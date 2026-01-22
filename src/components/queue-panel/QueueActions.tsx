@@ -1,9 +1,9 @@
 import { Download, Layers, Sparkles, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
-
 import { ClearMenu } from "./ClearMenu";
+
+import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
 
 interface QueueActionsProps {
   queue: QueueItem[];

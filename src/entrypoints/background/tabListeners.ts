@@ -1,5 +1,5 @@
-import { isPermittedHost } from "./types";
 import { setProcessingState } from "./state";
+import { isPermittedHost } from "./types";
 
 export function setupTabListeners(): void {
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

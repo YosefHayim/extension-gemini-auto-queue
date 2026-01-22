@@ -3,7 +3,7 @@ interface NetworkMonitorState {
   lastRequestStartTime: number;
   lastRequestEndTime: number;
   pendingRequests: Set<string>;
-  completionCallbacks: Array<() => void>;
+  completionCallbacks: (() => void)[];
 }
 
 const state: NetworkMonitorState = {

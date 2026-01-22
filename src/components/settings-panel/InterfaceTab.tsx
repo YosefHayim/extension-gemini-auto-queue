@@ -4,6 +4,7 @@ import React from "react";
 import { type AppSettings, ThemeMode } from "@/types";
 
 import { Tooltip } from "../Tooltip";
+
 import {
   getSectionClasses,
   labelClasses,

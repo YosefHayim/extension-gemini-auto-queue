@@ -1,5 +1,6 @@
-import type { ExtensionMessage, ExtensionResponse } from "@/types";
 import { findGeminiTab, ensureContentScriptReady, sendMessageWithTimeout } from "./tabManagement";
+
+import type { ExtensionMessage, ExtensionResponse } from "@/types";
 
 export async function sendToContentScript<T>(
   message: ExtensionMessage

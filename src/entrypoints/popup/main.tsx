@@ -1,8 +1,9 @@
 import "@/assets/styles.css";
 
-import Popup from "./Popup";
 import React from "react";
 import ReactDOM from "react-dom/client";
+
+import Popup from "./Popup";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

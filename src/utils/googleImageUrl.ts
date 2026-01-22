@@ -1,5 +1,6 @@
-import type { ProcessingOptions } from "@/types/imageProcessing";
 import { FORMAT_INFO, getPresetById } from "./imagePresets";
+
+import type { ProcessingOptions } from "@/types/imageProcessing";
 
 const GOOGLE_CDN_PATTERN = /lh\d\.googleusercontent\.com|googleusercontent\.com\/img|ggpht\.com/;
 

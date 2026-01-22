@@ -1,5 +1,4 @@
-import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/types";
-import { GeminiMode, GeminiTool, MessageType } from "@/types";
+import { generateImage } from "@/services/geminiService";
 import {
   getFolders,
   getQueue,
@@ -10,11 +9,21 @@ import {
   setQueue,
   setSettings,
 } from "@/services/storageService";
-import { generateImage } from "@/services/geminiService";
-import { SCHEDULE_ALARM_NAME, isPermittedHost } from "./types";
-import { setProcessingState } from "./state";
+import {
+  type GeminiMode,
+  type GeminiTool,
+  MessageType,
+  type AppSettings,
+  type ExtensionMessage,
+  type ExtensionResponse,
+  type Folder,
+  type QueueItem,
+} from "@/types";
+
 import { sendToContentScript } from "./contentScriptBridge";
 import { startProcessing, pauseProcessing, stopProcessing } from "./processing";
+import { setProcessingState } from "./state";
+import { SCHEDULE_ALARM_NAME, isPermittedHost } from "./types";
 
 export async function handleMessage(
   message: ExtensionMessage,

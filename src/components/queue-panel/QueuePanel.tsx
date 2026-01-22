@@ -93,7 +93,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         onEnqueue={state.handleEnqueue}
         onOpenCsvDialog={onOpenCsvDialog}
         isDark={isDark}
-        textareaRef={state.textareaRef as React.RefObject<HTMLTextAreaElement>}
+        textareaRef={state.textareaRef}
       />
 
       <ToolSelector

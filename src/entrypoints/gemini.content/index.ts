@@ -1,10 +1,4 @@
-/**
- * Content script for Gemini page automation.
- *
- * This is a minimal content script that only initializes the automation module
- * for DOM manipulation. All UI is handled by Chrome's native side panel.
- */
-import { automationModule } from "./automation";
+import { automationModule } from "./automation/index";
 
 export default defineContentScript({
   matches: ["*://gemini.google.com/*", "*://aistudio.google.com/*"],

@@ -4,6 +4,7 @@ import React from "react";
 import { type AppSettings, GEMINI_TOOL_INFO, GeminiModel, GeminiTool } from "@/types";
 
 import { Tooltip } from "../Tooltip";
+
 import {
   getSectionClasses,
   labelClasses,
@@ -106,7 +107,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
               }`}
             >
               <span>
-                {GEMINI_TOOL_INFO[tool]?.icon
+                {GEMINI_TOOL_INFO[tool] && "icon" in GEMINI_TOOL_INFO[tool]
                   ? React.createElement(GEMINI_TOOL_INFO[tool].icon, { size: 12 })
                   : "?"}
               </span>

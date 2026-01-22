@@ -2,11 +2,12 @@ import { AlertTriangle, Clock } from "lucide-react";
 import React from "react";
 
 import { StatusBadge } from "@/components/StatusBadge";
-import type { QueueItem, GeminiTool } from "@/types";
-import { ErrorCategory, GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode } from "@/types";
+import { ErrorCategory, GEMINI_MODE_INFO, GEMINI_TOOL_INFO, QueueStatus } from "@/types";
 import { getErrorCategoryLabel } from "@/utils/retryStrategy";
 
 import { MODE_BADGE_STYLES } from "./types";
+
+import type { QueueItem, GeminiTool } from "@/types";
 
 interface StatusSectionProps {
   item: QueueItem;
@@ -18,9 +19,9 @@ export const StatusSection: React.FC<StatusSectionProps> = ({ item, isDark }) =>
     ? GEMINI_TOOL_INFO[item.tool]
     : GEMINI_TOOL_INFO["image" as GeminiTool];
   const modeInfo = item.mode ? GEMINI_MODE_INFO[item.mode] : null;
-  const modeStyles = item.mode ? MODE_BADGE_STYLES[item.mode as GeminiMode] : null;
+  const modeStyles = item.mode ? MODE_BADGE_STYLES[item.mode] : null;
 
-  const isCompleted = item.status === "completed";
+  const isCompleted = item.status === QueueStatus.Completed;
   const hasCompletionTime = isCompleted && item.completionTimeSeconds !== undefined;
 
   return (

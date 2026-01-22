@@ -1,9 +1,11 @@
-import type { ExtensionMessage, ExtensionResponse } from "@/types";
 import { initializeQueueStorage } from "@/services/storageService";
-import { handleMessage } from "./messageHandlers";
+
 import { setupAlarmListener } from "./alarms";
-import { setupTabListeners } from "./tabListeners";
+import { handleMessage } from "./messageHandlers";
 import { startProcessing, restoreProcessingStateOnStartup } from "./processing";
+import { setupTabListeners } from "./tabListeners";
+
+import type { ExtensionMessage, ExtensionResponse } from "@/types";
 
 export default defineBackground(() => {
   initializeQueueStorage();
