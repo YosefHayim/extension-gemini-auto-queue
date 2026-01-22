@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
+
 import { BackButton } from "../BackButton";
+
 import type { RemoveTextPanelProps } from "../types";
 
 export const RemoveTextPanel: React.FC<RemoveTextPanelProps> = ({

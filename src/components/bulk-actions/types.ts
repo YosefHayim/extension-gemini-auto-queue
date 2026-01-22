@@ -43,7 +43,7 @@ export interface BulkActionsDialogProps {
   failedCount: number;
   pendingItems: QueueItem[];
   onBulkAttach: (images: string[]) => void;
-  onBulkAIOptimize: (instructions: string) => void;
+  onBulkAIOptimize: (instructions: string) => void | Promise<void>;
   onOpenAIOptimization?: () => void;
   onBulkModify: (text: string, position: "prepend" | "append") => void;
   onBulkReset: (filter: ResetFilter) => void;

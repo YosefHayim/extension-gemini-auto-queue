@@ -1,6 +1,9 @@
-import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool, QueueStatus } from "@/types";
 import React from "react";
+
+import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool, QueueStatus } from "@/types";
+
 import { BackButton } from "../BackButton";
+
 import type { ResetPanelProps } from "../types";
 
 export const ResetPanel: React.FC<ResetPanelProps> = ({

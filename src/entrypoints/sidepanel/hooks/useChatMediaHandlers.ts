@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import type { ChatMediaCounts } from "@/components/BulkActionsDialog";
 import { MessageType } from "@/types";
 
 import type { SendMessageFn } from "../types";
+import type { ChatMediaCounts } from "@/components/BulkActionsDialog";
 
 interface UseChatMediaHandlersProps {
   sendMessage: SendMessageFn;
@@ -16,7 +16,7 @@ export function useChatMediaHandlers({ sendMessage }: UseChatMediaHandlersProps)
       const response = await sendMessage<{ items: unknown[]; counts: ChatMediaCounts }>({
         type: MessageType.SCAN_CHAT_MEDIA,
       });
-      if (response?.success && response.data?.counts) {
+      if (response.success && response.data?.counts) {
         return response.data.counts;
       }
       return null;
@@ -38,7 +38,7 @@ export function useChatMediaHandlers({ sendMessage }: UseChatMediaHandlersProps)
           type: MessageType.DOWNLOAD_CHAT_MEDIA,
           payload: { method, filterType },
         });
-        if (response?.success) {
+        if (response.success) {
           if (method === "native") {
             toast.success(`Started ${response.data?.downloadCount ?? 0} downloads via Gemini`);
           } else {
@@ -49,7 +49,7 @@ export function useChatMediaHandlers({ sendMessage }: UseChatMediaHandlersProps)
             );
           }
         } else {
-          toast.error(response?.error ?? "Download failed");
+          toast.error(response.error ?? "Download failed");
         }
       } catch {
         toast.error("Failed to download media");

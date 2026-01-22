@@ -1,9 +1,7 @@
-import { Camera, Upload } from "lucide-react";
 import React, { useRef } from "react";
 
-import { Tooltip } from "../Tooltip";
-
 import { ImagePreview } from "./ImagePreview";
+import { PromptHeader } from "./PromptHeader";
 import { WeightingToolbar } from "./WeightingToolbar";
 
 import type { TextSelection } from "./types";
@@ -99,62 +97,29 @@ export const PromptInput: React.FC<PromptInputProps> = ({
     e.target.value = "";
   };
 
-  const handleRemoveImage = (index: number) => {
-    onImagesChange(selectedImages.filter((_, i) => i !== index));
-  };
-
   return (
     <>
-      <div className="flex items-center justify-between">
-        <span className="flex items-center text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-          New Prompt
-          <Tooltip
-            text="Enter prompts separated by blank lines. Each paragraph (text between blank lines) becomes one prompt. Multi-line paragraphs are joined into a single prompt."
-            isDark={isDark}
-          />
-        </span>
-        <div className="flex gap-0.5">
-          <button
-            onClick={() => imageInputRef.current?.click()}
-            title="Attach reference images"
-            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-all ${
-              selectedImages.length > 0
-                ? "text-indigo-500 dark:text-indigo-400"
-                : isDark
-                  ? "text-slate-500 hover:text-slate-300"
-                  : "text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Camera size={16} />
-          </button>
-          <button
-            onClick={onOpenCsvDialog}
-            title="Import prompts from CSV"
-            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-all ${
-              isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Upload size={16} />
-          </button>
-          <input
-            ref={imageInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
-        </div>
-      </div>
+      <PromptHeader
+        isDark={isDark}
+        hasImages={selectedImages.length > 0}
+        onOpenImagePicker={() => imageInputRef.current?.click()}
+        onOpenCsvDialog={onOpenCsvDialog}
+      />
+      <input
+        ref={imageInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageUpload}
+      />
 
       <div className="relative">
         <textarea
           data-onboarding="queue-textarea"
           ref={textareaRef}
           value={bulkInput}
-          onChange={(e) => {
-            onBulkInputChange(e.target.value);
-          }}
+          onChange={(e) => onBulkInputChange(e.target.value)}
           onSelect={handleTextSelection}
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
@@ -176,7 +141,10 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           onClearSelection={() => onSelectionChange(null)}
         />
 
-        <ImagePreview images={selectedImages} onRemoveImage={handleRemoveImage} />
+        <ImagePreview
+          images={selectedImages}
+          onRemoveImage={(index) => onImagesChange(selectedImages.filter((_, i) => i !== index))}
+        />
 
         <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
           {promptPreviewCount > 0 && (

@@ -1,5 +1,7 @@
 import React from "react";
+
 import { BackButton } from "../BackButton";
+
 import type { AIOptimizePanelProps } from "../types";
 
 export const AIOptimizePanel: React.FC<AIOptimizePanelProps> = ({

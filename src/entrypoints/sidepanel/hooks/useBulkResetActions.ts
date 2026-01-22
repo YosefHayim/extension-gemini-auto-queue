@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import type { ResetFilter } from "@/components/BulkActionsDialog";
 import { setQueue } from "@/services/storageService";
-import { GeminiMode, GeminiTool, QueueStatus, type QueueItem } from "@/types";
+import { type GeminiMode, type GeminiTool, QueueStatus, type QueueItem } from "@/types";
+
+import type { ResetFilter } from "@/components/BulkActionsDialog";
 
 interface UseBulkResetActionsProps {
   queue: QueueItem[];

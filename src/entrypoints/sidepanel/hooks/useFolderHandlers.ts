@@ -2,6 +2,7 @@ import { useCallback } from "react";
 
 import { improvePrompt } from "@/services/geminiService";
 import { setFolders } from "@/services/storageService";
+
 import type { Folder, PromptTemplate } from "@/types";
 
 interface UseFolderHandlersProps {

@@ -1,6 +1,8 @@
 import { File, Paperclip, X } from "lucide-react";
 import React from "react";
+
 import { BackButton } from "../BackButton";
+
 import type { AttachPanelProps } from "../types";
 
 export const AttachPanel: React.FC<AttachPanelProps> = ({

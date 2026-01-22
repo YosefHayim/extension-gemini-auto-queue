@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import type { ResetFilter } from "@/components/BulkActionsDialog";
 import { improvePrompt } from "@/services/geminiService";
 import { hasAnyAIKey, setQueue } from "@/services/storageService";
 import { QueueStatus, type AppSettings, type QueueItem } from "@/types";
+
+import type { ResetFilter } from "@/components/BulkActionsDialog";
 
 interface UseBulkModifyActionsProps {
   queue: QueueItem[];

@@ -46,6 +46,7 @@ import {
   useQueueItemHandlers,
   useSettingsHandlers,
 } from "./hooks";
+
 import type { TabType } from "./types";
 
 export default function App() {

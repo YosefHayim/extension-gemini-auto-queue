@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 import { setQueue, StorageQuotaError } from "@/services/storageService";
-import { GeminiMode, GeminiTool, QueueStatus, type QueueItem } from "@/types";
+import { type GeminiMode, type GeminiTool, QueueStatus, type QueueItem } from "@/types";
 
 interface UseQueueHandlersProps {
   queue: QueueItem[];

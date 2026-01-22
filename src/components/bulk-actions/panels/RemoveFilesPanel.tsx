@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
 import React, { useMemo } from "react";
+
 import { BackButton } from "../BackButton";
+
 import type { RemoveFilesPanelProps } from "../types";
 
 export const RemoveFilesPanel: React.FC<RemoveFilesPanelProps> = ({

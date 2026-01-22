@@ -1,5 +1,7 @@
 import React from "react";
+
 import { BackButton } from "../BackButton";
+
 import type { ModifyPanelProps } from "../types";
 
 export const ModifyPanel: React.FC<ModifyPanelProps> = ({

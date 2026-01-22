@@ -7,6 +7,31 @@ import { GeminiTool, MessageType, QueueStatus, type AppSettings, type QueueItem 
 
 import type { SendMessageFn } from "../types";
 
+function parseToolFromString(toolStr: string): GeminiTool | undefined {
+  const toolLower = toolStr.toLowerCase().trim();
+  const toolMap: Record<string, GeminiTool> = {
+    image: GeminiTool.IMAGE,
+    imagen: GeminiTool.IMAGE,
+    canvas: GeminiTool.CANVAS,
+    video: GeminiTool.VIDEO,
+    veo: GeminiTool.VIDEO,
+    research: GeminiTool.DEEP_RESEARCH,
+    deep_research: GeminiTool.DEEP_RESEARCH,
+    learning: GeminiTool.LEARNING,
+    layout: GeminiTool.VISUAL_LAYOUT,
+    visual_layout: GeminiTool.VISUAL_LAYOUT,
+    none: GeminiTool.NONE,
+    "": GeminiTool.NONE,
+  };
+  if (toolLower in toolMap) return toolMap[toolLower];
+  const toolKey = Object.keys(GeminiTool).find(
+    (key) =>
+      key.toLowerCase() === toolLower ||
+      GeminiTool[key as keyof typeof GeminiTool].toLowerCase() === toolLower
+  );
+  return toolKey ? (GeminiTool[toolKey as keyof typeof GeminiTool] as GeminiTool) : undefined;
+}
+
 interface UseQueueItemHandlersProps {
   queue: QueueItem[];
   setQueueState: React.Dispatch<React.SetStateAction<QueueItem[]>>;
@@ -49,19 +74,16 @@ export function useQueueItemHandlers({
         toast.error("No API key configured. Add one in Settings > API to use AI optimization.");
         return;
       }
-
       const item = queue.find((i) => i.id === id);
       if (!item) return;
-
       toast.info("Optimizing prompt with AI...");
-
       try {
-        const improvedPrompt = await improvePrompt(item.originalPrompt);
+        const optimized = await improvePrompt(item.originalPrompt);
         const newItem: QueueItem = {
           ...item,
           id: Math.random().toString(36).substring(2, 9),
-          originalPrompt: improvedPrompt,
-          finalPrompt: constructFinalPrompt(improvedPrompt),
+          originalPrompt: optimized,
+          finalPrompt: constructFinalPrompt(optimized),
           status: QueueStatus.Pending,
           error: undefined,
           completionTimeSeconds: undefined,
@@ -83,58 +105,41 @@ export function useQueueItemHandlers({
     async (id: string) => {
       const item = queue.find((i) => i.id === id);
       if (!item) return;
-
       const startTime = Date.now();
       const updatedQueue = queue.map((i) =>
         i.id === id ? { ...i, status: QueueStatus.Processing, startTime } : i
       );
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
-
       toast.info("Running prompt...");
-
       try {
         const response = await sendMessage<boolean>({
           type: MessageType.PASTE_PROMPT,
           payload: {
             prompt: item.finalPrompt,
-            tool: item.tool || settings.defaultTool,
+            tool: item.tool ?? settings.defaultTool,
             images: item.images ?? [],
             mode: item.mode,
           },
         });
-
         const endTime = Date.now();
         const completionTimeSeconds = (endTime - startTime) / 1000;
-
-        if (response?.success) {
+        if (response.success) {
           const completedQueue = queue.map((i) =>
             i.id === id
-              ? {
-                  ...i,
-                  status: QueueStatus.Completed,
-                  endTime,
-                  completionTimeSeconds,
-                }
+              ? { ...i, status: QueueStatus.Completed, endTime, completionTimeSeconds }
               : i
           );
           setQueueState(completedQueue);
           await setQueue(completedQueue);
           toast.success("Prompt completed!");
         } else {
-          const errorMsg = response?.error || "Unknown error";
-          throw new Error(errorMsg);
+          throw new Error(response.error ?? "Unknown error");
         }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : "Unknown error";
         const failedQueue = queue.map((i) =>
-          i.id === id
-            ? {
-                ...i,
-                status: QueueStatus.Failed,
-                error: errorMsg,
-              }
-            : i
+          i.id === id ? { ...i, status: QueueStatus.Failed, error: errorMsg } : i
         );
         setQueueState(failedQueue);
         await setQueue(failedQueue);
@@ -146,46 +151,14 @@ export function useQueueItemHandlers({
 
   const handleCsvUpload = useCallback(
     async (items: { prompt: string; tool?: string; images?: string[] }[]) => {
-      const newItems: QueueItem[] = items.map((item) => {
-        let tool: GeminiTool | undefined = undefined;
-        if (item.tool) {
-          const toolLower = item.tool.toLowerCase().trim();
-          if (toolLower === "image" || toolLower === "imagen") {
-            tool = GeminiTool.IMAGE;
-          } else if (toolLower === "canvas") {
-            tool = GeminiTool.CANVAS;
-          } else if (toolLower === "video" || toolLower === "veo") {
-            tool = GeminiTool.VIDEO;
-          } else if (toolLower === "research" || toolLower === "deep_research") {
-            tool = GeminiTool.DEEP_RESEARCH;
-          } else if (toolLower === "learning") {
-            tool = GeminiTool.LEARNING;
-          } else if (toolLower === "layout" || toolLower === "visual_layout") {
-            tool = GeminiTool.VISUAL_LAYOUT;
-          } else if (toolLower === "none" || toolLower === "") {
-            tool = GeminiTool.NONE;
-          } else {
-            const toolKey = Object.keys(GeminiTool).find(
-              (key) =>
-                key.toLowerCase() === toolLower ||
-                GeminiTool[key as keyof typeof GeminiTool].toLowerCase() === toolLower
-            );
-            if (toolKey) {
-              tool = GeminiTool[toolKey as keyof typeof GeminiTool] as GeminiTool;
-            }
-          }
-        }
-
-        return {
-          id: Math.random().toString(36).substring(2, 9),
-          originalPrompt: item.prompt,
-          finalPrompt: constructFinalPrompt(item.prompt),
-          status: QueueStatus.Pending,
-          tool: tool ?? settings.defaultTool,
-          images: item.images && item.images.length > 0 ? [...item.images] : undefined,
-        };
-      });
-
+      const newItems: QueueItem[] = items.map((item) => ({
+        id: Math.random().toString(36).substring(2, 9),
+        originalPrompt: item.prompt,
+        finalPrompt: constructFinalPrompt(item.prompt),
+        status: QueueStatus.Pending,
+        tool: (item.tool ? parseToolFromString(item.tool) : undefined) ?? settings.defaultTool,
+        images: item.images && item.images.length > 0 ? [...item.images] : undefined,
+      }));
       const updatedQueue = [...queue, ...newItems];
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
@@ -196,10 +169,5 @@ export function useQueueItemHandlers({
     [queue, constructFinalPrompt, settings.defaultTool, setQueueState]
   );
 
-  return {
-    handleDuplicateItem,
-    handleDuplicateWithAI,
-    handleRunSingleItem,
-    handleCsvUpload,
-  };
+  return { handleDuplicateItem, handleDuplicateWithAI, handleRunSingleItem, handleCsvUpload };
 }

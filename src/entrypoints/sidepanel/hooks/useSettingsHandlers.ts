@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { setSettings } from "@/services/storageService";
+
 import type { AppSettings } from "@/types";
 
 interface UseSettingsHandlersProps {

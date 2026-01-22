@@ -2,89 +2,50 @@ import React from "react";
 
 import { GeminiMode, QueueStatus } from "@/types";
 
-import { SearchFilter } from "../SearchFilter";
-
 import { BulkActionsHandler } from "./BulkActionsHandler";
 import { EmptyQueue } from "./EmptyQueue";
-import { EstimatedTime } from "./EstimatedTime";
 import { useQueuePanelState } from "./hooks/useQueuePanelState";
 import { ModeSelector } from "./ModeSelector";
 import { PromptInput } from "./PromptInput";
-import { QueueActions } from "./QueueActions";
-import { QueueList } from "./QueueList";
-import { SelectionBar } from "./SelectionBar";
+import { QueueContent } from "./QueueContent";
 import { ToolSelector } from "./ToolSelector";
 
 import type { QueuePanelProps } from "./types";
 
-export const QueuePanel: React.FC<QueuePanelProps> = ({
-  queue,
-  isDark,
-  defaultTool,
-  hasApiKey,
-  onAddToQueue,
-  onRemoveFromQueue,
-  onRetryQueueItem,
-  onClearAll,
-  onClearByFilter,
-  onOpenCsvDialog,
-  onReorderQueue,
-  onDuplicateItem,
-  onDuplicateWithAI,
-  onEditItem,
-  onRunSingleItem,
-  onUpdateItemImages,
-  selectedMode = GeminiMode.Quick,
-  onModeChange,
-  onBulkAttachImages,
-  onBulkAIOptimize,
-  onOpenAIOptimization,
-  onBulkModify,
-  onBulkReset,
-  onBulkRemoveText,
-  onBulkRemoveFiles,
-  onScanChatMedia,
-  onDownloadChatMedia,
-  onClearCompleted,
-  onOpenExport,
-}) => {
+export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
   const {
-    bulkInput,
-    setBulkInput,
-    selectedImages,
-    setSelectedImages,
-    selection,
-    setSelection,
-    selectedTool,
-    setSelectedTool,
-    localSelectedMode,
-    searchText,
-    setSearchText,
-    selectedToolFilters,
-    setSelectedToolFilters,
-    selectedModeFilters,
-    setSelectedModeFilters,
-    selectedContentFilters,
-    setSelectedContentFilters,
-    selectedStatusFilters,
-    setSelectedStatusFilters,
-    showBulkActions,
-    setShowBulkActions,
-    selectedIds,
-    textareaRef,
-    stats,
-    filteredQueue,
-    promptPreviewCount,
-    selectedCount,
-    hasSelection,
-    selectedItems,
-    selectedPendingItems,
-    handleToggleSelect,
-    handleSelectAll,
-    handleClearSelection,
-    handleModeSelect,
-    handleEnqueue,
-  } = useQueuePanelState({
+    queue,
+    isDark,
+    defaultTool,
+    hasApiKey,
+    onAddToQueue,
+    onRemoveFromQueue,
+    onRetryQueueItem,
+    onClearAll,
+    onClearByFilter,
+    onOpenCsvDialog,
+    onReorderQueue,
+    onDuplicateItem,
+    onDuplicateWithAI,
+    onEditItem,
+    onRunSingleItem,
+    onUpdateItemImages,
+    selectedMode = GeminiMode.Quick,
+    onModeChange,
+    onBulkAttachImages,
+    onBulkAIOptimize,
+    onOpenAIOptimization,
+    onBulkModify,
+    onBulkReset,
+    onBulkRemoveText,
+    onBulkRemoveFiles,
+    onScanChatMedia,
+    onDownloadChatMedia,
+    onClearCompleted,
+    onOpenExport,
+  } = props;
+
+  const state = useQueuePanelState({
     queue,
     defaultTool,
     selectedMode,
@@ -97,18 +58,18 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
   return (
     <div className="animate-in fade-in space-y-3 duration-300">
       <BulkActionsHandler
-        isOpen={showBulkActions}
-        onClose={() => setShowBulkActions(false)}
+        isOpen={state.showBulkActions}
+        onClose={() => state.setShowBulkActions(false)}
         isDark={isDark}
         hasApiKey={hasApiKey}
         queue={queue}
-        selectedItems={selectedItems}
-        selectedIds={selectedIds}
-        hasSelection={hasSelection}
-        pendingCount={stats.pendingCount}
-        pendingItems={stats.pendingItems}
-        completedCount={stats.completedCount}
-        failedCount={stats.failedCount}
+        selectedItems={state.selectedItems}
+        selectedIds={state.selectedIds}
+        hasSelection={state.hasSelection}
+        pendingCount={state.stats.pendingCount}
+        pendingItems={state.stats.pendingItems}
+        completedCount={state.stats.completedCount}
+        failedCount={state.stats.failedCount}
         onBulkAttachImages={onBulkAttachImages}
         onBulkAIOptimize={onBulkAIOptimize}
         onOpenAIOptimization={onOpenAIOptimization}
@@ -118,28 +79,32 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         onBulkRemoveFiles={onBulkRemoveFiles}
         onScanChatMedia={onScanChatMedia}
         onDownloadChatMedia={onDownloadChatMedia}
-        onClearSelection={handleClearSelection}
+        onClearSelection={state.handleClearSelection}
       />
 
       <PromptInput
-        bulkInput={bulkInput}
-        onBulkInputChange={setBulkInput}
-        selectedImages={selectedImages}
-        onImagesChange={setSelectedImages}
-        selection={selection}
-        onSelectionChange={setSelection}
-        promptPreviewCount={promptPreviewCount}
-        onEnqueue={handleEnqueue}
+        bulkInput={state.bulkInput}
+        onBulkInputChange={state.setBulkInput}
+        selectedImages={state.selectedImages}
+        onImagesChange={state.setSelectedImages}
+        selection={state.selection}
+        onSelectionChange={state.setSelection}
+        promptPreviewCount={state.promptPreviewCount}
+        onEnqueue={state.handleEnqueue}
         onOpenCsvDialog={onOpenCsvDialog}
         isDark={isDark}
-        textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement>}
+        textareaRef={state.textareaRef as React.RefObject<HTMLTextAreaElement>}
       />
 
-      <ToolSelector selectedTool={selectedTool} onToolChange={setSelectedTool} isDark={isDark} />
+      <ToolSelector
+        selectedTool={state.selectedTool}
+        onToolChange={state.setSelectedTool}
+        isDark={isDark}
+      />
 
       <ModeSelector
-        selectedMode={localSelectedMode}
-        onModeChange={handleModeSelect}
+        selectedMode={state.localSelectedMode}
+        onModeChange={state.handleModeSelect}
         isDark={isDark}
       />
 
@@ -147,69 +112,46 @@ export const QueuePanel: React.FC<QueuePanelProps> = ({
         {queue.length === 0 ? (
           <EmptyQueue isDark={isDark} />
         ) : (
-          <>
-            <SearchFilter
-              searchText={searchText}
-              onSearchChange={setSearchText}
-              selectedTools={selectedToolFilters}
-              onToolsChange={setSelectedToolFilters}
-              selectedModes={selectedModeFilters}
-              onModesChange={setSelectedModeFilters}
-              selectedContentTypes={selectedContentFilters}
-              onContentTypesChange={setSelectedContentFilters}
-              selectedStatuses={selectedStatusFilters}
-              onStatusesChange={setSelectedStatusFilters}
-              isDark={isDark}
-              totalItems={queue.length}
-              filteredCount={filteredQueue.length}
-            />
-
-            <SelectionBar
-              selectedCount={selectedCount}
-              selectedPendingCount={selectedPendingItems.length}
-              onSelectAll={handleSelectAll}
-              onClearSelection={handleClearSelection}
-              isDark={isDark}
-            />
-
-            <EstimatedTime
-              estimatedTimeRemaining={stats.estimatedTimeRemaining}
-              pendingCount={stats.pendingCount}
-              isDark={isDark}
-            />
-
-            <QueueActions
-              queue={queue}
-              pendingCount={stats.pendingCount}
-              completedCount={stats.completedCount}
-              isDark={isDark}
-              onShowBulkActions={() => setShowBulkActions(true)}
-              onClearCompleted={onClearCompleted}
-              onOpenExport={onOpenExport}
-              onClearAll={onClearAll}
-              onClearByFilter={onClearByFilter}
-              hasBulkActions={hasBulkActions}
-            />
-
-            <QueueList
-              queue={queue}
-              filteredQueue={filteredQueue}
-              isDark={isDark}
-              searchText={searchText}
-              hasSelection={hasSelection}
-              selectedIds={selectedIds}
-              onRemoveFromQueue={onRemoveFromQueue}
-              onRetryQueueItem={onRetryQueueItem}
-              onDuplicateItem={onDuplicateItem}
-              onDuplicateWithAI={onDuplicateWithAI}
-              onEditItem={onEditItem}
-              onRunSingleItem={onRunSingleItem}
-              onUpdateItemImages={onUpdateItemImages}
-              onReorderQueue={onReorderQueue}
-              onToggleSelect={handleToggleSelect}
-              pendingStatus={QueueStatus.Pending}
-            />
-          </>
+          <QueueContent
+            queue={queue}
+            filteredQueue={state.filteredQueue}
+            isDark={isDark}
+            searchText={state.searchText}
+            selectedToolFilters={state.selectedToolFilters}
+            selectedModeFilters={state.selectedModeFilters}
+            selectedContentFilters={state.selectedContentFilters}
+            selectedStatusFilters={state.selectedStatusFilters}
+            onSearchChange={state.setSearchText}
+            onToolsChange={state.setSelectedToolFilters}
+            onModesChange={state.setSelectedModeFilters}
+            onContentTypesChange={state.setSelectedContentFilters}
+            onStatusesChange={state.setSelectedStatusFilters}
+            selectedCount={state.selectedCount}
+            selectedPendingCount={state.selectedPendingItems.length}
+            onSelectAll={state.handleSelectAll}
+            onClearSelection={state.handleClearSelection}
+            estimatedTimeRemaining={state.stats.estimatedTimeRemaining}
+            pendingCount={state.stats.pendingCount}
+            completedCount={state.stats.completedCount}
+            onShowBulkActions={() => state.setShowBulkActions(true)}
+            onClearCompleted={onClearCompleted}
+            onOpenExport={onOpenExport}
+            onClearAll={onClearAll}
+            onClearByFilter={onClearByFilter}
+            hasBulkActions={hasBulkActions}
+            hasSelection={state.hasSelection}
+            selectedIds={state.selectedIds}
+            onRemoveFromQueue={onRemoveFromQueue}
+            onRetryQueueItem={onRetryQueueItem}
+            onDuplicateItem={onDuplicateItem}
+            onDuplicateWithAI={onDuplicateWithAI}
+            onEditItem={onEditItem}
+            onRunSingleItem={onRunSingleItem}
+            onUpdateItemImages={onUpdateItemImages}
+            onReorderQueue={onReorderQueue}
+            onToggleSelect={state.handleToggleSelect}
+            pendingStatus={QueueStatus.Pending}
+          />
         )}
       </div>
     </div>

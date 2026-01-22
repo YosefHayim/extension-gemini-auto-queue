@@ -1,4 +1,3 @@
-import type { LucideIcon } from "lucide-react";
 import {
   Check,
   ClipboardCopy,
@@ -11,7 +10,9 @@ import {
   Wand2,
 } from "lucide-react";
 import React from "react";
+
 import type { BulkActionType, ChatMediaCounts } from "./types";
+import type { LucideIcon } from "lucide-react";
 
 interface ActionButtonConfig {
   type: Exclude<BulkActionType, null>;
