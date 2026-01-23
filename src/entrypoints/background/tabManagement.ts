@@ -1,8 +1,11 @@
 import { MessageType } from "@/types";
+import { logger } from "@/utils/logger";
 
 import { getProcessingState, setProcessingState } from "./state";
 
 import type { ExtensionMessage } from "@/types";
+
+const log = logger.module("TabManagement");
 
 export async function findGeminiTab(): Promise<number | null> {
   const state = await getProcessingState();
@@ -32,7 +35,7 @@ export async function ensureContentScriptReady(tabId: number): Promise<boolean> 
     await chrome.tabs.sendMessage(tabId, { type: MessageType.PING });
     return true;
   } catch {
-    console.log("[NanoFlow] Content script not ready, injecting...");
+    log.debug("ensureReady", "Content script not ready, injecting...", { tabId });
     try {
       await chrome.scripting.executeScript({
         target: { tabId },
@@ -42,7 +45,7 @@ export async function ensureContentScriptReady(tabId: number): Promise<boolean> 
       await chrome.tabs.sendMessage(tabId, { type: MessageType.PING });
       return true;
     } catch (injectError) {
-      console.error("[NanoFlow] Failed to inject content script:", injectError);
+      log.error("ensureReady", "Failed to inject content script", injectError);
       return false;
     }
   }

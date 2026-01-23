@@ -31,9 +31,7 @@ const envSchema = z.object({
   LEMON_SQUEEZY_MONTHLY_VARIANT_ID: z.string(),
   LEMON_SQUEEZY_ANNUAL_VARIANT_ID: z.string(),
 
-  AWS_REGION: z.string().default("us-east-1"),
-  AWS_ACCESS_KEY_ID: z.string(),
-  AWS_SECRET_ACCESS_KEY: z.string(),
+  RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string().email(),
   EMAIL_FROM_NAME: z.string().default("Gemini Nano Flow"),
 

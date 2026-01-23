@@ -1,4 +1,5 @@
 import { initializeQueueStorage } from "@/services/storageService";
+import { logger } from "@/utils/logger";
 
 import { setupAlarmListener } from "./alarms";
 import { handleMessage } from "./messageHandlers";
@@ -7,7 +8,12 @@ import { setupTabListeners } from "./tabListeners";
 
 import type { ExtensionMessage, ExtensionResponse } from "@/types";
 
+const log = logger.module("Background");
+
 export default defineBackground(() => {
+  logger.clearLogs();
+  log.info("init", "Service worker started");
+
   initializeQueueStorage();
 
   restoreProcessingStateOnStartup();

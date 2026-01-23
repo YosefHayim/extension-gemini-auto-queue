@@ -1,6 +1,10 @@
+import { logger } from "@/utils/logger";
+
 import { DEFAULT_PROCESSING_STATE } from "./types";
 
 import type { ProcessingState } from "./types";
+
+const log = logger.module("State");
 
 export async function getProcessingState(): Promise<ProcessingState> {
   try {
@@ -23,6 +27,6 @@ export async function setProcessingState(state: Partial<ProcessingState>): Promi
   try {
     await chrome.storage.session.set(state);
   } catch {
-    console.error("[NanoFlow] Failed to persist processing state");
+    log.error("setProcessingState", "Failed to persist processing state");
   }
 }

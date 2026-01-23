@@ -5,22 +5,25 @@ import {
   updateQueueItem,
 } from "@/services/storageService";
 import { GeminiTool, MessageType, QueueStatus } from "@/types";
+import { logger } from "@/utils/logger";
 
 import { broadcastMessage, sendToContentScript } from "./contentScriptBridge";
 import { handleProcessingError } from "./errorHandling";
 import { getProcessingState, setProcessingState } from "./state";
 import { findGeminiTab } from "./tabManagement";
 
+const log = logger.module("Processing");
+
 let processingController: AbortController | null = null;
 
 export async function startProcessing(): Promise<void> {
-  console.log("[NanoFlow] startProcessing() called");
+  log.info("start", "startProcessing() called");
 
   try {
     const enabled = await isExtensionEnabled();
-    console.log("[NanoFlow] Extension enabled:", enabled);
+    log.debug("start", "Extension enabled check", { enabled });
     if (!enabled) {
-      console.log("[NanoFlow] Extension disabled, stopping");
+      log.info("start", "Extension disabled, stopping");
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
       return;
     }
@@ -31,9 +34,9 @@ export async function startProcessing(): Promise<void> {
     broadcastMessage({ type: MessageType.PROCESS_QUEUE });
 
     const tabId = await findGeminiTab();
-    console.log("[NanoFlow] Found Gemini tab:", tabId);
+    log.debug("start", "Gemini tab lookup", { tabId });
     if (!tabId) {
-      console.log("[NanoFlow] No Gemini tab found, stopping");
+      log.warn("start", "No Gemini tab found, stopping");
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
       await setProcessingState({ isProcessing: false });
       return;
@@ -131,7 +134,7 @@ export async function startProcessing(): Promise<void> {
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
     }
   } catch (error) {
-    console.error("[NanoFlow] startProcessing error:", error);
+    log.error("start", "startProcessing error", error);
     await setProcessingState({ isProcessing: false, isPaused: false });
     broadcastMessage({ type: MessageType.STOP_PROCESSING });
   }
@@ -151,10 +154,10 @@ export async function stopProcessing(): Promise<void> {
 
 export async function restoreProcessingStateOnStartup(): Promise<void> {
   const state = await getProcessingState();
-  console.log("[NanoFlow] Service worker started, restored state:", state);
+  log.info("restore", "Restored processing state", state);
 
   if (state.isProcessing && !state.isPaused) {
-    console.log("[NanoFlow] Resuming processing after service worker restart");
+    log.info("restore", "Resuming processing after service worker restart");
     startProcessing();
   }
 }
