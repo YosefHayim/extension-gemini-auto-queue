@@ -1,4 +1,4 @@
-import { Cpu } from "lucide-react";
+import { Inbox } from "lucide-react";
 import React from "react";
 
 interface EmptyQueueProps {
@@ -10,12 +10,15 @@ export const EmptyQueue: React.FC<EmptyQueueProps> = ({ isDark }) => {
     <div
       className={`flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-12 ${isDark ? "border-slate-700" : "border-slate-200"}`}
     >
-      <Cpu size={28} className={isDark ? "text-slate-700" : "text-slate-300"} />
-      <span
-        className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? "text-slate-600" : "text-slate-400"}`}
-      >
-        Queue Empty
-      </span>
+      <Inbox size={48} className={isDark ? "text-slate-600" : "text-slate-400"} />
+      <div className="flex flex-col items-center gap-1">
+        <span className={`text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+          Your queue is empty
+        </span>
+        <span className={`text-xs ${isDark ? "text-slate-600" : "text-slate-400"}`}>
+          Add prompts above to get started
+        </span>
+      </div>
     </div>
   );
 };

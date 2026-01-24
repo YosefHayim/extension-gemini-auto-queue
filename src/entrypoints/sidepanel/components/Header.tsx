@@ -4,9 +4,25 @@ interface HeaderProps {
   isDark: boolean;
   isProcessing: boolean;
   activeTimer: number;
+  completedCount: number;
+  totalCount: number;
 }
 
-export function Header({ isDark, isProcessing, activeTimer }: HeaderProps) {
+function formatTime(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+export function Header({
+  isDark,
+  isProcessing,
+  activeTimer,
+  completedCount,
+  totalCount,
+}: HeaderProps) {
   return (
     <div
       data-onboarding="sidebar-header"
@@ -17,10 +33,10 @@ export function Header({ isDark, isProcessing, activeTimer }: HeaderProps) {
         <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
       </div>
       {isProcessing && (
-        <div className="flex items-center gap-1 rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5">
-          <Clock size={10} className="animate-spin text-blue-500" />
+        <div className="flex animate-pulse items-center gap-1 rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5">
+          <Clock size={10} className="text-blue-500" />
           <span className="text-[10px] font-black text-blue-500">
-            {(activeTimer / 1000).toFixed(1)}s
+            Running {formatTime(activeTimer)} · {completedCount}/{totalCount}
           </span>
         </div>
       )}

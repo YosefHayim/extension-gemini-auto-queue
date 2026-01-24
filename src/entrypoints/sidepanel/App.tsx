@@ -345,7 +345,13 @@ export default function App() {
         }}
       />
 
-      <Header isDark={isDark} isProcessing={isProcessing} activeTimer={activeTimer} />
+      <Header
+        isDark={isDark}
+        isProcessing={isProcessing}
+        activeTimer={activeTimer}
+        completedCount={queue.filter((item) => item.status === QueueStatus.Completed).length}
+        totalCount={queue.length}
+      />
 
       <Navigation isDark={isDark} activeTab={activeTab} setActiveTab={setActiveTab} />
 
