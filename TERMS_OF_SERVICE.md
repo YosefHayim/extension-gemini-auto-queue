@@ -1,15 +1,15 @@
-# Terms of Service for Gemini Nano Flow
+# Terms of Service for Groove
 
 **Last Updated:** January 25, 2026  
 **Version:** 2.1.0
 
 ## 1. Acceptance of Terms
 
-By installing, accessing, or using Gemini Nano Flow ("the Extension"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not install or use the Extension.
+By installing, accessing, or using Groove ("the Extension"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not install or use the Extension.
 
 ## 2. Description of Service
 
-Gemini Nano Flow is a Chrome browser extension that provides:
+Groove is a Chrome browser extension that provides:
 - Batch processing and queue management for Google Gemini
 - Automation of prompt submission on gemini.google.com and aistudio.google.com
 - Reference image attachment capabilities
@@ -18,7 +18,7 @@ Gemini Nano Flow is a Chrome browser extension that provides:
 
 ## 3. License
 
-Gemini Nano Flow is released under the MIT License. You are free to:
+Groove is released under the MIT License. You are free to:
 - Use the Extension for personal or commercial purposes
 - Modify the source code
 - Distribute copies of the Extension

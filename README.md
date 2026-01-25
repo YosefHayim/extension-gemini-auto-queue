@@ -1,4 +1,4 @@
-# Nano Flow
+# Groove
 
 > A production-grade Chrome Extension for batch queue processing on Google Gemini, built with modern web technologies and engineering best practices.
 
@@ -387,6 +387,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ## Privacy
 
-Nano Flow operates entirely locally. Your prompts, images, and settings are stored in Chrome's local storage and are never sent to external servers (except when using AI optimization with your own API key).
+Groove operates entirely locally. Your prompts, images, and settings are stored in Chrome's local storage and are never sent to external servers (except when using AI optimization with your own API key).
 
 See [Privacy Policy](./PRIVACY.md) for details.

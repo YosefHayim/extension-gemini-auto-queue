@@ -1,11 +1,11 @@
-# Privacy Policy for Gemini Nano Flow
+# Privacy Policy for Groove
 
 **Last Updated:** January 25, 2026  
 **Version:** 2.1.0
 
 ## Introduction
 
-Gemini Nano Flow ("the Extension", "we", "our") is a Chrome browser extension that provides batch processing and queue management for Google Gemini. This Privacy Policy explains what data we collect, how we use it, and your rights regarding your data.
+Groove ("the Extension", "we", "our") is a Chrome browser extension that provides batch processing and queue management for Google Gemini. This Privacy Policy explains what data we collect, how we use it, and your rights regarding your data.
 
 ## Summary
 
