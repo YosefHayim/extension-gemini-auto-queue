@@ -34,8 +34,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     <div className="flex h-full flex-col items-center justify-center bg-background p-6">
       <div className="flex w-full max-w-sm flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-4">
-          <img src="/icons/icon-128.png" alt="Nano Flow" className="h-20 w-20 rounded-[20px]" />
-          <h1 className="text-2xl font-bold text-foreground">Nano Flow</h1>
+          <img src="/icons/icon-128.png" alt="Groove" className="h-20 w-20 rounded-[20px]" />
+          <h1 className="text-2xl font-bold text-foreground">Groove</h1>
           <p className="text-center text-sm text-muted-foreground">
             Sign in to supercharge your Gemini workflow
           </p>

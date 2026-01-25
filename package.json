@@ -1,6 +1,6 @@
 {
-  "name": "gemini-nano-flow",
-  "displayName": "Gemini Nano Flow",
+  "name": "groove",
+  "displayName": "Groove",
   "version": "2.1.0",
   "private": true,
   "type": "module",

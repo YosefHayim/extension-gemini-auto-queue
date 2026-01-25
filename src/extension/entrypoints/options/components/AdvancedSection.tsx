@@ -38,7 +38,7 @@ export function AdvancedSection({
         <div>
           <p className="font-bold">Usage Analytics</p>
           <p className="text-sm text-muted-foreground">
-            Help improve Nano Flow by sharing anonymous usage data
+            Help improve Groove by sharing anonymous usage data
           </p>
         </div>
         <button

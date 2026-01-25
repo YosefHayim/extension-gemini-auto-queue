@@ -36,7 +36,7 @@ export const AuthSuccessDialog: React.FC<AuthSuccessDialogProps> = ({ isOpen, us
           </div>
           <DialogTitle>Welcome, {user.firstName}!</DialogTitle>
           <DialogDescription>
-            You&apos;ve successfully signed in to Nano Flow. You can now start using all features.
+            You&apos;ve successfully signed in to Groove. You can now start using all features.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center pt-2">

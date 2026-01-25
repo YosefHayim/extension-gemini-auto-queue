@@ -9,12 +9,12 @@ export async function readFilesAsBase64(files: File[]): Promise<SelectedFile[]> 
         if (typeof data === "string" && data.length > 0) {
           resolve({ data, name: file.name, type: file.type });
         } else {
-          console.warn(`[NanoFlow] Failed to read file: ${file.name}`);
+          console.warn(`[Groove] Failed to read file: ${file.name}`);
           resolve(null);
         }
       };
       reader.onerror = () => {
-        console.warn(`[NanoFlow] Error reading file: ${file.name}`);
+        console.warn(`[Groove] Error reading file: ${file.name}`);
         resolve(null);
       };
       reader.readAsDataURL(file);

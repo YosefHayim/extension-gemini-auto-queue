@@ -21,7 +21,7 @@ export function OTPEmail({ otp }: OTPEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Heading style={heading}>Verify your email</Heading>
-          <Text style={paragraph}>Enter this code to sign in to Gemini Nano Flow:</Text>
+          <Text style={paragraph}>Enter this code to sign in to Groove:</Text>
           <Section style={codeContainer}>
             <Text style={code}>{otp}</Text>
           </Section>

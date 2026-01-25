@@ -33,7 +33,7 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string().email(),
-  EMAIL_FROM_NAME: z.string().default("Gemini Nano Flow"),
+  EMAIL_FROM_NAME: z.string().default("Groove"),
 
   SENTRY_DSN: z.string().optional(),
   POSTHOG_API_KEY: z.string().optional(),

@@ -1,7 +1,7 @@
 {
-  "name": "gemini-nano-flow-backend",
+  "name": "groove-backend",
   "version": "1.0.0",
-  "description": "Backend API for Gemini Nano Flow Chrome Extension",
+  "description": "Backend API for Groove Chrome Extension",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

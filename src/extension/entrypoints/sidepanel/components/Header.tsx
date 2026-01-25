@@ -37,8 +37,8 @@ export function Header({
       className="flex items-center justify-between border-b border-border bg-muted/50 p-2"
     >
       <div className="flex items-center gap-2">
-        <img src="/icons/icon-32.png" alt="Gemini" className="h-6 w-6" />
-        <h1 className="text-sm font-black tracking-tight">Nano Flow</h1>
+        <img src="/icons/icon-32.png" alt="Groove" className="h-6 w-6" />
+        <h1 className="text-sm font-black tracking-tight">Groove</h1>
       </div>
 
       <div className="flex items-center gap-2">

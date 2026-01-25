@@ -78,7 +78,7 @@ export function initAnalytics(enabled = true): void {
 }
 
 function getOrCreateDistinctId(): string {
-  const storageKey = "nano_flow_analytics_id";
+  const storageKey = "groove_analytics_id";
   let distinctId = localStorage.getItem(storageKey);
 
   if (!distinctId) {

@@ -19,10 +19,10 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Gemini Nano Flow - You have 100 free credits!</Preview>
+      <Preview>Welcome to Groove - You have 100 free credits!</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={heading}>Welcome to Gemini Nano Flow!</Heading>
+          <Heading style={heading}>Welcome to Groove!</Heading>
           <Text style={paragraph}>Hi {displayName},</Text>
           <Text style={paragraph}>
             You&apos;re all set! You have <strong>100 free credits</strong> to try out all features.

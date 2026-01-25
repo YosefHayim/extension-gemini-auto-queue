@@ -75,7 +75,7 @@ export default function Popup() {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-900">
             <Zap className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-[22px] font-bold text-foreground">Nano Flow</h1>
+          <h1 className="text-[22px] font-bold text-foreground">Groove</h1>
           <p className="text-center text-[13px] text-muted-foreground">
             Batch processing for Gemini
           </p>
@@ -118,7 +118,7 @@ export default function Popup() {
           </p>
           <div className="flex flex-col gap-2">
             <a
-              href="mailto:yosefisabag@gmail.com?subject=Gemini Nano Flow - Feedback"
+              href="mailto:yosefisabag@gmail.com?subject=Groove - Feedback"
               className="flex w-full items-center justify-between rounded-md bg-muted px-3 py-2.5 transition-colors hover:bg-muted/80"
             >
               <div className="flex items-center gap-2.5">
