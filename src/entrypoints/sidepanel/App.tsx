@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 
+import { AuthSuccessDialog, LoginPage } from "@/components/auth";
 import { CsvDialog } from "@/components/CsvDialog";
 import { ExportDialog } from "@/components/ExportDialog";
 import { Footer } from "@/components/Footer";
@@ -8,6 +9,7 @@ import { OnboardingModal } from "@/components/OnboardingModal";
 import { QueuePanel } from "@/components/QueuePanel";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { TemplatesPanel } from "@/components/TemplatesPanel";
+import { getAuthUser } from "@/services/authService";
 import {
   DEFAULT_SETTINGS,
   getFolders,
@@ -26,6 +28,7 @@ import {
   STORAGE_KEYS,
   ThemeMode,
   type AppSettings,
+  type AuthUser,
   type ExtensionMessage,
   type ExtensionResponse,
   type Folder,
@@ -59,6 +62,8 @@ export default function App() {
   const [showCsvDialog, setShowCsvDialog] = useState(false);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [showAuthSuccess, setShowAuthSuccess] = useState(false);
 
   const [systemPrefersDark, setSystemPrefersDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -87,17 +92,19 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       await initializeQueueStorage();
-      const [queueData, settingsData, foldersData, onboardingDone] = await Promise.all([
+      const [queueData, settingsData, foldersData, onboardingDone, user] = await Promise.all([
         getQueue(),
         getSettings(),
         getFolders(),
         isOnboardingComplete(),
+        getAuthUser(),
       ]);
 
       setQueueState(queueData);
       setSettingsState(settingsData);
       setFoldersState(foldersData);
-      setShowOnboarding(!onboardingDone);
+      setAuthUser(user);
+      setShowOnboarding(!onboardingDone && user !== null);
       setIsLoading(false);
     };
 
@@ -274,8 +281,25 @@ export default function App() {
     setShowClearAllConfirm(false);
   }, [handleClearAll]);
 
+  const handleLoginSuccess = useCallback((user: AuthUser) => {
+    setAuthUser(user);
+    setShowAuthSuccess(true);
+  }, []);
+
+  const handleSignOut = useCallback(() => {
+    setAuthUser(null);
+  }, []);
+
   if (isLoading) {
     return <LoadingScreen isDark={isDark} />;
+  }
+
+  if (!authUser) {
+    return (
+      <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      </div>
+    );
   }
 
   return (
@@ -287,6 +311,12 @@ export default function App() {
           className: "text-xs",
           duration: 3000,
         }}
+      />
+
+      <AuthSuccessDialog
+        isOpen={showAuthSuccess}
+        user={authUser}
+        onClose={() => setShowAuthSuccess(false)}
       />
 
       {showOnboarding && (
@@ -324,6 +354,8 @@ export default function App() {
         activeTimer={activeTimer}
         completedCount={queue.filter((item) => item.status === QueueStatus.Completed).length}
         totalCount={queue.length}
+        user={authUser}
+        onSignOut={handleSignOut}
       />
 
       <Navigation isDark={isDark} activeTab={activeTab} setActiveTab={setActiveTab} />
