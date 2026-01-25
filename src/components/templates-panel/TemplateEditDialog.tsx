@@ -157,7 +157,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               <ChevronDown size={16} className="text-muted-foreground" />
             </button>
             {showFolderDropdown && (
-              <div className="bg-popover absolute left-0 top-full z-10 mt-1 w-full rounded-md border border-border shadow-lg">
+              <div className="bg-popover absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border shadow-lg">
                 {folders.map((folder) => (
                   <button
                     key={folder.id}
@@ -209,7 +209,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               <ChevronDown size={16} className="text-muted-foreground" />
             </button>
             {showToolDropdown && (
-              <div className="bg-popover absolute left-0 top-full z-10 mt-1 w-full rounded-md border border-border shadow-lg">
+              <div className="bg-popover absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border shadow-lg">
                 {Object.entries(GEMINI_TOOL_INFO).map(([tool, config]) => (
                   <button
                     key={tool}

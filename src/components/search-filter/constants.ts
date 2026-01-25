@@ -3,6 +3,10 @@ import { CheckCircle, Circle, Image, Layers, Loader2, Type, XCircle } from "luci
 import { ContentType, GeminiMode, QueueStatus } from "@/types";
 
 export const MODE_PILL_STYLES: Record<GeminiMode, { selected: string; unselected: string }> = {
+  [GeminiMode.Default]: {
+    selected: "bg-zinc-500 text-white border-zinc-500 shadow-zinc-500/25",
+    unselected: "border-zinc-500/40 text-zinc-500 hover:bg-zinc-500/10",
+  },
   [GeminiMode.Quick]: {
     selected: "bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/25",
     unselected: "border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10",

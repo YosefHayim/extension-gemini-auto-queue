@@ -1,4 +1,4 @@
-import { ArrowRight, Image, Layers, Rocket, Sparkles, Timer, Zap } from "lucide-react";
+import { ArrowRight, Image, Layers, Rocket, Sparkles, Timer } from "lucide-react";
 import React from "react";
 
 import type { OnboardingModalProps } from "./types";
@@ -41,9 +41,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, on
       <div className="flex h-[640px] w-[380px] flex-col border border-border bg-background">
         <div className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
           <div className="flex flex-col items-center gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-[20px] bg-primary">
-              <Zap size={40} className="text-primary-foreground" />
-            </div>
+            <img src="/icons/icon-128.png" alt="Nano Flow" className="h-20 w-20 rounded-[20px]" />
             <h1 className="text-[28px] font-bold text-foreground">Nano Flow</h1>
             <p className="text-center text-[15px] text-muted-foreground">
               Supercharge your Gemini workflow

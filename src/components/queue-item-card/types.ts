@@ -22,6 +22,10 @@ export interface QueueItemCardProps {
 }
 
 export const MODE_BADGE_STYLES: Record<GeminiMode, { light: string; dark: string }> = {
+  default: {
+    light: "bg-zinc-100 text-zinc-600",
+    dark: "bg-zinc-900/50 text-zinc-400",
+  },
   quick: {
     light: "bg-emerald-100 text-emerald-600",
     dark: "bg-emerald-900/50 text-emerald-400",

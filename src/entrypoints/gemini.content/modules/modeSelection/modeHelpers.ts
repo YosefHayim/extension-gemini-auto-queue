@@ -12,10 +12,25 @@ export function simulateClick(element: HTMLElement): void {
     view: window,
     clientX: centerX,
     clientY: centerY,
+    screenX: centerX,
+    screenY: centerY,
     button: 0,
+    buttons: 1,
   };
 
+  const pointerEventInit: PointerEventInit = {
+    ...mouseEventInit,
+    pointerId: 1,
+    pointerType: "mouse",
+    isPrimary: true,
+    width: 1,
+    height: 1,
+    pressure: 0.5,
+  };
+
+  element.dispatchEvent(new PointerEvent("pointerdown", pointerEventInit));
   element.dispatchEvent(new MouseEvent("mousedown", mouseEventInit));
+  element.dispatchEvent(new PointerEvent("pointerup", pointerEventInit));
   element.dispatchEvent(new MouseEvent("mouseup", mouseEventInit));
   element.dispatchEvent(new MouseEvent("click", mouseEventInit));
 }
@@ -81,7 +96,7 @@ export async function openModeMenu(): Promise<boolean> {
   ];
 
   for (const selector of modeMenuTriggers) {
-    const trigger = document.querySelector(selector) as HTMLElement | null;
+    const trigger = document.querySelector(selector);
     if (trigger) {
       simulateClick(trigger);
       await sleep(400);

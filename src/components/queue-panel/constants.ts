@@ -1,14 +1,20 @@
-import { Brain, Gem, Zap } from "lucide-react";
+import { Bot, Brain, Gem, Zap } from "lucide-react";
 
 import { GeminiMode } from "@/types";
 
 export const MODE_ICONS = {
+  [GeminiMode.Default]: Bot,
   [GeminiMode.Quick]: Zap,
   [GeminiMode.Deep]: Brain,
   [GeminiMode.Pro]: Gem,
 };
 
 export const MODE_SELECTOR_STYLES: Record<GeminiMode, { selected: string; unselected: string }> = {
+  [GeminiMode.Default]: {
+    selected: "bg-zinc-500 text-white shadow-lg shadow-zinc-500/30",
+    unselected:
+      "border-zinc-500/30 text-zinc-500 hover:bg-zinc-500/10 border dark:text-zinc-400 dark:border-zinc-500/40",
+  },
   [GeminiMode.Quick]: {
     selected: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30",
     unselected:

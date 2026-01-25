@@ -25,6 +25,7 @@ export enum ContentType {
 
 // Gemini speed/quality modes - affects generation time and quality
 export enum GeminiMode {
+  Default = "default", // Use whatever mode Gemini has selected
   Quick = "quick", // Fast generation (Gemini 3: "Fast")
   Deep = "deep", // Deep thinking (Gemini 3: "Thinking")
   Pro = "pro", // Highest quality (Gemini 3: "Pro")
@@ -42,6 +43,14 @@ export const GEMINI_MODE_INFO: Record<
     color: string;
   }
 > = {
+  [GeminiMode.Default]: {
+    label: "Default",
+    labelHebrew: "ברירת מחדל",
+    description: "Use Gemini's currently selected mode",
+    dataTestId: "",
+    dataTestIdHebrew: "",
+    color: "zinc",
+  },
   [GeminiMode.Quick]: {
     label: "Fast",
     labelHebrew: "זריז",
