@@ -32,7 +32,7 @@ export async function tryFileInputApproach(dataTransfer: DataTransfer): Promise<
       dispatchFileInputEvents(inputEl);
       await sleep(300);
 
-      if (inputEl.files && inputEl.files.length > 0) {
+      if (inputEl.files.length > 0) {
         log.info("tryFileInput", `Files attached successfully`, {
           count: inputEl.files.length,
         });
@@ -71,8 +71,9 @@ export async function tryHiddenFileSelector(dataTransfer: DataTransfer): Promise
   }
 
   log.debug("tryHiddenSelector", "Setting files via hidden input");
-  fileInput.files = dataTransfer.files;
-  dispatchFileInputEvents(fileInput);
+  const inputEl = fileInput as HTMLInputElement;
+  inputEl.files = dataTransfer.files;
+  dispatchFileInputEvents(inputEl);
   await sleep(1000);
 
   return true;
@@ -140,7 +141,7 @@ export async function tryDropApproach(dataTransfer: DataTransfer): Promise<boole
 
   const editorEl = editor as HTMLElement;
   const richTextarea = editorEl.closest("rich-textarea");
-  const dropTarget = richTextarea || editorEl;
+  const dropTarget = richTextarea ?? editorEl;
 
   log.debug("tryDrop", "Attempting drag-drop");
 

@@ -34,7 +34,9 @@ export default function Options() {
     const loadSettings = async () => {
       const savedSettings = await getSettings();
       setSettingsState(savedSettings);
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       if (savedSettings.apiKey) {
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         setApiKey(savedSettings.apiKey);
       }
     };
@@ -58,7 +60,7 @@ export default function Options() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const updatedSettings = { ...settings, apiKey: apiKey ?? undefined };
+      const updatedSettings = { ...settings, apiKey: apiKey || undefined };
       await setSettings(updatedSettings);
       setSettingsState(updatedSettings);
       setSaveSuccess(true);

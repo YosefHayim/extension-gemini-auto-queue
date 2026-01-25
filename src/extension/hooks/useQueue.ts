@@ -36,7 +36,7 @@ export function useQueue(): UseQueueReturn {
   useEffect(() => {
     const loadQueue = async () => {
       try {
-        const queueData = (await getQueue()) ?? [];
+        const queueData = await getQueue();
         setQueueState(queueData);
         const hasProcessing = queueData.some((item) => item.status === QueueStatus.Processing);
         setIsProcessing(hasProcessing);
@@ -53,9 +53,8 @@ export function useQueue(): UseQueueReturn {
   // Listen for queue changes from IndexedDB
   useEffect(() => {
     const cleanup = onQueueChange((newQueue) => {
-      const safeQueue = newQueue ?? [];
-      setQueueState(safeQueue);
-      const hasProcessing = safeQueue.some((item) => item.status === QueueStatus.Processing);
+      setQueueState(newQueue);
+      const hasProcessing = newQueue.some((item) => item.status === QueueStatus.Processing);
       setIsProcessing(hasProcessing);
     });
 
@@ -165,7 +164,7 @@ export function createQueueItems(
   const expandedPrompts: string[] = [];
 
   for (const prompt of prompts) {
-    const expanded = expandPromptWithVariables(prompt, settings.globalVariables ?? []);
+    const expanded = expandPromptWithVariables(prompt, settings.globalVariables);
     expandedPrompts.push(...expanded);
   }
 

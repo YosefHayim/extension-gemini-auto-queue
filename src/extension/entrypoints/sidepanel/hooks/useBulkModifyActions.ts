@@ -218,7 +218,10 @@ export function useBulkModifyActions({
           if (targetIds.has(item.id)) {
             updatedQueue.push(shuffledSelected[selectedIndex++]);
           } else {
-            updatedQueue.push(otherItems.find((o) => o.id === item.id)!);
+            const otherItem = otherItems.find((o) => o.id === item.id);
+            if (otherItem) {
+              updatedQueue.push(otherItem);
+            }
           }
         }
       } else {

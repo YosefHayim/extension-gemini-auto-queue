@@ -94,12 +94,12 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
             title={
               queue.length === 0
                 ? "No items to export"
-                : `Export as ${selectedOption?.extension || ""}`
+                : `Export as ${selectedOption?.extension ?? ""}`
             }
             className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${queue.length === 0 ? "cursor-not-allowed bg-muted text-muted-foreground" : "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"}`}
           >
             <Download size={18} />
-            Export as {selectedOption?.extension || ""}
+            Export as {selectedOption?.extension ?? ""}
           </button>
 
           {queue.length === 0 && (

@@ -111,8 +111,8 @@ export async function improvePrompt(text: string): Promise<string> {
     });
 
     return response.text ?? text;
-  } catch (error) {
-    throw error;
+  } catch {
+    return text;
   }
 }
 

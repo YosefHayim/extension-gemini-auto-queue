@@ -13,7 +13,7 @@ export async function openToolbox(): Promise<boolean> {
     const buttons = document.querySelectorAll("button");
     for (const btn of buttons) {
       const ariaLabel = btn.getAttribute("aria-label") ?? "";
-      const className = btn.className ?? "";
+      const className = btn.className;
       if (
         ariaLabel.includes("כלים") ||
         ariaLabel.includes("Tools") ||

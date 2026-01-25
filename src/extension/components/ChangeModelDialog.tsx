@@ -18,7 +18,7 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
   onClose,
   onSave,
 }) => {
-  const [selectedModel, setSelectedModel] = useState(currentModel ?? availableModels[0] ?? "");
+  const [selectedModel, setSelectedModel] = useState(currentModel ?? availableModels[0]);
 
   const handleSave = () => {
     if (selectedModel.trim()) {

@@ -45,6 +45,7 @@ export async function pastePromptToInput(prompt: string): Promise<boolean> {
     range.selectNodeContents(editorEl);
     selection?.removeAllRanges();
     selection?.addRange(range);
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     document.execCommand("insertText", false, prompt);
   } catch {
     // intentionally empty
@@ -83,9 +84,7 @@ export async function submitPrompt(): Promise<boolean> {
     }
   }
 
-  if (!submitBtn) {
-    submitBtn = findByAriaLabel(["send", "submit"]);
-  }
+  submitBtn ??= findByAriaLabel(["send", "submit"]);
 
   if (!submitBtn) {
     const buttons = document.querySelectorAll("button:not([disabled])");

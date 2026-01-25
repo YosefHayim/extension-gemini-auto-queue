@@ -9,7 +9,7 @@ import {
   isExtensionEnabled,
   updateQueueItem,
 } from "@/backend/services/storageService";
-import { GeminiTool, MessageType, QueueStatus } from "@/backend/types";
+import { MessageType, QueueStatus } from "@/backend/types";
 import { logger } from "@/backend/utils/logger";
 import {
   broadcastMessage,
@@ -70,7 +70,7 @@ export async function startProcessing(): Promise<void> {
 
       try {
         const settings = await getSettings();
-        let tool = nextItem.tool || settings.defaultTool || GeminiTool.IMAGE;
+        let tool = nextItem.tool ?? settings.defaultTool;
 
         if (settings.useToolSequence && settings.toolSequence.length > 0) {
           const queueData = await getQueue();
@@ -123,7 +123,7 @@ export async function startProcessing(): Promise<void> {
             processingTimeMs: endTime - startTime,
           });
         } else {
-          throw new Error(response.error || "Web automation failed");
+          throw new Error(response.error ?? "Web automation failed");
         }
 
         const waitTime = settings.dripFeed

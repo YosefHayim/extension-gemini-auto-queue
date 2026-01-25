@@ -55,7 +55,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
     onAddToQueue,
   });
 
-  const hasBulkActions = !!(onBulkAttachImages || onBulkAIOptimize || onBulkModify);
+  const hasBulkActions = Boolean(onBulkAttachImages ?? onBulkAIOptimize ?? onBulkModify);
 
   return (
     <div className="animate-in fade-in space-y-3 duration-300">

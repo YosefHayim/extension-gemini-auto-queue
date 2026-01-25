@@ -19,7 +19,7 @@ export const automationModule = {
     chrome.runtime
       .sendMessage({ type: MessageType.CONTENT_SCRIPT_READY })
       .then(() => log.debug("init", "CONTENT_SCRIPT_READY sent"))
-      .catch((e) => log.warn("init", "CONTENT_SCRIPT_READY failed", { error: e }));
+      .catch((e: unknown) => log.warn("init", "CONTENT_SCRIPT_READY failed", { error: e }));
 
     setupMessageListener();
     setupKeyboardShortcuts();

@@ -41,7 +41,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
       <div className={sectionClasses}>
         <label className={labelClasses}>Default Tool</label>
         <select
-          value={settings.defaultTool || GeminiTool.IMAGE}
+          value={settings.defaultTool}
           onChange={(e) => {
             onUpdateSettings({ defaultTool: e.target.value as GeminiTool });
           }}
@@ -63,30 +63,30 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
             title={
               settings.useToolSequence ? "Disable tool sequence" : "Enable tool sequence cycling"
             }
-            className={getToggleButtonClasses(settings.useToolSequence || false)}
+            className={getToggleButtonClasses(settings.useToolSequence)}
           >
-            <div className={getToggleKnobClasses(settings.useToolSequence || false)} />
+            <div className={getToggleKnobClasses(settings.useToolSequence)} />
           </button>
         </div>
 
         <div
           className={`flex min-h-[44px] flex-wrap gap-1.5 rounded-lg border border-border bg-background p-2.5 transition-opacity duration-150 ${!settings.useToolSequence ? "opacity-40" : ""}`}
         >
-          {(settings.toolSequence ?? []).map((tool, idx) => (
+          {settings.toolSequence.map((tool, idx) => (
             <div
               key={idx}
               className="flex items-center gap-1.5 rounded-lg bg-primary/20 px-2.5 py-1.5 text-xs font-medium text-primary"
             >
               <span>
-                {GEMINI_TOOL_INFO[tool] && "icon" in GEMINI_TOOL_INFO[tool]
+                {"icon" in GEMINI_TOOL_INFO[tool]
                   ? React.createElement(GEMINI_TOOL_INFO[tool].icon, { size: 12 })
                   : "?"}
               </span>
-              <span>{GEMINI_TOOL_INFO[tool]?.label || tool}</span>
+              <span>{GEMINI_TOOL_INFO[tool].label}</span>
               {settings.useToolSequence && (
                 <button
                   onClick={() => {
-                    const newSequence = [...(settings.toolSequence ?? [])];
+                    const newSequence = [...settings.toolSequence];
                     newSequence.splice(idx, 1);
                     onUpdateSettings({
                       toolSequence: newSequence.length > 0 ? newSequence : [GeminiTool.IMAGE],
@@ -100,7 +100,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
               )}
             </div>
           ))}
-          {(settings.toolSequence ?? []).length === 0 && (
+          {settings.toolSequence.length === 0 && (
             <span className="text-xs text-muted-foreground">No tools in sequence</span>
           )}
         </div>
@@ -108,13 +108,13 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
         {settings.useToolSequence && (
           <div className="flex flex-wrap gap-1.5 pt-2">
             {Object.entries(GEMINI_TOOL_INFO)
-              .filter(([tool]) => tool !== GeminiTool.NONE)
+              .filter(([tool]) => tool !== (GeminiTool.NONE as string))
               .map(([tool, info]) => (
                 <button
                   key={tool}
                   onClick={() => {
                     onUpdateSettings({
-                      toolSequence: [...(settings.toolSequence ?? []), tool as GeminiTool],
+                      toolSequence: [...settings.toolSequence, tool as GeminiTool],
                     });
                   }}
                   title={`Add ${info.label} to sequence`}

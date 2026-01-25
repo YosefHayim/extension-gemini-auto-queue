@@ -34,7 +34,7 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
   const toolConfig = TOOL_SELECTORS[tool];
   let toolBtn: HTMLElement | null = null;
 
-  if (!toolBtn && toolConfig.fontIcons.length > 0) {
+  if (toolConfig.fontIcons.length > 0) {
     for (const iconName of toolConfig.fontIcons) {
       const iconSelectors = [
         `mat-icon[fonticon="${iconName}"]`,
@@ -49,8 +49,8 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
           if (btn && !btn.disabled && btn.offsetParent !== null) {
             const isInDrawer =
               btn.classList.contains("toolbox-drawer-item-list-button") ||
-              btn.closest("toolbox-drawer-item") ||
-              btn.closest("mat-action-list");
+              btn.closest("toolbox-drawer-item") !== null ||
+              btn.closest("mat-action-list") !== null;
             if (isInDrawer) {
               toolBtn = btn as HTMLElement;
               break;
@@ -63,12 +63,10 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
     }
   }
 
-  if (!toolBtn) {
-    toolBtn = document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtHebrew}" i]`);
-  }
+  toolBtn ??= document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtHebrew}" i]`);
 
-  if (!toolBtn && toolConfig.jfExtEnglish) {
-    toolBtn = document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtEnglish}" i]`);
+  if (toolConfig.jfExtEnglish) {
+    toolBtn ??= document.querySelector(`button[jf-ext-button-ct*="${toolConfig.jfExtEnglish}" i]`);
   }
 
   if (!toolBtn) {

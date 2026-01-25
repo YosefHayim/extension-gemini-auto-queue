@@ -150,7 +150,7 @@ export const QueueContent: React.FC<QueueContentProps> = ({
     if (selectedStatusFilters.length === 0) return "All Status";
     if (selectedStatusFilters.length === 1) {
       return (
-        STATUS_OPTIONS.find((s) => s.value === selectedStatusFilters[0])?.label || "All Status"
+        STATUS_OPTIONS.find((s) => s.value === selectedStatusFilters[0])?.label ?? "All Status"
       );
     }
     return `${selectedStatusFilters.length} statuses`;
@@ -159,7 +159,7 @@ export const QueueContent: React.FC<QueueContentProps> = ({
   const getModeLabel = () => {
     if (selectedModeFilters.length === 0) return "All Models";
     if (selectedModeFilters.length === 1) {
-      return MODE_OPTIONS.find((m) => m.value === selectedModeFilters[0])?.label || "All Models";
+      return MODE_OPTIONS.find((m) => m.value === selectedModeFilters[0])?.label ?? "All Models";
     }
     return `${selectedModeFilters.length} modes`;
   };
@@ -174,7 +174,7 @@ export const QueueContent: React.FC<QueueContentProps> = ({
           {pendingCount > 0 && (
             <div className="flex items-center gap-1.5 rounded bg-info/20 px-2.5 py-1 text-xs font-medium text-info">
               <Timer size={12} />
-              {estimatedTimeRemaining || "calculating..."}
+              {estimatedTimeRemaining ?? "calculating..."}
             </div>
           )}
         </div>

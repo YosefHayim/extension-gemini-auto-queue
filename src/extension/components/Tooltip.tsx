@@ -121,7 +121,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       onFocus={showTooltip}
       onBlur={hideTooltip}
     >
-      {children || <Info size={size} />}
+      {children ?? <Info size={size} />}
       {isVisible && (
         <div
           ref={tooltipRef}

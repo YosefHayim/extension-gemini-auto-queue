@@ -153,7 +153,7 @@ export async function improvePrompt(text: string, settings: AppSettings): Promis
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
     if (errorMessage.includes("quota") || errorMessage.includes("rate")) {
-      throw new Error(`${String(provider)} API quota exceeded. Please try again later.`);
+      throw new Error(`${provider} API quota exceeded. Please try again later.`);
     }
 
     if (
@@ -161,7 +161,7 @@ export async function improvePrompt(text: string, settings: AppSettings): Promis
       errorMessage.includes("Invalid") ||
       errorMessage.includes("401")
     ) {
-      throw new Error(`Invalid ${String(provider)} API key. Please check your settings.`);
+      throw new Error(`Invalid ${provider} API key. Please check your settings.`);
     }
 
     throw error;

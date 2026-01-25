@@ -16,7 +16,7 @@ import {
 const log = logger.module("PromptInput");
 
 export async function uploadImages(images: string[]): Promise<boolean> {
-  if (!images || images.length === 0) {
+  if (images.length === 0) {
     return true;
   }
 
@@ -40,9 +40,7 @@ export async function uploadImages(images: string[]): Promise<boolean> {
     SELECTORS.uploadButtonAlt3
   );
 
-  if (!uploadMenuBtn) {
-    uploadMenuBtn = findByAriaLabel(["upload", "file", "attachment"]);
-  }
+  uploadMenuBtn ??= findByAriaLabel(["upload", "file", "attachment"]);
 
   if (uploadMenuBtn) {
     log.debug("uploadImages", "Opening upload menu");

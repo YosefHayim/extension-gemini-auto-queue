@@ -51,7 +51,11 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
   }, [showClearMenu]);
 
   const showActions =
-    onClearAll || onClearByFilter || hasBulkActions || onClearCompleted || onOpenExport;
+    onClearAll !== undefined ||
+    onClearByFilter !== undefined ||
+    hasBulkActions ||
+    onClearCompleted !== undefined ||
+    onOpenExport !== undefined;
 
   if (!showActions) return null;
 

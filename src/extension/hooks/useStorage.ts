@@ -39,8 +39,8 @@ export function useStorage<T>(
       changes: Record<string, chrome.storage.StorageChange>,
       areaName: string
     ) => {
-      if (areaName === "local" && changes[key]) {
-        setValue((changes[key].newValue as T) ?? defaultValue);
+      if (areaName === "local" && key in changes) {
+        setValue((changes[key].newValue as T | undefined) ?? defaultValue);
       }
     };
 

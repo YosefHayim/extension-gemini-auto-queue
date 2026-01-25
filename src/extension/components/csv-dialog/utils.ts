@@ -9,8 +9,7 @@ export const parseCSV = (text: string): ParsedRow[] => {
     let current = "";
     let inQuotes = false;
 
-    for (let i = 0; i < row.length; i++) {
-      const char = row[i];
+    for (const char of row) {
       if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === "," && !inQuotes) {

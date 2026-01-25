@@ -25,9 +25,7 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, onUpdateSettings }) =>
   });
 
   const hasAnyKey = hasAnyAIKey(settings);
-  const configuredProviders = Object.entries(settings.aiApiKeys || {}).filter(
-    ([, key]) => key
-  ).length;
+  const configuredProviders = Object.entries(settings.aiApiKeys).filter(([, key]) => key).length;
 
   const toggleKeyVisibility = (provider: AIProvider) => {
     setVisibleKeys((prev) => ({ ...prev, [provider]: !prev[provider] }));
@@ -37,7 +35,7 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, onUpdateSettings }) =>
     onUpdateSettings({
       aiApiKeys: {
         ...settings.aiApiKeys,
-        [provider]: value ?? undefined,
+        [provider]: value || undefined,
       },
     });
   };
@@ -79,7 +77,7 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, onUpdateSettings }) =>
             <div className="space-y-1.5">
               <label className={labelClasses}>Preferred Provider</label>
               <select
-                value={settings.preferredAIProvider || AIProvider.GEMINI}
+                value={settings.preferredAIProvider}
                 onChange={(e) => {
                   onUpdateSettings({ preferredAIProvider: e.target.value as AIProvider });
                 }}
@@ -95,7 +93,7 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, onUpdateSettings }) =>
 
             {Object.entries(AI_PROVIDER_INFO).map(([provider, info]) => {
               const providerKey = provider as AIProvider;
-              const apiKey = settings.aiApiKeys?.[providerKey] ?? "";
+              const apiKey = settings.aiApiKeys[providerKey] ?? "";
               const isVisible = visibleKeys[providerKey];
 
               return (

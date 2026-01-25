@@ -139,19 +139,27 @@ export const DESIGN_TOKENS = {
  * @param isDark - Whether dark theme is active
  * @returns The appropriate token value
  */
+type TokenValue = string | Record<string, unknown>;
+
 export function getToken(tokenPath: string, isDark: boolean): string {
   const parts = tokenPath.split(".");
-  let current: any = DESIGN_TOKENS;
+  let current: TokenValue = DESIGN_TOKENS as unknown as TokenValue;
 
   for (const part of parts) {
-    if (part === "light" || part === "dark") {
-      current = current[isDark ? "dark" : "light"];
-    } else {
-      current = current[part];
+    if (typeof current !== "object") {
+      return "";
     }
+    const obj = current as Record<string, TokenValue>;
+    const nextValue =
+      part === "light" || part === "dark" ? obj[isDark ? "dark" : "light"] : obj[part];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime safety for dynamic path traversal
+    if (nextValue === undefined) {
+      return "";
+    }
+    current = nextValue;
   }
 
-  return current;
+  return typeof current === "string" ? current : "";
 }
 
 /**

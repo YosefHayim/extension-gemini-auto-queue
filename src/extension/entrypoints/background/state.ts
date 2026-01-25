@@ -5,9 +5,15 @@ import type { ProcessingState } from "@/extension/entrypoints/background/types";
 
 const log = logger.module("State");
 
+interface StoredProcessingState {
+  isProcessing?: boolean;
+  isPaused?: boolean;
+  activeGeminiTabId?: number | null;
+}
+
 export async function getProcessingState(): Promise<ProcessingState> {
   try {
-    const result = await chrome.storage.session.get([
+    const result: StoredProcessingState = await chrome.storage.session.get([
       "isProcessing",
       "isPaused",
       "activeGeminiTabId",

@@ -44,7 +44,7 @@ export function setupMessageListener(): void {
 
             const result = await processPromptThroughUI(
               payload.prompt,
-              payload.tool || GeminiTool.IMAGE,
+              payload.tool ?? GeminiTool.IMAGE,
               images,
               payload.mode
             );
@@ -83,8 +83,8 @@ export function setupMessageListener(): void {
               filterType?: "image" | "video" | "file";
             };
 
-            const method = downloadPayload?.method ?? "native";
-            const filterType = downloadPayload?.filterType;
+            const method = downloadPayload.method ?? "native";
+            const filterType = downloadPayload.filterType;
 
             if (method === "native") {
               const count = await downloadAllViaNativeButtons();

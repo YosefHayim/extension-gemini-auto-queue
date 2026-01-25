@@ -25,8 +25,8 @@ export const generateExportContent = (queue: QueueItem[], format: ExportFormat):
       const headers = ["Prompt", "Tool", "Mode", "Status"];
       const rows = queue.map((item) => [
         escapeCSV(item.finalPrompt || item.originalPrompt),
-        escapeCSV(item.tool || ""),
-        escapeCSV(item.mode || ""),
+        escapeCSV(item.tool ?? ""),
+        escapeCSV(item.mode ?? ""),
         escapeCSV(item.status),
       ]);
       return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");

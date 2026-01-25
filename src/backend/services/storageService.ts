@@ -85,20 +85,16 @@ export async function getSettings(): Promise<AppSettings> {
  * Update application settings in storage
  */
 export async function setSettings(updates: Partial<AppSettings>): Promise<void> {
-  try {
-    const current = await getSettings();
-    const merged = {
-      ...current,
-      ...updates,
-      aiApiKeys: {
-        ...current.aiApiKeys,
-        ...updates.aiApiKeys,
-      },
-    };
-    await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: merged });
-  } catch (error) {
-    throw error;
-  }
+  const current = await getSettings();
+  const merged = {
+    ...current,
+    ...updates,
+    aiApiKeys: {
+      ...current.aiApiKeys,
+      ...updates.aiApiKeys,
+    },
+  };
+  await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: merged });
 }
 
 export class StorageQuotaError extends Error {
@@ -135,7 +131,8 @@ export async function initializeQueueStorage(): Promise<void> {
 export async function getFolders(): Promise<Folder[]> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.FOLDERS);
-    return (result[STORAGE_KEYS.FOLDERS] as Folder[]) ?? [];
+    const folders = result[STORAGE_KEYS.FOLDERS] as Folder[] | undefined;
+    return folders ?? [];
   } catch {
     return [];
   }
@@ -145,11 +142,7 @@ export async function getFolders(): Promise<Folder[]> {
  * Update folders in storage
  */
 export async function setFolders(folders: Folder[]): Promise<void> {
-  try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: folders });
-  } catch (error) {
-    throw error;
-  }
+  await chrome.storage.local.set({ [STORAGE_KEYS.FOLDERS]: folders });
 }
 
 /**
@@ -158,7 +151,8 @@ export async function setFolders(folders: Folder[]): Promise<void> {
 export async function isOnboardingComplete(): Promise<boolean> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.ONBOARDING_COMPLETE);
-    return (result[STORAGE_KEYS.ONBOARDING_COMPLETE] as boolean) ?? false;
+    const complete = result[STORAGE_KEYS.ONBOARDING_COMPLETE] as boolean | undefined;
+    return complete ?? false;
   } catch {
     return false;
   }
@@ -168,11 +162,7 @@ export async function isOnboardingComplete(): Promise<boolean> {
  * Set onboarding complete status
  */
 export async function setOnboardingComplete(complete: boolean): Promise<void> {
-  try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.ONBOARDING_COMPLETE]: complete });
-  } catch (error) {
-    throw error;
-  }
+  await chrome.storage.local.set({ [STORAGE_KEYS.ONBOARDING_COMPLETE]: complete });
 }
 
 /**
@@ -208,15 +198,16 @@ export async function getAIApiKey(provider: AIProvider): Promise<string | undefi
     };
 
     const keyName = keyMap[provider];
-    const key = settings.aiApiKeys?.[keyName];
+    const key = settings.aiApiKeys[keyName];
 
     if (key) {
       return key;
     }
 
-    // Fallback to deprecated apiKey for GEMINI if new structure doesn't have it
-    // This maintains backward compatibility
+    // Backward compatibility fallback to deprecated apiKey for GEMINI
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (provider === AIProvider.GEMINI && settings.apiKey) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       return settings.apiKey;
     }
 
@@ -241,7 +232,7 @@ export function getPreferredAIKey(
   };
 
   const keyName = keyMap[preferredAIProvider];
-  const key = aiApiKeys?.[keyName];
+  const key = aiApiKeys[keyName];
 
   if (key) {
     return { provider: preferredAIProvider, key };
@@ -249,14 +240,16 @@ export function getPreferredAIKey(
 
   // Fallback: try to find any configured key
   for (const [provider, keyName] of Object.entries(keyMap)) {
-    const apiKey = aiApiKeys?.[keyName];
+    const apiKey = aiApiKeys[keyName];
     if (apiKey) {
       return { provider: provider as AIProvider, key: apiKey };
     }
   }
 
-  // Final fallback: check deprecated apiKey for GEMINI
+  // Backward compatibility fallback to deprecated apiKey for GEMINI
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   if (settings.apiKey) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return { provider: AIProvider.GEMINI, key: settings.apiKey };
   }
 
@@ -267,17 +260,16 @@ export function getPreferredAIKey(
  * Check if any AI API key is configured
  */
 export function hasAnyAIKey(settings: AppSettings): boolean {
-  const { aiApiKeys, apiKey } = settings;
+  const { aiApiKeys } = settings;
 
   // Check new structure
-  if (aiApiKeys) {
-    if (aiApiKeys.gemini || aiApiKeys.openai || aiApiKeys.anthropic) {
-      return true;
-    }
+  if (aiApiKeys.gemini || aiApiKeys.openai || aiApiKeys.anthropic) {
+    return true;
   }
 
-  // Fallback to deprecated apiKey
-  return Boolean(apiKey);
+  // Backward compatibility fallback to deprecated apiKey
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  return Boolean(settings.apiKey);
 }
 
 /**
@@ -286,7 +278,8 @@ export function hasAnyAIKey(settings: AppSettings): boolean {
 export async function isExtensionEnabled(): Promise<boolean> {
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.EXTENSION_ENABLED);
-    return (result[STORAGE_KEYS.EXTENSION_ENABLED] as boolean) ?? true; // Default to enabled
+    const enabled = result[STORAGE_KEYS.EXTENSION_ENABLED] as boolean | undefined;
+    return enabled ?? true;
   } catch {
     return true;
   }
@@ -296,9 +289,5 @@ export async function isExtensionEnabled(): Promise<boolean> {
  * Set extension enabled state
  */
 export async function setExtensionEnabled(enabled: boolean): Promise<void> {
-  try {
-    await chrome.storage.local.set({ [STORAGE_KEYS.EXTENSION_ENABLED]: enabled });
-  } catch (error) {
-    throw error;
-  }
+  await chrome.storage.local.set({ [STORAGE_KEYS.EXTENSION_ENABLED]: enabled });
 }

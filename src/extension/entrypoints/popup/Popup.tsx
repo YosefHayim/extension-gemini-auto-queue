@@ -21,7 +21,7 @@ export default function Popup() {
           chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => tabs[0]),
           getSettings(),
         ]);
-        setIsOnGemini(isGeminiSite(tab?.url));
+        setIsOnGemini(isGeminiSite(tab.url));
 
         const isEnabled = await isExtensionEnabled();
         setEnabled(isEnabled);
@@ -44,7 +44,7 @@ export default function Popup() {
   const openSidePanel = async () => {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab?.id) {
+      if (tab.id) {
         await chrome.sidePanel.setOptions({
           tabId: tab.id,
           path: "sidepanel.html",
@@ -136,6 +136,7 @@ export default function Popup() {
               className="flex w-full items-center justify-between rounded-md bg-muted px-3 py-2.5 transition-colors hover:bg-muted/80"
             >
               <div className="flex items-center gap-2.5">
+                {/* eslint-disable-next-line @typescript-eslint/no-deprecated */}
                 <Linkedin className="h-4 w-4 text-foreground" />
                 <span className="text-[13px] font-medium text-foreground">LinkedIn</span>
               </div>

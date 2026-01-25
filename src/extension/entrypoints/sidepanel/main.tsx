@@ -14,6 +14,7 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+// eslint-disable-next-line @typescript-eslint/unbound-method
 const SentryErrorFallback: Sentry.FallbackRender = ({ error, resetError }) => (
   <div className="flex h-screen flex-col items-center justify-center gap-4 bg-gray-900 p-8 text-white">
     <h1 className="text-xl font-bold text-red-400">Something went wrong</h1>

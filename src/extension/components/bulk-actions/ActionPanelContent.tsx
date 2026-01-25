@@ -111,10 +111,10 @@ const ChangeToolPanel: React.FC<{
     <p className="text-sm font-medium text-foreground">Select Tool</p>
     <div className="grid grid-cols-2 gap-2">
       {Object.entries(GEMINI_TOOL_INFO)
-        .filter(([key]) => key !== GeminiTool.NONE)
+        .filter(([key]) => key !== (GeminiTool.NONE as string))
         .map(([tool, info]) => {
           const Icon = info.icon;
-          const isSelected = selectedTool === tool;
+          const isSelected = (selectedTool as string) === tool;
           return (
             <button
               key={tool}
@@ -142,7 +142,7 @@ const ChangeModePanel: React.FC<{
     <p className="text-sm font-medium text-foreground">Select Mode</p>
     <div className="grid grid-cols-3 gap-2">
       {Object.entries(GEMINI_MODE_INFO).map(([mode, info]) => {
-        const isSelected = selectedMode === mode;
+        const isSelected = (selectedMode as string) === mode;
         return (
           <button
             key={mode}

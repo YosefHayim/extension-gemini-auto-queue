@@ -19,7 +19,7 @@ export interface BatchOptions {
 
 function generateFilename(originalFilename: string, format: string, index: number): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const baseName = originalFilename?.replace(/\.[^.]+$/, "") || `image_${index}`;
+  const baseName = originalFilename.replace(/\.[^.]+$/, "") || `image_${index}`;
   return `${baseName}_${timestamp}.${format}`;
 }
 
@@ -109,11 +109,12 @@ export async function processBatch(
         results.push(result.value);
         onItemComplete?.(result.value);
       } else {
+        const reason = result.reason as Error | undefined;
         const failedResult: ProcessingResult = {
           success: false,
           originalUrl: item.url,
-          filename: item.filename ?? "unknown",
-          error: result.reason?.message ?? "Processing failed",
+          filename: item.filename || "unknown",
+          error: reason?.message ?? "Processing failed",
           processingTime: 0,
           strategy: "client",
         };
@@ -124,7 +125,7 @@ export async function processBatch(
       onProgress?.({
         completed: results.length,
         total: items.length,
-        currentItem: item.filename ?? "Processing...",
+        currentItem: item.filename || "Processing...",
         estimatedTimeRemaining: estimateTimeRemaining(startTime, results.length, items.length),
       });
     }

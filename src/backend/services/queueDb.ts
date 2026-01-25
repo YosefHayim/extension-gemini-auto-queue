@@ -135,25 +135,29 @@ const QUEUE_CHANNEL_NAME = "nano_flow_queue_channel";
 let broadcastChannel: BroadcastChannel | null = null;
 
 function getBroadcastChannel(): BroadcastChannel {
-  if (!broadcastChannel) {
-    broadcastChannel = new BroadcastChannel(QUEUE_CHANNEL_NAME);
-  }
+  broadcastChannel ??= new BroadcastChannel(QUEUE_CHANNEL_NAME);
   return broadcastChannel;
 }
 
 function notifyQueueChange(_queue: QueueItem[]): void {
   try {
     getBroadcastChannel().postMessage({ type: "QUEUE_UPDATED" });
-  } catch {}
+  } catch {
+    // Ignore BroadcastChannel errors (e.g., channel closed)
+  }
+}
+
+interface QueueUpdateMessage {
+  type: string;
 }
 
 export function onQueueChange(callback: (queue: QueueItem[]) => void): () => void {
   const channel = getBroadcastChannel();
-  const handler = async (event: MessageEvent) => {
-    if (event.data?.type === "QUEUE_UPDATED") {
+  const handler = async (event: MessageEvent<QueueUpdateMessage>) => {
+    if (event.data.type === "QUEUE_UPDATED") {
       try {
         const queue = await getAllQueueItems();
-        callback(queue ?? []);
+        callback(queue);
       } catch {
         callback([]);
       }
@@ -181,10 +185,7 @@ export async function migrateFromChromeStorage(): Promise<boolean> {
 
 export async function requestPersistentStorage(): Promise<boolean> {
   try {
-    if (navigator.storage?.persist) {
-      return await navigator.storage.persist();
-    }
-    return false;
+    return await navigator.storage.persist();
   } catch {
     return false;
   }

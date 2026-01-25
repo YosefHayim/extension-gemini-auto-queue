@@ -96,7 +96,7 @@ export async function openModeMenu(): Promise<boolean> {
   ];
 
   for (const selector of modeMenuTriggers) {
-    const trigger = document.querySelector(selector);
+    const trigger = document.querySelector<HTMLElement>(selector);
     if (trigger) {
       simulateClick(trigger);
       await sleep(400);

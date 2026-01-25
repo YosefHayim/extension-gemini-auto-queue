@@ -15,8 +15,8 @@ export const PLAN_LIMITS = {
     features: ["basic_queue", "limited_tools"],
   },
   [SUBSCRIPTION_PLANS.LIFETIME]: {
-    price: 500,
-    dailyPrompts: 100,
+    price: 499,
+    dailyPrompts: Infinity,
     features: ["full_queue", "all_tools", "priority_support"],
   },
 } as const;

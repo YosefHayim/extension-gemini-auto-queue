@@ -109,7 +109,7 @@ export async function handleMessage(
     case MessageType.OPEN_SIDE_PANEL: {
       try {
         const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (activeTab?.id && activeTab.url) {
+        if (activeTab.id && activeTab.url) {
           if (!isPermittedHost(activeTab.url)) {
             return { success: false, error: "Sidebar is only available on Gemini sites" };
           }
