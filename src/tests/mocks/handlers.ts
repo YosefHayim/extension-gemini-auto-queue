@@ -54,7 +54,7 @@ const mockSubscription: SubscriptionInfo = {
 
 export const handlers = [
   http.post(`${API_BASE}/auth/otp/request`, async ({ request }) => {
-    const body = (await request.json()) as { email: string };
+    const body = (await request.json()) as { email?: string };
 
     if (!body.email?.includes("@")) {
       return HttpResponse.json(
