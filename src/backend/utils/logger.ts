@@ -78,7 +78,7 @@ class DevLogger {
 
     try {
       const result = await chrome.storage.local.get(STORAGE_KEY);
-      const logs: LogEntry[] = result[STORAGE_KEY] || [];
+      const logs: LogEntry[] = (result[STORAGE_KEY] as LogEntry[] | undefined) ?? [];
 
       logs.push(entry);
 
@@ -120,6 +120,7 @@ class DevLogger {
       const color = LEVEL_COLORS[level];
 
       let logFn: typeof console.log;
+      /* eslint-disable no-console */
       switch (level) {
         case LogLevel.ERROR:
           logFn = console.error;
@@ -133,6 +134,7 @@ class DevLogger {
         default:
           logFn = console.log;
       }
+      /* eslint-enable no-console */
 
       if (data !== undefined) {
         logFn(`%c${prefix} ${moduleAction}${durationStr} ${message}`, `color: ${color}`, data);
@@ -224,17 +226,18 @@ class DevLogger {
     const duration = startTime ? Math.round(performance.now() - startTime) : undefined;
     this.actionTimers.delete(key);
 
+    const logData = { ...(data as object | undefined), duration };
     if (success) {
-      this.info(module, action, message, { ...((data as object) || {}), duration });
+      this.info(module, action, message, logData);
     } else {
-      this.error(module, action, message, { ...((data as object) || {}), duration });
+      this.error(module, action, message, logData);
     }
   }
 
   async getLogs(): Promise<LogEntry[]> {
     try {
       const result = await chrome.storage.local.get(STORAGE_KEY);
-      return result[STORAGE_KEY] || [];
+      return (result[STORAGE_KEY] as LogEntry[] | undefined) ?? [];
     } catch {
       return [];
     }

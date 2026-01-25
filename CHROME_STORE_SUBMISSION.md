@@ -303,7 +303,7 @@ IMPORTANT NOTES FOR REVIEWERS
 7. OPEN SOURCE: Full source code is available at:
 https://github.com/YosefHayworx/extension-gemini-auto-queue
 
-Contact for questions: yosefhayim@outlook.com
+Contact for questions: yosefisabag@gmail.com
 ```
 
 ---

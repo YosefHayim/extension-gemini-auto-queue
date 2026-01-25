@@ -179,7 +179,7 @@ These Terms, together with our Privacy Policy, constitute the entire agreement b
 
 For questions about these Terms:
 
-- **Email:** yosefhayim@outlook.com
+- **Email:** yosefisabag@gmail.com
 - **GitHub:** [github.com/YosefHayworx/extension-gemini-auto-queue](https://github.com/YosefHayworx/extension-gemini-auto-queue)
 
 ## 18. Acknowledgment

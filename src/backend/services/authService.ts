@@ -1,15 +1,7 @@
 import type { AuthUser } from "@/backend/types";
 import { STORAGE_KEYS } from "@/backend/types";
 
-const OAUTH_CONFIG = {
-  clientId: "",
-  redirectUri: "",
-  authEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-  tokenEndpoint: "",
-  scope: "email profile openid",
-};
-
-const isDevelopment: boolean = import.meta.env.DEV || false;
+const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
 export async function getAuthUser(): Promise<AuthUser | null> {
   try {
@@ -42,136 +34,110 @@ export async function isAuthenticated(): Promise<boolean> {
   return user !== null;
 }
 
-function generateDevUser(): AuthUser {
-  return {
-    id: "dev-user-123",
-    email: "developer@nanoflow.dev",
-    firstName: "Dev",
-    lastName: "User",
-    avatarUrl: undefined,
-    accessToken: "dev-access-token",
-    refreshToken: "dev-refresh-token",
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-  };
+interface GoogleUserInfo {
+  sub: string;
+  email: string;
+  email_verified: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture?: string;
+}
+
+async function fetchGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  const response = await fetch(GOOGLE_USERINFO_URL, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user info: ${response.status}`);
+  }
+
+  return response.json() as Promise<GoogleUserInfo>;
 }
 
 export async function signIn(): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-  if (isDevelopment) {
-    const devUser = generateDevUser();
-    await setAuthUser(devUser);
-    return { success: true, user: devUser };
-  }
-
   try {
-    const state = crypto.randomUUID();
-    const nonce = crypto.randomUUID();
-
-    await chrome.storage.session.set({ oauth_state: state, oauth_nonce: nonce });
-
-    const params = new URLSearchParams({
-      client_id: OAUTH_CONFIG.clientId,
-      redirect_uri: OAUTH_CONFIG.redirectUri,
-      response_type: "code",
-      scope: OAUTH_CONFIG.scope,
-      state,
-      nonce,
-      access_type: "offline",
-      prompt: "consent",
-    });
-
-    const authUrl = `${OAUTH_CONFIG.authEndpoint}?${params.toString()}`;
-
-    if (!chrome.identity?.launchWebAuthFlow) {
-      return {
-        success: false,
-        error: "Identity API is not available. Please ensure the extension has the 'identity' permission.",
-      };
-    }
-
-    return await new Promise((resolve) => {
-      chrome.identity.launchWebAuthFlow(
-        {
-          url: authUrl,
-          interactive: true,
-        },
-        async (redirectUrl) => {
-          if (chrome.runtime.lastError ?? !redirectUrl) {
-            resolve({
-              success: false,
-              error: chrome.runtime.lastError?.message ?? "Authentication cancelled",
-            });
-            return;
-          }
-
-          try {
-            const url = new URL(redirectUrl);
-            const code = url.searchParams.get("code");
-            const returnedState = url.searchParams.get("state");
-
-            const sessionData = await chrome.storage.session.get(["oauth_state"]);
-            if (returnedState !== sessionData.oauth_state) {
-              resolve({ success: false, error: "Invalid state parameter" });
-              return;
-            }
-
-            const tokenResponse = await fetch(OAUTH_CONFIG.tokenEndpoint, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ code, redirectUri: OAUTH_CONFIG.redirectUri }),
-            });
-
-            if (!tokenResponse.ok) {
-              resolve({ success: false, error: "Failed to exchange authorization code" });
-              return;
-            }
-
-            const tokenData = (await tokenResponse.json()) as {
-              user: {
-                id: string;
-                email: string;
-                firstName: string;
-                lastName: string;
-                picture?: string;
-              };
-              accessToken: string;
-              refreshToken?: string;
-              expiresIn: number;
-            };
-
-            const user: AuthUser = {
-              id: tokenData.user.id,
-              email: tokenData.user.email,
-              firstName: tokenData.user.firstName,
-              lastName: tokenData.user.lastName,
-              avatarUrl: tokenData.user.picture,
-              accessToken: tokenData.accessToken,
-              refreshToken: tokenData.refreshToken,
-              expiresAt: Date.now() + tokenData.expiresIn * 1000,
-            };
-
-            await setAuthUser(user);
-            await chrome.storage.session.remove(["oauth_state", "oauth_nonce"]);
-
-            resolve({ success: true, user });
-          } catch (err) {
-            resolve({
-              success: false,
-              error: err instanceof Error ? err.message : "Unknown error",
-            });
-          }
+    const token = await new Promise<string>((resolve, reject) => {
+      chrome.identity.getAuthToken({ interactive: true }, (token) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
         }
-      );
+        if (!token) {
+          reject(new Error("No token received"));
+          return;
+        }
+        resolve(token);
+      });
     });
+
+    const userInfo = await fetchGoogleUserInfo(token);
+
+    const user: AuthUser = {
+      id: userInfo.sub,
+      email: userInfo.email,
+      firstName: userInfo.given_name,
+      lastName: userInfo.family_name,
+      avatarUrl: userInfo.picture,
+      accessToken: token,
+      refreshToken: undefined,
+      expiresAt: Date.now() + 60 * 60 * 1000,
+    };
+
+    await setAuthUser(user);
+    return { success: true, user };
   } catch (err) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: err instanceof Error ? err.message : "Authentication failed",
     };
   }
 }
 
 export async function signOut(): Promise<void> {
+  const user = await getAuthUser();
+
+  if (user?.accessToken) {
+    await new Promise<void>((resolve) => {
+      chrome.identity.removeCachedAuthToken({ token: user.accessToken }, () => {
+        resolve();
+      });
+    });
+  }
+
   await clearAuthUser();
+}
+
+export async function refreshToken(): Promise<boolean> {
+  try {
+    const token = await new Promise<string>((resolve, reject) => {
+      chrome.identity.getAuthToken({ interactive: false }, (token) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (!token) {
+          reject(new Error("No token received"));
+          return;
+        }
+        resolve(token);
+      });
+    });
+
+    const currentUser = await getAuthUser();
+    if (currentUser) {
+      currentUser.accessToken = token;
+      currentUser.expiresAt = Date.now() + 60 * 60 * 1000;
+      await setAuthUser(currentUser);
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function getUserInitials(user: AuthUser): string {

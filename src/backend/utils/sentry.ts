@@ -1,13 +1,7 @@
 import * as Sentry from "@sentry/react";
 
-/**
- * Sentry configuration for Gemini Nano Flow Chrome Extension
- *
- * Environment: VITE_SENTRY_DSN - Your Sentry DSN
- * Get DSN: sentry.io > Settings > Projects > Client Keys (DSN)
- */
-
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+const SENTRY_DSN =
+  "https://5c533eb20d4e26c213cb1e23d3f5c31e@o4510712201084928.ingest.us.sentry.io/4510772842725376";
 const IS_PRODUCTION = import.meta.env.PROD;
 const APP_VERSION = "2.1.0";
 
@@ -19,8 +13,10 @@ interface SentryInitOptions {
   enableTracing?: boolean;
 }
 
+let isInitialized = false;
+
 export function isSentryEnabled(): boolean {
-  return Boolean(SENTRY_DSN);
+  return isInitialized;
 }
 
 function buildIntegrations(
@@ -30,6 +26,8 @@ function buildIntegrations(
 ): Sentry.BrowserOptions["integrations"] {
   return (defaults) => {
     const result = [...defaults];
+
+    result.push(Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }));
 
     if (enableTracing && context !== "background" && context !== "content") {
       result.push(Sentry.browserTracingIntegration());
@@ -51,9 +49,7 @@ function buildIntegrations(
 export function initSentry(options: SentryInitOptions): void {
   const { context, enableReplay = false, enableTracing = false } = options;
 
-  if (!SENTRY_DSN) {
-    return;
-  }
+  if (isInitialized) return;
 
   Sentry.init({
     dsn: SENTRY_DSN,
@@ -64,6 +60,9 @@ export function initSentry(options: SentryInitOptions): void {
     tracesSampleRate: enableTracing ? (IS_PRODUCTION ? 0.1 : 1.0) : 0,
     replaysSessionSampleRate: enableReplay ? 0.1 : 0,
     replaysOnErrorSampleRate: enableReplay ? 1.0 : 0,
+    _experiments: {
+      enableLogs: true,
+    },
     beforeSend(event) {
       if (event.exception?.values?.some((e) => e.value?.includes("chrome-extension://"))) {
         return null;
@@ -76,6 +75,8 @@ export function initSentry(options: SentryInitOptions): void {
       },
     },
   });
+
+  isInitialized = true;
 }
 
 export function captureError(
@@ -122,6 +123,53 @@ export function setTag(key: string, value: string): void {
 export function setContext(name: string, context: Record<string, unknown> | null): void {
   if (!isSentryEnabled()) return;
   Sentry.setContext(name, context);
+}
+
+interface SpanOptions {
+  op: string;
+  name: string;
+  attributes?: Record<string, string | number | boolean>;
+}
+
+export function startSpan<T>(options: SpanOptions, callback: () => T): T {
+  if (!isSentryEnabled()) return callback();
+
+  return Sentry.startSpan(
+    {
+      op: options.op,
+      name: options.name,
+    },
+    (span) => {
+      if (options.attributes) {
+        Object.entries(options.attributes).forEach(([key, value]) => {
+          span.setAttribute(key, value);
+        });
+      }
+      return callback();
+    }
+  );
+}
+
+export async function startSpanAsync<T>(
+  options: SpanOptions,
+  callback: () => Promise<T>
+): Promise<T> {
+  if (!isSentryEnabled()) return callback();
+
+  return Sentry.startSpan(
+    {
+      op: options.op,
+      name: options.name,
+    },
+    async (span) => {
+      if (options.attributes) {
+        Object.entries(options.attributes).forEach(([key, value]) => {
+          span.setAttribute(key, value);
+        });
+      }
+      return callback();
+    }
+  );
 }
 
 export { Sentry };

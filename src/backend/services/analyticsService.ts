@@ -60,6 +60,7 @@ export function initAnalytics(enabled = true): void {
   try {
     posthog.init(POSTHOG_API_KEY, {
       api_host: POSTHOG_HOST,
+      defaults: "2025-05-24",
       capture_pageview: false,
       disable_session_recording: true,
       respect_dnt: true,

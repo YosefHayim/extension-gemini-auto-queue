@@ -178,7 +178,7 @@ This extension complies with:
 
 For privacy questions or data requests:
 
-- **Email:** yosefhayim@outlook.com
+- **Email:** yosefisabag@gmail.com
 - **GitHub:** [github.com/YosefHayworx/extension-gemini-auto-queue](https://github.com/YosefHayworx/extension-gemini-auto-queue)
 - **Issues:** [GitHub Issues](https://github.com/YosefHayworx/extension-gemini-auto-queue/issues)
 

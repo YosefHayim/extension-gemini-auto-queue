@@ -1,5 +1,8 @@
 import { defineConfig } from "wxt";
 
+const GOOGLE_OAUTH_CLIENT_ID =
+  "93413528149-h4ib3sng7loe4acd8ueaif6p501rn820.apps.googleusercontent.com";
+
 export default defineConfig({
   srcDir: "src",
   entrypointsDir: "extension/entrypoints",
@@ -11,6 +14,10 @@ export default defineConfig({
     version: "2.1.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms", "identity"],
     host_permissions: ["*://gemini.google.com/*"],
+    oauth2: {
+      client_id: GOOGLE_OAUTH_CLIENT_ID,
+      scopes: ["email", "profile", "openid"],
+    },
     side_panel: {
       default_path: "sidepanel.html",
     },
