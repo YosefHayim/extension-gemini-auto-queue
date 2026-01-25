@@ -297,6 +297,7 @@ export interface AppSettings {
   retryConfig: RetryConfig;
   globalVariables: VariableSet[];
   schedule: ScheduleConfig;
+  analyticsEnabled: boolean;
 }
 
 // Chrome Extension Message Types

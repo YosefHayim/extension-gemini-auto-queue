@@ -81,6 +81,13 @@ export async function signIn(): Promise<{ success: boolean; user?: AuthUser; err
 
     const authUrl = `${OAUTH_CONFIG.authEndpoint}?${params.toString()}`;
 
+    if (!chrome.identity?.launchWebAuthFlow) {
+      return {
+        success: false,
+        error: "Identity API is not available. Please ensure the extension has the 'identity' permission.",
+      };
+    }
+
     return await new Promise((resolve) => {
       chrome.identity.launchWebAuthFlow(
         {

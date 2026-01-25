@@ -1,9 +1,8 @@
-import { MessageType } from "@/backend/types";
-import { logger } from "@/backend/utils/logger";
-
+import type { ExtensionMessage, ExtensionResponse } from "@/backend/types";
 import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
 
-import type { ExtensionMessage } from "@/backend/types";
+import { MessageType } from "@/backend/types";
+import { logger } from "@/backend/utils/logger";
 
 const log = logger.module("TabManagement");
 
@@ -55,8 +54,8 @@ export function sendMessageWithTimeout<T>(
   tabId: number,
   message: ExtensionMessage,
   timeout = 300000
-): Promise<import("@/types").ExtensionResponse<T>> {
-  return new Promise((resolve, reject) => {
+): Promise<ExtensionResponse<T>> {
+  return new Promise<ExtensionResponse<T>>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Message timeout after ${timeout / 1000}s`));
     }, timeout);
@@ -65,11 +64,11 @@ export function sendMessageWithTimeout<T>(
       .sendMessage(tabId, message)
       .then((response) => {
         clearTimeout(timeoutId);
-        resolve(response);
+        resolve(response as ExtensionResponse<T>);
       })
       .catch((error) => {
         clearTimeout(timeoutId);
-        reject(error);
+        reject(error as Error);
       });
   });
 }

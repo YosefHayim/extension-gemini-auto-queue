@@ -1,3 +1,5 @@
+import { addBreadcrumb, captureError, isSentryEnabled } from "@/backend/utils/sentry";
+
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
@@ -117,14 +119,20 @@ class DevLogger {
       const durationStr = duration !== undefined ? ` (${duration}ms)` : "";
       const color = LEVEL_COLORS[level];
 
-      const logFn =
-        level === LogLevel.ERROR
-          ? console.error
-          : level === LogLevel.WARN
-            ? console.warn
-            : level === LogLevel.DEBUG
-              ? console.debug
-              : console.log;
+      let logFn: typeof console.log;
+      switch (level) {
+        case LogLevel.ERROR:
+          logFn = console.error;
+          break;
+        case LogLevel.WARN:
+          logFn = console.warn;
+          break;
+        case LogLevel.DEBUG:
+          logFn = console.debug;
+          break;
+        default:
+          logFn = console.log;
+      }
 
       if (data !== undefined) {
         logFn(`%c${prefix} ${moduleAction}${durationStr} ${message}`, `color: ${color}`, data);
@@ -134,6 +142,47 @@ class DevLogger {
     }
 
     this.persistLog(entry);
+    this.reportToSentry(level, module, action, message, data);
+  }
+
+  private reportToSentry(
+    level: LogLevel,
+    module: string,
+    action: string,
+    message: string,
+    data?: unknown
+  ): void {
+    if (!isSentryEnabled()) return;
+
+    let sentryLevel: "error" | "warning" | "info" | "debug";
+    switch (level) {
+      case LogLevel.ERROR:
+        sentryLevel = "error";
+        break;
+      case LogLevel.WARN:
+        sentryLevel = "warning";
+        break;
+      case LogLevel.INFO:
+        sentryLevel = "info";
+        break;
+      default:
+        sentryLevel = "debug";
+    }
+
+    if (level === LogLevel.ERROR) {
+      captureError(new Error(`[${module}/${action}] ${message}`), {
+        module,
+        action,
+        data,
+      });
+    } else {
+      addBreadcrumb({
+        category: module,
+        message: `[${action}] ${message}`,
+        level: sentryLevel,
+        data: data as Record<string, unknown> | undefined,
+      });
+    }
   }
 
   module(moduleName: string): ModuleLogger {

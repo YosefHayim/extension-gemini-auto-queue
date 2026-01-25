@@ -1,4 +1,9 @@
 import {
+  AnalyticsEvent,
+  trackEvent,
+  trackQueueItemCompleted,
+} from "@/backend/services/analyticsService";
+import {
   getQueue,
   getSettings,
   isExtensionEnabled,
@@ -6,8 +11,10 @@ import {
 } from "@/backend/services/storageService";
 import { GeminiTool, MessageType, QueueStatus } from "@/backend/types";
 import { logger } from "@/backend/utils/logger";
-
-import { broadcastMessage, sendToContentScript } from "@/extension/entrypoints/background/contentScriptBridge";
+import {
+  broadcastMessage,
+  sendToContentScript,
+} from "@/extension/entrypoints/background/contentScriptBridge";
 import { handleProcessingError } from "@/extension/entrypoints/background/errorHandling";
 import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
 import { findGeminiTab } from "@/extension/entrypoints/background/tabManagement";
@@ -31,6 +38,7 @@ export async function startProcessing(): Promise<void> {
     await setProcessingState({ isProcessing: true, isPaused: false });
     processingController = new AbortController();
 
+    trackEvent(AnalyticsEvent.QUEUE_PROCESSING_STARTED);
     broadcastMessage({ type: MessageType.PROCESS_QUEUE });
 
     const tabId = await findGeminiTab();
@@ -108,6 +116,12 @@ export async function startProcessing(): Promise<void> {
               },
             },
           });
+
+          trackQueueItemCompleted({
+            tool: nextItem.tool,
+            mode: nextItem.mode,
+            processingTimeMs: endTime - startTime,
+          });
         } else {
           throw new Error(response.error || "Web automation failed");
         }
@@ -129,13 +143,16 @@ export async function startProcessing(): Promise<void> {
     const finalState = await getProcessingState();
     if (finalState.isPaused) {
       await setProcessingState({ isProcessing: false });
+      trackEvent(AnalyticsEvent.QUEUE_PROCESSING_PAUSED);
       broadcastMessage({ type: MessageType.PAUSE_PROCESSING });
     } else {
+      trackEvent(AnalyticsEvent.QUEUE_PROCESSING_STOPPED);
       broadcastMessage({ type: MessageType.STOP_PROCESSING });
     }
   } catch (error) {
     log.error("start", "startProcessing error", error);
     await setProcessingState({ isProcessing: false, isPaused: false });
+    trackEvent(AnalyticsEvent.QUEUE_PROCESSING_STOPPED);
     broadcastMessage({ type: MessageType.STOP_PROCESSING });
   }
 }

@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 
-import { AuthSuccessDialog, LoginPage } from "@/extension/components/auth";
-import { CsvDialog } from "@/extension/components/CsvDialog";
-import { ExportDialog } from "@/extension/components/ExportDialog";
-import { Footer } from "@/extension/components/Footer";
-import { OnboardingModal } from "@/extension/components/OnboardingModal";
-import { QueuePanel } from "@/extension/components/QueuePanel";
-import { SettingsPanel } from "@/extension/components/SettingsPanel";
-import { TemplatesPanel } from "@/extension/components/TemplatesPanel";
+import {
+  AnalyticsEvent,
+  initAnalytics,
+  setAnalyticsEnabled,
+  trackEvent,
+} from "@/backend/services/analyticsService";
 import { getAuthUser } from "@/backend/services/authService";
 import {
   DEFAULT_SETTINGS,
@@ -34,8 +32,21 @@ import {
   type Folder,
   type QueueItem,
 } from "@/backend/types";
-
-import { ClearAllConfirm, FooterControls, Header, LoadingScreen, Navigation } from "@/extension/entrypoints/sidepanel/components";
+import { AuthSuccessDialog, LoginPage } from "@/extension/components/auth";
+import { CsvDialog } from "@/extension/components/CsvDialog";
+import { ExportDialog } from "@/extension/components/ExportDialog";
+import { Footer } from "@/extension/components/Footer";
+import { OnboardingModal } from "@/extension/components/OnboardingModal";
+import { QueuePanel } from "@/extension/components/QueuePanel";
+import { SettingsPanel } from "@/extension/components/SettingsPanel";
+import { TemplatesPanel } from "@/extension/components/TemplatesPanel";
+import {
+  ClearAllConfirm,
+  FooterControls,
+  Header,
+  LoadingScreen,
+  Navigation,
+} from "@/extension/entrypoints/sidepanel/components";
 import {
   useBulkModifyActions,
   useBulkResetActions,
@@ -100,6 +111,9 @@ export default function App() {
         getAuthUser(),
       ]);
 
+      initAnalytics(settingsData.analyticsEnabled);
+      trackEvent(AnalyticsEvent.SIDEPANEL_OPENED);
+
       setQueueState(queueData);
       setSettingsState(settingsData);
       setFoldersState(foldersData);
@@ -118,7 +132,9 @@ export default function App() {
 
     const cleanupStorage = onStorageChange((changes) => {
       if (STORAGE_KEYS.SETTINGS in changes) {
-        setSettingsState(changes[STORAGE_KEYS.SETTINGS].newValue as AppSettings);
+        const newSettings = changes[STORAGE_KEYS.SETTINGS].newValue as AppSettings;
+        setSettingsState(newSettings);
+        setAnalyticsEnabled(newSettings.analyticsEnabled);
       }
       if (STORAGE_KEYS.FOLDERS in changes) {
         setFoldersState(changes[STORAGE_KEYS.FOLDERS].newValue as Folder[]);

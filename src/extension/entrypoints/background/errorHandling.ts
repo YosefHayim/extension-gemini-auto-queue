@@ -1,3 +1,8 @@
+import {
+  trackQueueItemFailed,
+  AnalyticsEvent,
+  trackEvent,
+} from "@/backend/services/analyticsService";
 import { getSettings, updateQueueItem } from "@/backend/services/storageService";
 import { QueueStatus } from "@/backend/types";
 import { calculateBackoff, categorizeError, shouldRetry } from "@/backend/utils/retryStrategy";
@@ -42,12 +47,26 @@ export async function handleProcessingError(nextItem: QueueItem, error: unknown)
       error: errorMessage,
     });
 
+    trackEvent(AnalyticsEvent.QUEUE_ITEM_RETRIED, {
+      tool: nextItem.tool,
+      mode: nextItem.mode,
+      error_category: category,
+      retry_count: currentRetry.attempts,
+    });
+
     await new Promise((resolve) => setTimeout(resolve, delay));
   } else {
     await updateQueueItem(nextItem.id, {
       status: QueueStatus.Failed,
       retryInfo: currentRetry,
       error: errorMessage,
+    });
+
+    trackQueueItemFailed({
+      tool: nextItem.tool,
+      mode: nextItem.mode,
+      errorCategory: category,
+      retryCount: currentRetry.attempts,
     });
   }
 }

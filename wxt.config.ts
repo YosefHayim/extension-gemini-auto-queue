@@ -9,7 +9,7 @@ export default defineConfig({
     name: "Gemini Nano Flow",
     description: "A bulk image generation and automation tool for Gemini",
     version: "2.1.0",
-    permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms"],
+    permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms", "identity"],
     host_permissions: ["*://gemini.google.com/*"],
     side_panel: {
       default_path: "sidepanel.html",

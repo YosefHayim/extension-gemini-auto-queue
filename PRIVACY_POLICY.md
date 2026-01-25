@@ -1,96 +1,188 @@
 # Privacy Policy for Gemini Nano Flow
 
-**Last Updated:** [Date - Update this when you publish]
+**Last Updated:** January 25, 2026  
+**Version:** 2.1.0
 
 ## Introduction
 
-Gemini Nano Flow ("we", "our", or "the extension") is committed to protecting your privacy. This Privacy Policy explains how we handle data in our Chrome extension.
+Gemini Nano Flow ("the Extension", "we", "our") is a Chrome browser extension that provides batch processing and queue management for Google Gemini. This Privacy Policy explains what data we collect, how we use it, and your rights regarding your data.
 
-## Data Collection
+## Summary
 
-**We do not collect, store, or transmit any personal data to external servers.** All data is stored locally in your browser using Chrome's Storage API.
+- We collect **anonymous usage analytics** to improve the extension (can be disabled)
+- We collect **anonymous error reports** to fix bugs (can be disabled)
+- All your personal data (prompts, images, API keys) stays **on your device**
+- We do **not** sell or share your data with third parties
+- You have **full control** over your data and analytics preferences
 
-## Data Storage
+## Data We Collect
 
-The extension stores the following data locally in your browser:
+### 1. Local Data (Stored on Your Device Only)
 
-- **API Keys**: Your Gemini, OpenAI, or Anthropic API keys (encrypted in browser storage)
-- **Queue Items**: Your generation queue and history
-- **User Preferences**: Settings such as theme, default model, and tool preferences
-- **Prompt Templates**: Your saved prompt templates and folders
-- **Onboarding Status**: Whether you've completed the initial setup
+The following data is stored **locally in your browser** and never transmitted to our servers:
 
-**This data never leaves your device** and is not accessible to the extension developer or any third parties.
+| Data Type | Purpose | Storage |
+|-----------|---------|---------|
+| Queue Items | Your prompts and generation history | IndexedDB |
+| Reference Images | Images you attach to prompts | IndexedDB |
+| API Keys | Your Gemini/OpenAI/Anthropic keys | Chrome Storage (encrypted) |
+| Settings | Theme, preferences, tool settings | Chrome Storage |
+| Prompt Templates | Your saved templates and folders | Chrome Storage |
 
-## Permissions Explained
+**This data never leaves your device** unless you explicitly export it.
 
-The extension requires the following permissions:
+### 2. Anonymous Analytics (Optional - Can Be Disabled)
 
-### Storage Permission
-- **Purpose**: To save your settings, queue, and templates locally
-- **Data**: All data remains on your device
-- **Access**: Only the extension can access this data
+When analytics is enabled, we collect **anonymous usage data** through PostHog:
 
-### Side Panel Permission
-- **Purpose**: To display the extension's user interface
-- **Data**: No data is collected through this permission
+**What we collect:**
+- Feature usage (which tools and actions you use)
+- Error categories (not error content)
+- Extension version
+- Aggregate statistics (queue sizes, processing times)
 
-### Active Tab and Tabs Permissions
-- **Purpose**: To detect when you're on gemini.google.com or aistudio.google.com and manage tabs
-- **Data**: We only check the URL to determine if the extension should activate
-- **Access**: We do not read or store tab content
+**What we DO NOT collect:**
+- Your prompts or generated content
+- Your images or files
+- Your API keys
+- Your Google account information
+- Personally identifiable information
+- Browsing history outside Gemini
 
-### Host Permissions (gemini.google.com and aistudio.google.com)
-- **Purpose**: To inject content scripts that enable automation features on these specific websites
-- **Data**: The extension only works on these domains and does not access any other websites
-- **Access**: Content scripts run only on the specified domains
+**Privacy protections:**
+- Anonymous ID (not linked to your identity)
+- Respects browser "Do Not Track" setting
+- No session recording
+- No autocapture of interactions
+
+**How to disable:** Settings → Interface → Toggle "Analytics" off
+
+### 3. Anonymous Error Reporting (Optional - Can Be Disabled)
+
+When error reporting is enabled, we collect **anonymous crash reports** through Sentry:
+
+**What we collect:**
+- Error type and stack trace
+- Extension context (which feature crashed)
+- Browser and extension version
+
+**What we DO NOT collect:**
+- Your prompts or content
+- Your images or files
+- Your API keys
+- Personal information
+
+**How to disable:** Settings → Interface → Toggle "Analytics" off (disables both analytics and error reporting)
 
 ## Third-Party Services
 
-The extension communicates directly with:
+### Services We Use
 
-- **Google Gemini API**: Using your API key to generate images
-- **OpenAI API** (optional): If you configure an OpenAI API key
-- **Anthropic API** (optional): If you configure an Anthropic API key
+| Service | Purpose | Data Sent | Privacy Policy |
+|---------|---------|-----------|----------------|
+| PostHog | Anonymous analytics | Usage events | [posthog.com/privacy](https://posthog.com/privacy) |
+| Sentry | Error reporting | Error logs | [sentry.io/privacy](https://sentry.io/privacy) |
 
-**We do not intercept, store, or have access to your API requests or responses.** All API calls are made directly from your browser to the respective service providers.
+### Services You Connect (Using Your API Keys)
+
+| Service | When Used | Data Sent |
+|---------|-----------|-----------|
+| Google Gemini API | AI prompt optimization | Your prompts (direct from browser) |
+| OpenAI API | AI prompt optimization | Your prompts (direct from browser) |
+| Anthropic API | AI prompt optimization | Your prompts (direct from browser) |
+
+**Note:** API calls are made **directly from your browser** to these services. We do not proxy, intercept, or store your API requests or responses.
+
+## Chrome Extension Permissions
+
+### Required Permissions
+
+| Permission | Why We Need It |
+|------------|----------------|
+| `storage` | Save your settings, templates, and preferences locally |
+| `sidePanel` | Display the extension interface as a sidebar |
+| `activeTab` | Detect when you're on gemini.google.com to activate features |
+| `tabs` | Manage extension activation across browser tabs |
+| `scripting` | Inject automation scripts into Gemini pages |
+| `alarms` | Enable scheduled queue processing |
+| `identity` | Optional Google Sign-In for syncing (if enabled) |
+
+### Host Permissions
+
+| Domain | Why We Need It |
+|--------|----------------|
+| `gemini.google.com` | Run automation scripts on Gemini |
+| `aistudio.google.com` | Run automation scripts on AI Studio |
+
+**We only access these specific domains.** We cannot access any other websites.
 
 ## Data Security
 
-- All API keys are stored using Chrome's secure storage API
-- No data is transmitted to external servers except for the API calls you explicitly make
-- All data is stored locally in your browser's storage
+- API keys are stored using Chrome's secure encrypted storage
+- All local data uses browser-native storage APIs
+- No data is transmitted except:
+  - Anonymous analytics (if enabled)
+  - Anonymous error reports (if enabled)
+  - Your API calls to AI services (using your keys)
 
-## Data Deletion
+## Your Rights and Choices
 
-You can delete all extension data at any time by:
+### Control Your Data
 
-1. Uninstalling the extension (this removes all stored data)
-2. Using Chrome's "Clear browsing data" feature for extension data
-3. Resetting the extension in Chrome's extension settings
+| Action | How To |
+|--------|--------|
+| View your data | Settings → Export queue to JSON |
+| Delete all data | Uninstall the extension |
+| Clear queue | Settings → Clear Queue |
+| Disable analytics | Settings → Interface → Analytics toggle |
+| Export templates | Templates → Export |
+
+### Opt-Out Options
+
+1. **Disable Analytics:** Settings → Interface → Turn off "Analytics"
+2. **Use Do Not Track:** Enable DNT in your browser (we respect it)
+3. **Clear Data:** Uninstall the extension to remove all local data
+
+## Data Retention
+
+| Data Type | Retention |
+|-----------|-----------|
+| Local data | Until you delete it or uninstall |
+| Anonymous analytics | 90 days (PostHog) |
+| Error reports | 90 days (Sentry) |
 
 ## Children's Privacy
 
-Our extension is not intended for children under 13. We do not knowingly collect any information from children under 13.
+This extension is not intended for children under 13. We do not knowingly collect information from children under 13. If you believe a child has provided us data, please contact us.
 
-## Changes to This Privacy Policy
+## International Users
 
-We may update this Privacy Policy from time to time. We will notify you of any changes by updating the "Last Updated" date at the top of this policy.
+Our analytics services (PostHog, Sentry) are hosted in the United States. By using the extension with analytics enabled, you consent to the transfer of anonymous data to the US. No personal data is transferred.
 
-## Contact Us
+## Changes to This Policy
 
-If you have any questions about this Privacy Policy, please contact us at:
-
-- **Email**: [Your Email Address]
-- **GitHub**: [Your GitHub Repository URL]
+We may update this Privacy Policy when we release new features. We will:
+- Update the "Last Updated" date
+- Note significant changes in the extension's changelog
+- Prompt re-consent for any new data collection
 
 ## Compliance
 
 This extension complies with:
 - Chrome Web Store Developer Program Policies
-- General Data Protection Regulation (GDPR) principles
-- California Consumer Privacy Act (CCPA) requirements
+- General Data Protection Regulation (GDPR)
+- California Consumer Privacy Act (CCPA)
+- California Online Privacy Protection Act (CalOPPA)
 
----
+## Contact Us
 
-**Note**: This privacy policy is a template. Please update the contact information and date before publishing.
+For privacy questions or data requests:
+
+- **Email:** yosefhayim@outlook.com
+- **GitHub:** [github.com/YosefHayworx/extension-gemini-auto-queue](https://github.com/YosefHayworx/extension-gemini-auto-queue)
+- **Issues:** [GitHub Issues](https://github.com/YosefHayworx/extension-gemini-auto-queue/issues)
+
+## Open Source
+
+This extension is open source. You can review our code to verify our privacy practices:
+[GitHub Repository](https://github.com/YosefHayworx/extension-gemini-auto-queue)

@@ -2,12 +2,16 @@ interface AdvancedSectionProps {
   isDark: boolean;
   dripFeed: boolean;
   onDripFeedToggle: () => void;
+  analyticsEnabled: boolean;
+  onAnalyticsToggle: () => void;
 }
 
 export function AdvancedSection({
   isDark: _isDark,
   dripFeed,
   onDripFeedToggle,
+  analyticsEnabled,
+  onAnalyticsToggle,
 }: AdvancedSectionProps) {
   return (
     <div className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm">
@@ -26,6 +30,23 @@ export function AdvancedSection({
         >
           <div
             className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all ${dripFeed ? "left-6" : "left-0.5"}`}
+          />
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between py-3">
+        <div>
+          <p className="font-bold">Usage Analytics</p>
+          <p className="text-sm text-muted-foreground">
+            Help improve Nano Flow by sharing anonymous usage data
+          </p>
+        </div>
+        <button
+          onClick={onAnalyticsToggle}
+          className={`relative h-6 w-12 rounded-full transition-all ${analyticsEnabled ? "bg-blue-600" : "bg-muted"}`}
+        >
+          <div
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all ${analyticsEnabled ? "left-6" : "left-0.5"}`}
           />
         </button>
       </div>

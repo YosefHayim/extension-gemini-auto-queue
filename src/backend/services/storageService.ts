@@ -53,6 +53,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     scheduledTime: null,
     repeatDaily: false,
   },
+  analyticsEnabled: true,
 };
 
 /**

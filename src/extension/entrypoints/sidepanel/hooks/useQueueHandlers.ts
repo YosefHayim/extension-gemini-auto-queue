@@ -1,6 +1,11 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
+import {
+  AnalyticsEvent,
+  trackEvent,
+  trackQueueItemAdded,
+} from "@/backend/services/analyticsService";
 import { setQueue, StorageQuotaError } from "@/backend/services/storageService";
 import { type GeminiMode, type GeminiTool, QueueStatus, type QueueItem } from "@/backend/types";
 
@@ -75,6 +80,14 @@ export function useQueueHandlers({
       setQueueState(updatedQueue);
       try {
         await setQueue(updatedQueue);
+
+        trackQueueItemAdded({
+          tool: tool ?? defaultTool,
+          mode,
+          hasImages: Boolean(images && images.length > 0),
+          itemCount: newItems.length,
+        });
+
         toast.success(
           `Added ${newItems.length} prompt${newItems.length !== 1 ? "s" : ""} to queue`
         );
@@ -95,6 +108,7 @@ export function useQueueHandlers({
       const updatedQueue = queue.filter((item) => item.id !== id);
       setQueueState(updatedQueue);
       await setQueue(updatedQueue);
+      trackEvent(AnalyticsEvent.QUEUE_ITEM_REMOVED);
     },
     [queue, setQueueState]
   );

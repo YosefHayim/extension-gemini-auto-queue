@@ -1,240 +1,392 @@
-# Nano Flow - Chrome Extension
+# Nano Flow
 
-A powerful batch processing extension for Google Gemini. Queue multiple prompts, attach reference images, and let Nano Flow automate your creative workflow.
+> A production-grade Chrome Extension for batch queue processing on Google Gemini, built with modern web technologies and engineering best practices.
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3-61dafb?logo=react&logoColor=white)](https://react.dev/)
+[![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
+## Technical Highlights
+
+| Category | Implementation |
+|----------|----------------|
+| **Type Safety** | TypeScript strict mode with `noImplicitAny`, zero `any` tolerance |
+| **Architecture** | Clean separation: `backend/` (services, utils) + `extension/` (UI, entrypoints) |
+| **State Management** | React Query + Custom Hooks pattern |
+| **Code Quality** | ESLint strict type-checked rules + Prettier |
+| **Extension Framework** | WXT (modern Vite-based extension framework) |
+| **Styling** | Tailwind CSS with consistent design tokens |
+
+---
+
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Code Quality Standards](#code-quality-standards)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Contributing](#contributing)
+
+---
+
+## Architecture
+
+### High-Level Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Chrome Extension (MV3)                        │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌──────────────┐    chrome.runtime     ┌──────────────────────┐   │
+│  │  Side Panel  │◄────────────────────► │  Background Service  │   │
+│  │  (React App) │       messages        │      (Worker)        │   │
+│  └──────────────┘                       └──────────┬───────────┘   │
+│                                                     │               │
+│                                        chrome.tabs.sendMessage      │
+│                                                     │               │
+│                                         ┌───────────▼───────────┐   │
+│                                         │    Content Script     │   │
+│                                         │   (DOM Automation)    │   │
+│                                         └───────────────────────┘   │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+1. **UI Layer** (Side Panel) - React components with custom hooks for state
+2. **Message Layer** - Type-safe Chrome runtime messaging
+3. **Service Layer** - Business logic, storage, and API integrations
+4. **Automation Layer** - Content script for DOM interactions
+
+### Storage Strategy
+
+| Storage Type | Use Case | Implementation |
+|--------------|----------|----------------|
+| `chrome.storage.local` | Settings, folders, templates | `storageService.ts` |
+| `IndexedDB` | Queue items with images (large payloads) | `queueDb.ts` |
+| `chrome.storage.session` | Processing state (survives SW restarts) | Direct API |
+
+---
+
+## Tech Stack
+
+### Core
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| [TypeScript](https://www.typescriptlang.org/) | 5.8 | Type-safe JavaScript |
+| [React](https://react.dev/) | 18.3 | UI component library |
+| [WXT](https://wxt.dev/) | 0.19 | Chrome Extension framework |
+| [Tailwind CSS](https://tailwindcss.com/) | 3.4 | Utility-first styling |
+
+### UI Libraries
+
+| Library | Purpose |
+|---------|---------|
+| [@tanstack/react-query](https://tanstack.com/query) | Async state management |
+| [@radix-ui](https://www.radix-ui.com/) | Accessible UI primitives |
+| [@dnd-kit](https://dndkit.com/) | Drag and drop |
+| [Lucide React](https://lucide.dev/) | Icon system |
+| [Sonner](https://sonner.emilkowal.ski/) | Toast notifications |
+
+### Development Tools
+
+| Tool | Purpose |
+|------|---------|
+| [ESLint](https://eslint.org/) | Code linting with strict TypeScript rules |
+| [Prettier](https://prettier.io/) | Code formatting |
+| [Vite](https://vitejs.dev/) | Build tooling (via WXT) |
+| [pnpm](https://pnpm.io/) | Fast, disk-efficient package manager |
+
+---
+
+## Code Quality Standards
+
+### TypeScript Configuration
+
+```jsonc
+// tsconfig.json - Strict mode enabled
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+```
+
+### ESLint Rules
+
+The project enforces strict type safety with zero tolerance for `any`:
+
+```javascript
+// Key ESLint rules enforced
+"@typescript-eslint/no-explicit-any": "error",
+"@typescript-eslint/no-unsafe-assignment": "error",
+"@typescript-eslint/no-unsafe-member-access": "error",
+"@typescript-eslint/no-unsafe-call": "error",
+"@typescript-eslint/no-unsafe-return": "error",
+"@typescript-eslint/consistent-type-imports": "error",
+```
+
+### Import Organization
+
+Imports are automatically sorted and grouped:
+
+```typescript
+// 1. External libraries
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+
+// 2. Internal modules
+import { QueuePanel } from "@/components/QueuePanel";
+import { useQueue } from "@/hooks/useQueue";
+
+// 3. Types (separate import statement)
+import type { QueueItem, AppSettings } from "@/types";
+```
+
+### React Patterns
+
+```typescript
+// Props interface pattern with clear organization
+interface QueueItemCardProps {
+  // Data props
+  item: QueueItem;
+  
+  // Required callbacks (on* prefix)
+  onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
+  
+  // Optional callbacks
+  onEdit?: (id: string, newPrompt: string) => void;
+}
+
+// Functional component with TypeScript
+export const QueueItemCard: React.FC<QueueItemCardProps> = ({
+  item,
+  onRemove,
+  onRetry,
+  onEdit,
+}) => {
+  // Implementation
+};
+```
+
+### Custom Hooks Pattern
+
+```typescript
+// Encapsulated state logic with clear return types
+export function useQueue() {
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const addToQueue = useCallback((items: QueueItem[]) => {
+    // Implementation
+  }, []);
+
+  return {
+    queue,
+    isProcessing,
+    addToQueue,
+    // ... other methods
+  };
+}
+```
+
+---
 
 ## Features
 
 ### Core Functionality
 
-- **Batch Queue Processing**: Add multiple prompts and process them automatically through Gemini
-- **Multi-Tool Support**: Generate with Image, Video, Canvas, Deep Research, Learning, or Visual Layout tools
-- **Reference Images**: Attach multiple images per prompt as references for better generation results
-- **Smart Prompt Parsing**: Enter prompts separated by blank lines - each paragraph becomes a queue item
+- **Batch Queue Processing** - Add multiple prompts, process automatically
+- **Multi-Tool Support** - Image, Video, Canvas, Deep Research, Learning, Visual Layout
+- **Reference Images** - Attach multiple images per prompt
+- **Smart Parsing** - Paragraphs auto-convert to queue items
 
-### CSV Import
+### Data Management
 
-- **Bulk Import**: Upload CSV files with prompts, tool types, and image references
-- **Cloud URLs**: Reference images via HTTP/HTTPS URLs directly in your CSV
-- **Local Files**: Upload local image files and map them to CSV references
-- **Multiple Images**: Support for multiple reference images per prompt (separated by `|` or `;`)
-
-### Template Library
-
-- **Folder Organization**: Organize prompts into folders for easy access
-- **Template Reuse**: Save and reuse your favorite prompts with attached images
-- **AI Optimization**: Let AI improve your prompts automatically (requires API key)
-- **Bulk Improvement**: Optimize all templates in a folder at once
-
-### Prompt Enhancement
-
-- **Global Prefix/Suffix**: Automatically add text to all prompts
-- **Global Negatives**: Add "NOT" clauses to exclude unwanted elements
-- **Text Weighting**: Select text and apply emphasis weights (1.2x, 1.5x, or echo)
+- **CSV Import** - Bulk import with cloud URLs and local file mapping
+- **Template Library** - Organized folders with AI optimization
+- **Export Options** - JSON/CSV export with filtering
 
 ### User Experience
 
-- **Interactive Onboarding**: Step-by-step guided tour highlighting each feature
-- **Resizable Sidebar**: Drag to resize the panel (280-600px)
-- **Position Control**: Place the sidebar on the left or right side
-- **Light/Dark Theme**: Match your preference or system setting
-- **Real-time Progress**: Track processing time and queue status
+- **Interactive Onboarding** - Guided feature tour
+- **Drag & Drop** - Reorder queue items
+- **Dark/Light Theme** - System preference support
+- **Keyboard Shortcuts** - `Ctrl+Enter` to add, etc.
 
-### Advanced Settings
+### Advanced Features
 
-- **Drip-Feed Mode**: Add random delays between prompts to avoid rate limits
-- **Auto-Stop on Error**: Optionally stop processing when errors occur
-- **Model Selection**: Choose between different Gemini models
+- **Drip-Feed Mode** - Random delays to avoid rate limits
+- **Scheduling** - Process queue at specific times
+- **Retry Logic** - Exponential backoff with jitter
+- **Error Recovery** - Auto-stop and resume capabilities
 
-## Installation
+---
 
-### From Chrome Web Store
+## Getting Started
 
-*(Coming soon)*
+### Prerequisites
 
-### Development Build
+- Node.js 18+
+- pnpm (recommended) or npm
 
-1. **Install dependencies**:
+### Installation
 
-   ```bash
-   npm install
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/gemini-nano-flow.git
+cd gemini-nano-flow
 
-2. **Run in development mode**:
+# Install dependencies
+pnpm install
 
-   ```bash
-   npm run dev
-   ```
+# Start development server
+pnpm dev
+```
 
-   This starts the WXT development server with hot reload.
+### Load in Chrome
 
-3. **Load the extension in Chrome**:
-   - Open `chrome://extensions`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the `.output/chrome-mv3` folder
+1. Navigate to `chrome://extensions`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select `.output/chrome-mv3`
 
 ### Production Build
 
 ```bash
-npm run build
+# Build for production
+pnpm build
+
+# Create distribution ZIP
+pnpm zip
 ```
 
-The built extension will be in `.output/chrome-mv3`.
-
-### Create ZIP for Distribution
-
-```bash
-npm run zip
-```
-
-## Usage
-
-### Getting Started
-
-1. Navigate to `gemini.google.com`
-2. The Nano Flow sidebar will appear automatically
-3. Follow the interactive onboarding tour (or skip it)
-
-### Adding Prompts
-
-1. **Manual Entry**: Type prompts in the text area, separated by blank lines
-2. **CSV Import**: Click the upload icon to import from CSV
-3. **Templates**: Use saved templates from the Library tab
-
-### Attaching Images
-
-1. Click the camera icon to attach reference images
-2. Select one or multiple images
-3. Images will be shown as thumbnails in the input area
-4. All attached images are included with each prompt
-
-### Processing the Queue
-
-1. Select your desired tool (Image, Video, Canvas, etc.)
-2. Click "Add to Queue" or press `Ctrl+Enter`
-3. Click the "Start" button to begin processing
-4. Watch results appear in real-time
-
-### CSV Format
-
-```csv
-Prompt,Type,Images
-"A cyberpunk city at night",image,
-"A dragon breathing fire",image,https://example.com/dragon-ref.jpg
-"Transform this photo",image,photo1.jpg
-"Combine these styles",image,style1.jpg|style2.jpg
-```
-
-**Columns:**
-- **Prompt** (required): The prompt text (use quotes for commas)
-- **Type** (optional): image, video, canvas, research, learning, layout
-- **Images** (optional): URLs or local filenames, separated by `|` or `;`
+---
 
 ## Project Structure
 
 ```
 src/
-├── entrypoints/
-│   ├── background.ts              # Service worker for message handling
-│   ├── gemini.content/            # Content script with sidebar UI
-│   │   ├── index.tsx              # Main sidebar component
-│   │   ├── automation.ts          # Gemini page automation
-│   │   └── style.css              # Component styles
-│   ├── sidepanel/                 # Side panel React app
-│   ├── options/                   # Options page for settings
-│   └── popup/                     # Browser action popup
-├── components/
-│   ├── QueuePanel.tsx             # Queue management UI
-│   ├── TemplatesPanel.tsx         # Template library UI
-│   ├── SettingsPanel.tsx          # Settings configuration
-│   ├── OnboardingModal.tsx        # Interactive tour
-│   ├── CsvDialog.tsx              # CSV import dialog
-│   └── ...                        # Other components
-├── services/
-│   ├── storageService.ts          # Chrome storage management
-│   └── promptOptimizationService.ts # AI prompt improvement
-├── types/                         # TypeScript type definitions
-└── assets/                        # Icons and static assets
+├── backend/                    # Business logic layer
+│   ├── services/               # Storage, API, queue management
+│   │   ├── storageService.ts   # Chrome storage abstraction
+│   │   ├── queueDb.ts          # IndexedDB for queue items
+│   │   └── geminiService.ts    # Gemini API integration
+│   ├── types/                  # TypeScript type definitions
+│   │   └── index.ts            # Centralized type exports
+│   └── utils/                  # Utility functions
+│       ├── retryStrategy.ts    # Exponential backoff
+│       ├── imageProcessor.ts   # Image manipulation
+│       └── logger.ts           # Structured logging
+│
+├── extension/                  # Chrome extension layer
+│   ├── entrypoints/            # WXT entry points
+│   │   ├── background/         # Service worker (modular)
+│   │   │   ├── index.ts        # Main entry
+│   │   │   ├── messageHandlers.ts
+│   │   │   ├── processing.ts
+│   │   │   └── state.ts
+│   │   ├── sidepanel/          # Main UI (React)
+│   │   │   ├── App.tsx
+│   │   │   ├── hooks/          # Page-specific hooks
+│   │   │   └── components/     # Page-specific components
+│   │   ├── gemini.content/     # Content script
+│   │   │   ├── automation/     # DOM automation
+│   │   │   └── modules/        # Feature modules
+│   │   ├── popup/              # Browser action
+│   │   └── options/            # Options page
+│   ├── components/             # Shared React components
+│   │   ├── queue-panel/
+│   │   ├── settings-panel/
+│   │   ├── templates-panel/
+│   │   └── bulk-actions/
+│   └── hooks/                  # Shared React hooks
+│       ├── useQueue.ts
+│       ├── useStorage.ts
+│       └── useAuth.ts
+│
+└── assets/                     # Static assets
+    └── icons/                  # Extension icons
 ```
 
-## Technology Stack
-
-- **Framework**: [WXT](https://wxt.dev/) - Modern web extension framework
-- **UI**: React 18 with TypeScript
-- **Styling**: Tailwind CSS
-- **AI**: Google Gemini API via `@google/genai`
-- **Icons**: Lucide React
-- **Storage**: Chrome Storage API
+---
 
 ## Development
 
-### Prerequisites
+### Available Scripts
 
-- Node.js 18+
-- npm, pnpm, or bun
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Start dev server with hot reload |
+| `pnpm build` | Production build |
+| `pnpm zip` | Create distribution ZIP |
+| `pnpm validate` | Run typecheck + lint + format check |
+| `pnpm lint` | Run ESLint |
+| `pnpm lint:fix` | Fix ESLint issues |
+| `pnpm format` | Format with Prettier |
+| `pnpm typecheck` | TypeScript type checking |
 
-### Commands
+### Code Validation
 
-| Command                 | Description              |
-| ----------------------- | ------------------------ |
-| `npm run dev`           | Start development server |
-| `npm run build`         | Build for production     |
-| `npm run zip`           | Create distribution ZIP  |
-| `npm run dev:firefox`   | Development for Firefox  |
-| `npm run build:firefox` | Build for Firefox        |
-
-### Icon Generation
-
-To generate PNG icons from the SVG sources:
+Before committing, ensure all checks pass:
 
 ```bash
-npm install sharp --save-dev
-node scripts/generate-icons.js
+pnpm validate
 ```
 
-## Configuration
+This runs:
+1. `tsc --noEmit` - Type checking
+2. `eslint .` - Linting
+3. `prettier --check` - Format verification
 
-The extension stores configuration in `chrome.storage.local`:
+### Browser Support
 
-- **Queue**: Current generation queue with status
-- **Settings**: User preferences (theme, position, model, prefix/suffix)
-- **Folders**: Template library organization
-- **Onboarding**: Tour completion status
+| Browser | Support |
+|---------|---------|
+| Chrome | Full (MV3) |
+| Firefox | Partial (via `pnpm dev:firefox`) |
+| Edge | Full (Chromium-based) |
 
-## Keyboard Shortcuts
-
-| Shortcut           | Action                   |
-| ------------------ | ------------------------ |
-| `Ctrl/Cmd + Enter` | Add prompts to queue     |
-| `Enter`            | Submit in input dialogs  |
-
-## Permissions
-
-The extension requires the following permissions:
-
-- `storage`: Save settings and queue locally
-- `sidePanel`: Display the side panel UI
-- `activeTab`: Detect when on supported sites
-- `tabs`: Open side panel on supported pages
-- Host permissions for `gemini.google.com` and `aistudio.google.com`
-
-## Privacy
-
-Nano Flow operates entirely locally in your browser. Your prompts, images, and settings are stored in Chrome's local storage and are never sent to external servers (except when using the AI optimization feature with your own API key).
-
-See our [Privacy Policy](./PRIVACY.md) for more details.
-
-## License
-
-MIT
+---
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Ensure code passes validation (`pnpm validate`)
+4. Commit with clear messages
+5. Push and create a Pull Request
 
-## Support
+### Code Standards
 
-For issues and feature requests, please open an issue on GitHub.
+- Follow existing TypeScript patterns
+- No `any` types - use proper typing
+- Use `import type` for type-only imports
+- Write self-documenting code with clear naming
+
+---
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) for details.
+
+---
+
+## Privacy
+
+Nano Flow operates entirely locally. Your prompts, images, and settings are stored in Chrome's local storage and are never sent to external servers (except when using AI optimization with your own API key).
+
+See [Privacy Policy](./PRIVACY.md) for details.

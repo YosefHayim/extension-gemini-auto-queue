@@ -18,10 +18,15 @@ import {
   type ExtensionResponse,
   type Folder,
   type QueueItem,
+  GeminiModel,
 } from "@/backend/types";
 
 import { sendToContentScript } from "@/extension/entrypoints/background/contentScriptBridge";
-import { startProcessing, pauseProcessing, stopProcessing } from "@/extension/entrypoints/background/processing";
+import {
+  startProcessing,
+  pauseProcessing,
+  stopProcessing,
+} from "@/extension/entrypoints/background/processing";
 import { setProcessingState } from "@/extension/entrypoints/background/state";
 import { SCHEDULE_ALARM_NAME, isPermittedHost } from "@/extension/entrypoints/background/types";
 
@@ -90,7 +95,7 @@ export async function handleMessage(
       try {
         const result = await generateImage({
           prompt,
-          model: model as import("@/types").GeminiModel,
+          model: model as GeminiModel,
           imageBase64s: images,
         });
         return { success: true, data: result };
