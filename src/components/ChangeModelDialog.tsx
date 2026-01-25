@@ -27,10 +27,19 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
     }
   };
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
+    <div
+      className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md"
+      onClick={handleBackdropClick}
+    >
       <div
         className={`w-full max-w-md rounded-lg border p-4 shadow-2xl ${
           isDark ? "glass-panel border-white/10" : "border-slate-200 bg-white"

@@ -28,6 +28,12 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showToolDropdown, setShowToolDropdown] = useState(false);
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   if (!editingTemplate) return null;
 
   const isNewTemplate = !editingTemplate.template.createdAt;
@@ -92,7 +98,10 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[900] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
       <div
         className={`w-full max-w-[380px] overflow-hidden rounded-lg border shadow-lg ${
           isDark ? "border-zinc-700 bg-zinc-900" : "border-zinc-200 bg-white"

@@ -94,8 +94,17 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
     resetState();
   };
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md"
+      onClick={handleBackdropClick}
+    >
       <div className="flex w-[340px] flex-col rounded-lg border border-border bg-card shadow-xl">
         <div className="flex items-center justify-between border-b border-border p-5">
           <div className="flex items-center gap-3">
@@ -164,7 +173,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
                 onClick={() => setIconTab("upload")}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-2 text-[13px] font-medium transition-colors ${
                   iconTab === "upload"
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                     : "border border-border bg-background text-foreground hover:bg-muted"
                 }`}
               >
@@ -175,7 +184,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
                 onClick={() => setIconTab("choose")}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-sm px-3 py-2 text-[13px] font-medium transition-colors ${
                   iconTab === "choose"
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                     : "border border-border bg-background text-foreground hover:bg-muted"
                 }`}
               >
@@ -233,7 +242,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
           <button
             onClick={handleSubmit}
             disabled={!newFolderName.trim()}
-            className="flex items-center gap-1.5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {isEditMode ? <Pencil size={16} /> : <FolderPlus size={16} />}
             {isEditMode ? "Save Changes" : "Create Folder"}

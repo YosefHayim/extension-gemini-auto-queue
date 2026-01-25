@@ -158,7 +158,7 @@ Separate multiple prompts with blank lines. Each paragraph becomes a separate qu
         onClick={onEnqueue}
         disabled={promptPreviewCount === 0 && selectedImages.length === 0}
         title="Add prompt to processing queue (Ctrl+Enter)"
-        className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
       >
         Add to Queue
       </button>

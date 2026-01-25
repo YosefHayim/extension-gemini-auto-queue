@@ -108,10 +108,19 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
     setImageMap(new Map());
   };
 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
+    <div
+      className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md"
+      onClick={handleBackdropClick}
+    >
       <div
         className={`w-full max-w-lg rounded-md border p-2 shadow-2xl ${
           isDark ? "glass-panel border-border" : "border-border bg-background"
