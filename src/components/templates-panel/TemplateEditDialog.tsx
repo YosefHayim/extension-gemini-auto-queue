@@ -1,10 +1,10 @@
-import React, { useRef, useState } from "react";
 import { ChevronDown, FilePlus, Folder, ImagePlus, Plus, X } from "lucide-react";
+import React, { useRef, useState } from "react";
 
 import { GeminiTool, GEMINI_TOOL_INFO } from "@/types";
-import type { Folder as FolderType } from "@/types";
 
 import type { EditingTemplateState } from "./types";
+import type { Folder as FolderType } from "@/types";
 
 interface TemplateEditDialogProps {
   editingTemplate: EditingTemplateState | null;
@@ -215,7 +215,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
                     key={tool}
                     type="button"
                     onClick={() => handleToolSelect(tool as GeminiTool)}
-                    className={`text-popover-foreground flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-muted ${tool === selectedTool ? "bg-muted" : ""}`}
+                    className={`text-popover-foreground flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-muted ${(tool as GeminiTool) === selectedTool ? "bg-muted" : ""}`}
                   >
                     {React.createElement(config.icon, {
                       size: 14,

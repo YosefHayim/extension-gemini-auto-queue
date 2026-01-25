@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Briefcase,
   Camera,
@@ -17,10 +16,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 import { FOLDER_COLORS, FOLDER_ICONS } from "@/types";
+
 import type { Folder as FolderType, FolderIcon } from "@/types";
+import type { LucideIcon } from "lucide-react";
 
 interface FolderCreateDialogProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
 
   useEffect(() => {
     if (editingFolder) {
-      setSelectedColor(editingFolder.color ?? FOLDER_COLORS[0]);
+      setSelectedColor(editingFolder.color || FOLDER_COLORS[0]);
       setSelectedIcon((editingFolder.icon as FolderIcon) ?? null);
     } else {
       setSelectedColor(FOLDER_COLORS[0]);

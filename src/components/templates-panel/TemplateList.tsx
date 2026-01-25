@@ -16,7 +16,6 @@ interface TemplateListProps {
   onEdit: (folderId: string, templateId: string, e: React.MouseEvent) => void;
   onDelete: (folderId: string, templateId: string, e: React.MouseEvent) => void;
   onUse: (folderId: string, templateId: string) => void;
-  onCreateTemplate: () => void;
   onCreateNewTemplate: (e: React.MouseEvent) => void;
 }
 
@@ -31,7 +30,6 @@ export const TemplateList: React.FC<TemplateListProps> = ({
   onEdit,
   onDelete,
   onUse,
-  onCreateTemplate,
   onCreateNewTemplate,
 }) => {
   return (
@@ -52,12 +50,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
           />
         ))
       ) : (
-        <EmptyState
-          isDark={isDark}
-          selectedFolderId={selectedFolderId}
-          hasFolders={hasFolders}
-          onCreateTemplate={onCreateTemplate}
-        />
+        <EmptyState isDark={isDark} selectedFolderId={selectedFolderId} hasFolders={hasFolders} />
       )}
 
       {selectedFolderId !== null && templates.length > 0 && (

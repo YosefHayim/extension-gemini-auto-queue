@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Briefcase,
   Camera,
@@ -11,15 +10,17 @@ import {
   Music,
   Palette,
   Pencil,
+  Plus,
   Rocket,
   Sparkles,
   Star,
   X,
   Zap,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import React from "react";
 
 import type { Folder, FolderIcon as FolderIconType } from "@/types";
+import type { LucideIcon } from "lucide-react";
 
 const ICON_COMPONENTS: Record<FolderIconType, LucideIcon> = {
   folder: FolderIcon,
@@ -46,6 +47,7 @@ interface FolderBarProps {
   onToggleFolder: (folderId: string) => void;
   onDeleteFolder: (folderId: string, e: React.MouseEvent) => void;
   onEditFolder?: (folder: Folder) => void;
+  onCreateTemplate?: (folderId: string) => void;
 }
 
 export const FolderBar: React.FC<FolderBarProps> = ({
@@ -57,17 +59,18 @@ export const FolderBar: React.FC<FolderBarProps> = ({
   onToggleFolder,
   onDeleteFolder,
   onEditFolder,
+  onCreateTemplate,
 }) => {
   const getFolderIcon = (folder: Folder) => {
-    const iconName = (folder.icon ?? "folder") as FolderIconType;
+    const iconName = (folder.icon || "folder") as FolderIconType;
     const IconComponent = ICON_COMPONENTS[iconName] ?? FolderIcon;
     const iconColor = folder.color ?? "#F59E0B";
     return <IconComponent size={18} style={{ color: iconColor }} />;
   };
 
   return (
-    <div className="no-scrollbar flex-shrink-0 overflow-x-auto">
-      <div className="flex flex-nowrap gap-2 p-2">
+    <div className="flex-shrink-0 overflow-y-auto" style={{ maxHeight: "180px" }}>
+      <div className="flex flex-wrap gap-2 p-2">
         <button
           onClick={onCreateFolderClick}
           title="Create new folder"
@@ -110,6 +113,18 @@ export const FolderBar: React.FC<FolderBarProps> = ({
               </span>
             </button>
             <div className="absolute -right-1 -top-1 flex gap-0.5 opacity-0 transition-all group-hover/folder:opacity-100">
+              {onCreateTemplate && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateTemplate(folder.id);
+                  }}
+                  title="Add template"
+                  className="rounded-full bg-emerald-500 p-1 text-white shadow-sm transition-all hover:bg-emerald-600"
+                >
+                  <Plus size={10} />
+                </button>
+              )}
               {onEditFolder && (
                 <button
                   onClick={(e) => {

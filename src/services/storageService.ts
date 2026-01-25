@@ -29,6 +29,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   position: SidebarPosition.RIGHT,
   primaryModel: GeminiModel.FLASH,
   dripFeed: false,
+  autoStopOnError: false,
   autoCaption: false,
   globalNegatives: "",
   globalNegativesEnabled: false,

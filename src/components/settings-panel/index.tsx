@@ -4,13 +4,13 @@ import { SiGoogle, SiOpenai, SiAnthropic } from "react-icons/si";
 
 import { AIProvider, AI_PROVIDER_INFO, GeminiModel, ThemeMode } from "@/types";
 
+import type { SettingsPanelProps } from "./types";
+
 const PROVIDER_ICONS: Record<AIProvider, React.ElementType> = {
   [AIProvider.GEMINI]: SiGoogle,
   [AIProvider.OPENAI]: SiOpenai,
   [AIProvider.ANTHROPIC]: SiAnthropic,
 };
-
-import type { SettingsPanelProps } from "./types";
 
 const getSectionClasses = () => `space-y-4 rounded-lg bg-muted p-4 border border-border`;
 
@@ -50,7 +50,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     onUpdateSettings({
       aiApiKeys: {
         ...settings.aiApiKeys,
-        [provider]: value ?? undefined,
+        [provider]: value || undefined,
       },
     });
   };
@@ -129,8 +129,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <label className="text-sm font-normal text-foreground">Auto-Stop on Error</label>
             <p className={descriptionClasses}>Stop processing when error occurs</p>
           </div>
-          <button onClick={() => {}} className={getToggleButtonClasses(false)}>
-            <div className={getToggleKnobClasses(false)} />
+          <button
+            onClick={() => onUpdateSettings({ autoStopOnError: !settings.autoStopOnError })}
+            className={getToggleButtonClasses(settings.autoStopOnError || false)}
+          >
+            <div className={getToggleKnobClasses(settings.autoStopOnError || false)} />
           </button>
         </div>
       </div>
@@ -149,7 +152,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
           {Object.entries(AI_PROVIDER_INFO).map(([provider, info]) => {
             const providerKey = provider as AIProvider;
-            const apiKey = settings.aiApiKeys?.[providerKey] ?? "";
+            const apiKey = settings.aiApiKeys[providerKey] ?? "";
             const isVisible = visibleKeys[providerKey];
 
             const ProviderIcon = PROVIDER_ICONS[providerKey];
@@ -165,7 +168,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     type={isVisible ? "text" : "password"}
                     value={apiKey}
                     onChange={(e) => handleApiKeyChange(providerKey, e.target.value)}
-                    placeholder={`Enter API key...`}
+                    placeholder="Enter API key..."
                     className={`${inputClasses()} pr-10`}
                   />
                   <button
@@ -195,7 +198,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <p className={descriptionClasses}>Used when no model is specified</p>
         </div>
 
-        <div className={`rounded-lg border border-border bg-secondary p-4`}>
+        <div className="rounded-lg border border-border bg-secondary p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-foreground">Free Plan</p>
@@ -228,7 +231,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center justify-between border-b border-border py-3 transition-colors duration-150 hover:bg-muted`}
+              className="flex items-center justify-between border-b border-border py-3 transition-colors duration-150 hover:bg-muted"
             >
               <span className="text-sm font-normal text-foreground">{link.label}</span>
               <ExternalLink size={14} className="text-muted-foreground" />

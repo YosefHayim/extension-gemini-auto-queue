@@ -5,14 +5,9 @@ interface EmptyStateProps {
   isDark?: boolean;
   selectedFolderId: string | null;
   hasFolders: boolean;
-  onCreateTemplate: () => void;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  selectedFolderId,
-  hasFolders,
-  onCreateTemplate,
-}) => {
+export const EmptyState: React.FC<EmptyStateProps> = ({ selectedFolderId, hasFolders }) => {
   return (
     <div className="flex flex-col items-center justify-center py-16 opacity-40">
       <BookMarked size={32} className="text-muted-foreground" />
@@ -20,12 +15,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         No Templates
       </span>
       {selectedFolderId !== null && hasFolders && (
-        <button
-          onClick={onCreateTemplate}
-          className="mt-4 rounded-lg bg-info/20 px-4 py-2 text-xs font-semibold text-info transition-all hover:bg-info/30"
-        >
-          Create First Template
-        </button>
+        <span className="mt-2 text-[10px] text-muted-foreground">
+          Hover over a folder and click + to add
+        </span>
       )}
     </div>
   );

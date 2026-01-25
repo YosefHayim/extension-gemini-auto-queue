@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
 import { Search, Folder, Plus } from "lucide-react";
+import React, { useMemo } from "react";
 
 import { FolderBar } from "./FolderBar";
 import { FolderCreateDialog } from "./FolderCreateDialog";
@@ -170,6 +170,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onToggleFolder={onToggleFolder}
           onDeleteFolder={handleDeleteFolder}
           onEditFolder={handleEditFolder}
+          onCreateTemplate={(folderId) => handleStartTemplateEdit(folderId)}
         />
 
         {selectedFolder && selectedFolder.templates.length > 0 && hasAIKey && (
@@ -192,10 +193,6 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onEdit={handleStartTemplateEdit}
           onDelete={handleDeleteTemplate}
           onUse={onUseTemplate}
-          onCreateTemplate={() => {
-            const folder = folders.find((f) => f.id === selectedFolderId);
-            if (folder) handleStartTemplateEdit(folder.id);
-          }}
           onCreateNewTemplate={(e) => handleStartTemplateEdit(selectedFolderId!, undefined, e)}
         />
       </div>
