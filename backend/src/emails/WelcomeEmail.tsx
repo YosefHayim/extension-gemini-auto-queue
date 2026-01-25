@@ -1,9 +1,13 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
+  Hr,
   Html,
+  Img,
+  Link,
   Preview,
   Section,
   Text,
@@ -19,23 +23,94 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Groove - You have 100 free credits!</Preview>
+      <Preview>Welcome to Groove - Automate your Gemini workflow</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={heading}>Welcome to Groove!</Heading>
-          <Text style={paragraph}>Hi {displayName},</Text>
-          <Text style={paragraph}>
-            You&apos;re all set! You have <strong>100 free credits</strong> to try out all features.
-          </Text>
-          <Section style={featureBox}>
-            <Text style={featureText}>
-              <strong>What you can do:</strong>
-            </Text>
-            <Text style={featureList}>• Queue and batch process prompts</Text>
-            <Text style={featureList}>• Generate images and videos</Text>
-            <Text style={featureList}>• Use all Gemini tools automatically</Text>
+          <Section style={logoSection}>
+            <Text style={logoText}>Groove</Text>
           </Section>
-          <Text style={footer}>Need more? Upgrade to unlimited for just $2/month.</Text>
+
+          <Heading style={heading}>Welcome aboard, {displayName}!</Heading>
+
+          <Text style={paragraph}>
+            You just unlocked the fastest way to work with Google Gemini. Queue prompts, automate
+            workflows, and download results - all hands-free.
+          </Text>
+
+          <Section style={statsBox}>
+            <Text style={statsTitle}>Your Free Plan</Text>
+            <Text style={statsNumber}>10</Text>
+            <Text style={statsLabel}>prompts per day</Text>
+          </Section>
+
+          <Text style={paragraph}>Here&apos;s what you can do right now:</Text>
+
+          <Section style={featureSection}>
+            <Text style={featureItem}>
+              <span style={checkmark}>✓</span> Queue multiple prompts and process them automatically
+            </Text>
+            <Text style={featureItem}>
+              <span style={checkmark}>✓</span> Select tools like Image, Video, Canvas, Deep Research
+            </Text>
+            <Text style={featureItem}>
+              <span style={checkmark}>✓</span> Attach reference images to your prompts
+            </Text>
+            <Text style={featureItem}>
+              <span style={checkmark}>✓</span> Schedule queue processing for later
+            </Text>
+          </Section>
+
+          <Hr style={divider} />
+
+          <Section style={upgradeSection}>
+            <Text style={upgradeTitle}>Need more power?</Text>
+            <Text style={upgradeText}>
+              Upgrade to <strong>Lifetime</strong> for a one-time payment of{" "}
+              <strong style={priceHighlight}>$5</strong> and get:
+            </Text>
+
+            <Section style={upgradeFeatures}>
+              <Text style={upgradeFeatureItem}>
+                <span style={starIcon}>★</span> 100 prompts per day (10x more)
+              </Text>
+              <Text style={upgradeFeatureItem}>
+                <span style={starIcon}>★</span> Priority support
+              </Text>
+              <Text style={upgradeFeatureItem}>
+                <span style={starIcon}>★</span> Pay once, use forever
+              </Text>
+            </Section>
+
+            <Button style={ctaButton} href="https://groove.example.com/upgrade">
+              Upgrade to Lifetime - $5
+            </Button>
+          </Section>
+
+          <Hr style={divider} />
+
+          <Text style={footerText}>
+            Questions? Just reply to this email. We read every message.
+          </Text>
+
+          <Text style={footerSignature}>
+            Happy prompting!
+            <br />
+            The Groove Team
+          </Text>
+
+          <Section style={footerLinks}>
+            <Link href="https://groove.example.com" style={footerLink}>
+              Website
+            </Link>
+            <Text style={footerLinkDivider}>•</Text>
+            <Link href="https://groove.example.com/privacy" style={footerLink}>
+              Privacy
+            </Link>
+            <Text style={footerLinkDivider}>•</Text>
+            <Link href="https://groove.example.com/terms" style={footerLink}>
+              Terms
+            </Link>
+          </Section>
         </Container>
       </Body>
     </Html>
@@ -43,62 +118,192 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
 }
 
 const main = {
-  backgroundColor: "#f5f5f5",
+  backgroundColor: "#f6f9fc",
   fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif',
   padding: "40px 20px",
 };
 
 const container = {
   backgroundColor: "#ffffff",
-  borderRadius: "12px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  borderRadius: "16px",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
   margin: "0 auto",
-  maxWidth: "480px",
-  padding: "40px",
+  maxWidth: "520px",
+  padding: "48px 40px",
+};
+
+const logoSection = {
+  textAlign: "center" as const,
+  marginBottom: "32px",
+};
+
+const logoText = {
+  color: "#10b981",
+  fontSize: "28px",
+  fontWeight: "700",
+  letterSpacing: "-0.5px",
+  margin: "0",
 };
 
 const heading = {
-  color: "#1a1a1a",
-  fontSize: "24px",
-  fontWeight: "600",
+  color: "#111827",
+  fontSize: "26px",
+  fontWeight: "700",
   lineHeight: "1.3",
-  margin: "0 0 24px",
+  margin: "0 0 20px",
+  textAlign: "center" as const,
 };
 
 const paragraph = {
-  color: "#666666",
+  color: "#4b5563",
   fontSize: "16px",
-  lineHeight: "1.5",
-  margin: "0 0 16px",
+  lineHeight: "1.6",
+  margin: "0 0 24px",
 };
 
-const featureBox = {
-  background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-  borderRadius: "8px",
-  marginBottom: "24px",
-  padding: "20px",
+const statsBox = {
+  backgroundColor: "#ecfdf5",
+  borderRadius: "12px",
+  margin: "0 0 32px",
+  padding: "24px",
+  textAlign: "center" as const,
 };
 
-const featureText = {
-  color: "#ffffff",
+const statsTitle = {
+  color: "#065f46",
   fontSize: "14px",
+  fontWeight: "600",
+  letterSpacing: "0.5px",
+  margin: "0 0 8px",
+  textTransform: "uppercase" as const,
+};
+
+const statsNumber = {
+  color: "#10b981",
+  fontSize: "48px",
+  fontWeight: "700",
+  lineHeight: "1",
+  margin: "0",
+};
+
+const statsLabel = {
+  color: "#065f46",
+  fontSize: "16px",
+  margin: "8px 0 0",
+};
+
+const featureSection = {
+  margin: "0 0 32px",
+};
+
+const featureItem = {
+  color: "#374151",
+  fontSize: "15px",
+  lineHeight: "1.6",
+  margin: "0 0 12px",
+  paddingLeft: "4px",
+};
+
+const checkmark = {
+  color: "#10b981",
+  fontWeight: "600",
+  marginRight: "8px",
+};
+
+const divider = {
+  borderColor: "#e5e7eb",
+  borderTop: "1px solid #e5e7eb",
+  margin: "32px 0",
+};
+
+const upgradeSection = {
+  backgroundColor: "#fefce8",
+  borderRadius: "12px",
+  margin: "0 0 32px",
+  padding: "28px 24px",
+  textAlign: "center" as const,
+};
+
+const upgradeTitle = {
+  color: "#854d0e",
+  fontSize: "18px",
+  fontWeight: "700",
+  margin: "0 0 12px",
+};
+
+const upgradeText = {
+  color: "#713f12",
+  fontSize: "15px",
   lineHeight: "1.5",
+  margin: "0 0 20px",
+};
+
+const priceHighlight = {
+  color: "#ca8a04",
+  fontSize: "18px",
+};
+
+const upgradeFeatures = {
+  margin: "0 0 24px",
+  textAlign: "left" as const,
+};
+
+const upgradeFeatureItem = {
+  color: "#713f12",
+  fontSize: "14px",
+  lineHeight: "1.6",
   margin: "0 0 8px",
 };
 
-const featureList = {
-  color: "#ffffff",
-  fontSize: "14px",
-  lineHeight: "1.5",
-  margin: "0",
+const starIcon = {
+  color: "#eab308",
+  marginRight: "8px",
 };
 
-const footer = {
-  color: "#999999",
+const ctaButton = {
+  backgroundColor: "#ca8a04",
+  borderRadius: "8px",
+  color: "#ffffff",
+  display: "inline-block",
+  fontSize: "16px",
+  fontWeight: "600",
+  padding: "14px 32px",
+  textDecoration: "none",
+  textAlign: "center" as const,
+};
+
+const footerText = {
+  color: "#6b7280",
   fontSize: "14px",
   lineHeight: "1.5",
-  margin: "0",
+  margin: "0 0 16px",
+  textAlign: "center" as const,
+};
+
+const footerSignature = {
+  color: "#374151",
+  fontSize: "14px",
+  lineHeight: "1.6",
+  margin: "0 0 24px",
+  textAlign: "center" as const,
+};
+
+const footerLinks = {
+  textAlign: "center" as const,
+};
+
+const footerLink = {
+  color: "#9ca3af",
+  fontSize: "12px",
+  textDecoration: "none",
+};
+
+const footerLinkDivider = {
+  color: "#d1d5db",
+  display: "inline",
+  fontSize: "12px",
+  margin: "0 8px",
 };
 
 export default WelcomeEmail;
