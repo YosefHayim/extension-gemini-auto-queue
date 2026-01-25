@@ -61,11 +61,7 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
         <button
           onClick={onShowBulkActions}
           title="Bulk actions for pending prompts"
-          className={`flex items-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
-            isDark
-              ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-          }`}
+          className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80"
         >
           <Layers size={16} />
           <span>Bulk Actions</span>
@@ -75,11 +71,7 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
         <button
           onClick={onClearCompleted}
           title="Clear completed items"
-          className={`flex items-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
-            isDark
-              ? "border-emerald-800 bg-emerald-900/50 text-emerald-400 hover:bg-emerald-900"
-              : "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-          }`}
+          className="flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-600 transition-all hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400 dark:hover:bg-emerald-900"
         >
           <Sparkles size={16} />
           <span>Clear Done</span>
@@ -89,11 +81,7 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
         <button
           onClick={onOpenExport}
           title="Export queue to file"
-          className={`flex items-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
-            isDark
-              ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-          }`}
+          className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80"
         >
           <Download size={16} />
           <span>Export</span>
@@ -102,11 +90,7 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
       <button
         onClick={() => setShowClearMenu(!showClearMenu)}
         title="Clear queue items"
-        className={`flex items-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
-          isDark
-            ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-        }`}
+        className="flex items-center gap-1.5 rounded-md border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-all hover:bg-secondary/80"
       >
         <Trash2 size={16} />
         <span>Clear</span>

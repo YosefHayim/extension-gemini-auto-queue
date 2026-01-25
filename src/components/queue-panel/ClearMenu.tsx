@@ -29,16 +29,11 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
   onClearAll,
   onClearByFilter,
   onClose,
-  isDark,
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div
-      className={`absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-lg border shadow-xl ${
-        isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
-      }`}
-    >
+    <div className="absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-lg border border-border bg-background shadow-xl">
       <div className="p-2">
         {onClearAll && (
           <button
@@ -46,9 +41,7 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
               onClearAll();
               onClose();
             }}
-            className={`flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors ${
-              isDark ? "text-red-400 hover:bg-red-500/20" : "text-red-600 hover:bg-red-50"
-            }`}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
             <Trash2 size={14} />
             Clear All ({queue.length})
@@ -57,10 +50,8 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
 
         {onClearByFilter && (
           <>
-            <div className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`} />
-            <div
-              className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
-            >
+            <div className="my-2 border-t border-border" />
+            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               By Status
             </div>
             {Object.values(QueueStatus).map((status) => {
@@ -73,22 +64,16 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                     onClearByFilter({ status });
                     onClose();
                   }}
-                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                    isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
-                  }`}
+                  className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   <span className="capitalize">{status}</span>
-                  <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-                    {count}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{count}</span>
                 </button>
               );
             })}
 
-            <div className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`} />
-            <div
-              className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
-            >
+            <div className="my-2 border-t border-border" />
+            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               By Tool
             </div>
             {Object.values(GeminiTool)
@@ -104,25 +89,19 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                       onClearByFilter({ tool });
                       onClose();
                     }}
-                    className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                      isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
-                    }`}
+                    className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                   >
                     <span className="flex items-center gap-2">
                       {React.createElement(toolInfo.icon, { size: 14 })}
                       {toolInfo.label}
                     </span>
-                    <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-                      {count}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{count}</span>
                   </button>
                 );
               })}
 
-            <div className={`my-2 border-t ${isDark ? "border-white/10" : "border-slate-100"}`} />
-            <div
-              className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${isDark ? "text-white/40" : "text-slate-400"}`}
-            >
+            <div className="my-2 border-t border-border" />
+            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               By Mode
             </div>
             {Object.values(GeminiMode).map((mode) => {
@@ -136,14 +115,10 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                     onClearByFilter({ mode });
                     onClose();
                   }}
-                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                    isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
-                  }`}
+                  className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   <span>{modeInfo.label}</span>
-                  <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-                    {count}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{count}</span>
                 </button>
               );
             })}
