@@ -3,14 +3,14 @@ import { STORAGE_KEYS } from "@/types";
 import type { AuthUser } from "@/types";
 
 const OAUTH_CONFIG = {
-  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "",
-  redirectUri: import.meta.env.VITE_OAUTH_REDIRECT_URI ?? "",
+  clientId: String(import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""),
+  redirectUri: String(import.meta.env.VITE_OAUTH_REDIRECT_URI ?? ""),
   authEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-  tokenEndpoint: import.meta.env.VITE_BACKEND_TOKEN_ENDPOINT ?? "",
+  tokenEndpoint: String(import.meta.env.VITE_BACKEND_TOKEN_ENDPOINT ?? ""),
   scope: "email profile openid",
 };
 
-const isDevelopment = import.meta.env.DEV;
+const isDevelopment: boolean = import.meta.env.DEV;
 
 export async function getAuthUser(): Promise<AuthUser | null> {
   try {
@@ -82,7 +82,7 @@ export async function signIn(): Promise<{ success: boolean; user?: AuthUser; err
 
     const authUrl = `${OAUTH_CONFIG.authEndpoint}?${params.toString()}`;
 
-    return new Promise((resolve) => {
+    return await new Promise((resolve) => {
       chrome.identity.launchWebAuthFlow(
         {
           url: authUrl,
@@ -169,7 +169,7 @@ export async function signOut(): Promise<void> {
 }
 
 export function getUserInitials(user: AuthUser): string {
-  const firstInitial = user.firstName?.charAt(0).toUpperCase() ?? "";
-  const lastInitial = user.lastName?.charAt(0).toUpperCase() ?? "";
+  const firstInitial = user.firstName.charAt(0).toUpperCase();
+  const lastInitial = user.lastName.charAt(0).toUpperCase();
   return `${firstInitial}${lastInitial}` || user.email.charAt(0).toUpperCase();
 }
