@@ -43,9 +43,9 @@ export const ScheduleFormPopover: React.FC<ScheduleFormPopoverProps> = ({
           value={selectedDate}
           onChange={(e) => onDateChange(e.target.value)}
           min={getMinDate()}
-          className={`flex-1 rounded-md border px-2 py-1.5 text-xs outline-none ${
+          className={`flex-1 rounded-md border px-3 py-2.5 text-sm outline-none ${
             isDark
-              ? "border-slate-700 bg-slate-800 text-white"
+              ? "border-slate-700 bg-slate-900 text-white"
               : "border-slate-200 bg-white text-slate-900"
           }`}
         />
@@ -54,9 +54,9 @@ export const ScheduleFormPopover: React.FC<ScheduleFormPopoverProps> = ({
           value={selectedTime}
           onChange={(e) => onTimeChange(e.target.value)}
           min={getMinTime()}
-          className={`w-24 rounded-md border px-2 py-1.5 text-xs outline-none ${
+          className={`w-28 rounded-md border px-3 py-2.5 text-sm outline-none ${
             isDark
-              ? "border-slate-700 bg-slate-800 text-white"
+              ? "border-slate-700 bg-slate-900 text-white"
               : "border-slate-200 bg-white text-slate-900"
           }`}
         />
@@ -79,10 +79,10 @@ export const ScheduleFormPopover: React.FC<ScheduleFormPopoverProps> = ({
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
+          className={`flex-1 rounded-md border px-4 py-2.5 text-sm font-medium transition-colors ${
             isDark
-              ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              ? "border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+              : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
           }`}
         >
           Cancel
@@ -90,11 +90,7 @@ export const ScheduleFormPopover: React.FC<ScheduleFormPopoverProps> = ({
         <button
           onClick={onSchedule}
           disabled={!selectedDate || !selectedTime}
-          className={`flex-1 rounded-md px-3 py-2 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-            isDark
-              ? "bg-indigo-600 text-white hover:bg-indigo-500"
-              : "bg-indigo-500 text-white hover:bg-indigo-600"
-          }`}
+          className="flex-1 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Schedule
         </button>

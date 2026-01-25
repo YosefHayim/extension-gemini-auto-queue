@@ -150,7 +150,7 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
             }
           }}
           disabled={!action.available || (action.type === "copy" && copySuccess)}
-          className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all ${
+          className={`flex w-full items-center gap-3 rounded-md border p-3 text-left transition-all ${
             action.type === "copy" && copySuccess
               ? "border-green-500 bg-green-500/20"
               : action.available
@@ -160,7 +160,7 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
                 : "cursor-not-allowed opacity-50"
           }`}
         >
-          <div className={`rounded-lg p-2 ${getIconColorClass(action.type, copySuccess)}`}>
+          <div className={`rounded-md p-2 ${getIconColorClass(action.type, copySuccess)}`}>
             {action.type === "copy" && copySuccess ? (
               <Check size={18} />
             ) : (

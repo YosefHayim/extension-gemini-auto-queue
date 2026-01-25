@@ -91,7 +91,7 @@ export const DownloadOptionsDialog: React.FC<DownloadOptionsDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
-        className={`mx-4 w-full max-w-sm rounded-xl border shadow-2xl ${
+        className={`mx-4 w-full max-w-sm rounded-lg border shadow-2xl ${
           isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
         }`}
       >
@@ -111,7 +111,7 @@ export const DownloadOptionsDialog: React.FC<DownloadOptionsDialogProps> = ({
           <button
             onClick={onClose}
             disabled={isDownloading}
-            className={`rounded-lg p-2 transition-colors ${
+            className={`rounded-md p-2 transition-colors ${
               isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100"
             }`}
           >
@@ -165,7 +165,7 @@ export const DownloadOptionsDialog: React.FC<DownloadOptionsDialogProps> = ({
           <button
             onClick={handleDownload}
             disabled={isDownloading || files.length === 0}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all hover:bg-blue-500 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-emerald-600 disabled:opacity-50"
           >
             {isDownloading ? (
               <Loader2 size={16} className="animate-spin" />

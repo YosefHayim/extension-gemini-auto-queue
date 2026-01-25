@@ -35,7 +35,7 @@ export const CloneVariationsDialog: React.FC<CloneVariationsDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
-        className={`mx-4 w-full max-w-sm rounded-xl border shadow-2xl ${
+        className={`mx-4 w-full max-w-sm rounded-lg border shadow-2xl ${
           isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
         }`}
       >
@@ -47,7 +47,7 @@ export const CloneVariationsDialog: React.FC<CloneVariationsDialogProps> = ({
           </h3>
           <button
             onClick={onClose}
-            className={`rounded-lg p-2 transition-colors ${
+            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
               isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100"
             }`}
           >
@@ -87,7 +87,7 @@ export const CloneVariationsDialog: React.FC<CloneVariationsDialogProps> = ({
         >
           <button
             onClick={onClose}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
               isDark
                 ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -98,8 +98,8 @@ export const CloneVariationsDialog: React.FC<CloneVariationsDialogProps> = ({
           <button
             onClick={handleApply}
             disabled={count <= 0}
-            className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${
-              count > 0 ? "bg-emerald-600 hover:bg-emerald-700" : "cursor-not-allowed bg-slate-400"
+            className={`rounded-md px-4 py-2.5 text-sm font-medium text-white transition-colors ${
+              count > 0 ? "bg-emerald-500 hover:bg-emerald-600" : "cursor-not-allowed bg-slate-400"
             }`}
           >
             Clone

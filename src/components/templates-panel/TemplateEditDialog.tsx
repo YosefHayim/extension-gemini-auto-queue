@@ -63,13 +63,17 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
   return (
     <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
       <div
-        className={`w-full max-w-xl rounded-md border p-2 shadow-2xl ${isDark ? "glass-panel" : "border-border bg-card"}`}
+        className={`w-full max-w-xl rounded-lg border p-4 shadow-2xl ${isDark ? "glass-panel" : "border-border bg-card"}`}
       >
         <div className="flex items-center justify-between p-2">
           <h2 className="text-sm font-black">
             {editingTemplate.template.createdAt ? "Refine Prompt" : "New Library Entry"}
           </h2>
-          <button onClick={onClose} title="Close" className="rounded-md p-1 hover:bg-secondary/50">
+          <button
+            onClick={onClose}
+            title="Close"
+            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-secondary/50"
+          >
             <X size={18} />
           </button>
         </div>
@@ -165,7 +169,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
           <button
             onClick={onSave}
             title="Save template"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-info p-2 text-xs font-black text-info-foreground shadow-lg hover:bg-info/90"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg hover:bg-emerald-600"
           >
             <Save size={14} /> Save Template
           </button>

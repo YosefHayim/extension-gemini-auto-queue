@@ -32,7 +32,7 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
       <div
-        className={`w-full max-w-md rounded-md border p-2 shadow-2xl ${
+        className={`w-full max-w-md rounded-lg border p-4 shadow-2xl ${
           isDark ? "glass-panel border-white/10" : "border-slate-200 bg-white"
         }`}
       >
@@ -41,7 +41,10 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
             <Zap size={18} className="text-amber-500" />
             <h2 className="text-sm font-black">Select Model</h2>
           </div>
-          <button onClick={onClose} className="rounded-md p-1 transition-all hover:bg-white/5">
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-md transition-all hover:bg-white/5"
+          >
             <X size={18} />
           </button>
         </div>
@@ -64,7 +67,7 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
               onChange={(e) => {
                 setSelectedModel(e.target.value);
               }}
-              className={`w-full rounded-md border p-2 text-xs outline-none ${
+              className={`w-full rounded-md border px-3 py-2.5 text-sm outline-none ${
                 isDark ? "border-white/10 bg-black/40 text-white" : "border-slate-200 bg-slate-50"
               }`}
             >
@@ -79,7 +82,7 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className={`flex-1 rounded-md border p-2 text-xs font-black ${
+              className={`flex-1 rounded-md border px-4 py-2.5 text-sm font-medium ${
                 isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white"
               }`}
             >
@@ -88,7 +91,7 @@ export const ChangeModelDialog: React.FC<ChangeModelDialogProps> = ({
             <button
               onClick={handleSave}
               disabled={!selectedModel.trim()}
-              className="flex-1 rounded-md bg-amber-600 p-2 text-xs font-black text-white shadow-lg hover:bg-amber-500 disabled:opacity-50"
+              className="flex-1 rounded-md bg-amber-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg hover:bg-amber-500 disabled:opacity-50"
             >
               Save Model
             </button>

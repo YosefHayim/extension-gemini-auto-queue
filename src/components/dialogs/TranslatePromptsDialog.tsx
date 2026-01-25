@@ -44,7 +44,7 @@ export const TranslatePromptsDialog: React.FC<TranslatePromptsDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
-        className={`mx-4 w-full max-w-sm rounded-xl border shadow-2xl ${
+        className={`mx-4 w-full max-w-sm rounded-lg border shadow-2xl ${
           isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
         }`}
       >
@@ -56,7 +56,7 @@ export const TranslatePromptsDialog: React.FC<TranslatePromptsDialogProps> = ({
           </h3>
           <button
             onClick={onClose}
-            className={`rounded-lg p-2 transition-colors ${
+            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
               isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100"
             }`}
           >
@@ -94,7 +94,7 @@ export const TranslatePromptsDialog: React.FC<TranslatePromptsDialogProps> = ({
         >
           <button
             onClick={onClose}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
               isDark
                 ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -104,7 +104,7 @@ export const TranslatePromptsDialog: React.FC<TranslatePromptsDialogProps> = ({
           </button>
           <button
             onClick={handleApply}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
           >
             Translate
           </button>

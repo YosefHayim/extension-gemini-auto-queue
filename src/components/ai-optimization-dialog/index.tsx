@@ -58,11 +58,11 @@ export const AIOptimizationDialog: React.FC<AIOptimizationDialogProps> = ({
       className="animate-in fade-in fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md duration-200"
       onClick={handleBackdropClick}
     >
-      <div className="animate-in zoom-in-95 relative w-full max-w-[600px] rounded-2xl border border-slate-800 bg-[#0f172a] p-8 shadow-2xl duration-200">
+      <div className="animate-in zoom-in-95 relative w-full max-w-[600px] rounded-lg border border-slate-800 bg-[#0f172a] p-8 shadow-2xl duration-200">
         <button
           onClick={onClose}
           title="Close dialog"
-          className="absolute right-4 top-4 rounded-lg p-2 text-slate-500 transition-all hover:bg-slate-800 hover:text-slate-300"
+          className="absolute right-4 top-4 rounded-md p-2 text-slate-500 transition-all hover:bg-slate-800 hover:text-slate-300"
         >
           <X size={18} />
         </button>
@@ -143,7 +143,7 @@ export const AIOptimizationDialog: React.FC<AIOptimizationDialogProps> = ({
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
             placeholder="e.g., Make more detailed, add cinematic lighting, focus on composition..."
-            className="min-h-[80px] w-full rounded-lg border border-slate-700 bg-slate-800/50 p-3 text-sm text-white transition-colors placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
+            className="min-h-[80px] w-full rounded-md border border-slate-700 bg-slate-900 p-3 text-sm text-white transition-colors placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
           />
         </div>
 
@@ -157,10 +157,10 @@ export const AIOptimizationDialog: React.FC<AIOptimizationDialogProps> = ({
                 ? "No pending prompts to optimize"
                 : `Optimize ${pendingCount} pending prompts`
           }
-          className={`w-full rounded-xl py-3 font-semibold text-white transition-shadow ${
+          className={`w-full rounded-md py-2.5 text-sm font-medium text-white transition-shadow ${
             isDisabled
               ? "cursor-not-allowed bg-slate-700 text-slate-400"
-              : "bg-gradient-to-r from-blue-500 to-teal-400 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+              : "bg-emerald-500 hover:bg-emerald-600"
           }`}
         >
           {pendingCount > 0

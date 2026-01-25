@@ -35,8 +35,8 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
 
   return (
     <div
-      className={`absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-xl border shadow-xl ${
-        isDark ? "border-white/10 bg-gray-900" : "border-slate-200 bg-white"
+      className={`absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-lg border shadow-xl ${
+        isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
       }`}
     >
       <div className="p-2">
@@ -46,7 +46,7 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
               onClearAll();
               onClose();
             }}
-            className={`flex min-h-[40px] w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+            className={`flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors ${
               isDark ? "text-red-400 hover:bg-red-500/20" : "text-red-600 hover:bg-red-50"
             }`}
           >
@@ -73,8 +73,8 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                     onClearByFilter({ status });
                     onClose();
                   }}
-                  className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                    isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                    isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
                   }`}
                 >
                   <span className="capitalize">{status}</span>
@@ -104,8 +104,8 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                       onClearByFilter({ tool });
                       onClose();
                     }}
-                    className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                      isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                    className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                      isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
                     }`}
                   >
                     <span className="flex items-center gap-2">
@@ -136,8 +136,8 @@ export const ClearMenu: React.FC<ClearMenuProps> = ({
                     onClearByFilter({ mode });
                     onClose();
                   }}
-                  className={`flex min-h-[36px] w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                    isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
+                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                    isDark ? "hover:bg-slate-800" : "hover:bg-slate-50"
                   }`}
                 >
                   <span>{modeInfo.label}</span>
