@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ActionButtonList } from "./ActionButtonList";
+import { ActionButtonList } from "@/extension/components/bulk-actions/ActionButtonList";
 import {
   AIOptimizePanel,
   AttachPanel,
@@ -9,9 +9,9 @@ import {
   RemoveFilesPanel,
   RemoveTextPanel,
   ResetPanel,
-} from "./panels";
+} from "@/extension/components/bulk-actions/panels";
 
-import type { BulkActionType, ChatMediaCounts, ResetFilter, SelectedFile } from "./types";
+import type { BulkActionType, ChatMediaCounts, ResetFilter, SelectedFile } from "@/extension/components/bulk-actions/types";
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 
 interface PanelRendererProps {

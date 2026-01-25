@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 
-import { HighlightedText } from "./HighlightedText";
+import { HighlightedText } from "@/extension/components/queue-item-card/HighlightedText";
 
 interface PromptDisplayProps {
   prompt: string;

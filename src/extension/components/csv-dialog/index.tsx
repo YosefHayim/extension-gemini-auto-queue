@@ -1,9 +1,9 @@
 import { Download, Upload, X } from "lucide-react";
 import React, { useRef, useState } from "react";
 
-import { parseCSV, downloadTemplate, getUnmatchedFiles } from "./utils";
+import { parseCSV, downloadTemplate, getUnmatchedFiles } from "@/extension/components/csv-dialog/utils";
 
-import type { CsvDialogProps, CsvStep, ParsedRow } from "./types";
+import type { CsvDialogProps, CsvStep, ParsedRow } from "@/extension/components/csv-dialog/types";
 
 export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, onClose, onUpload }) => {
   const csvInputRef = useRef<HTMLInputElement>(null);
@@ -290,4 +290,4 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, onClose, onUpload 
 
 export default CsvDialog;
 
-export type { CsvDialogProps } from "./types";
+export type { CsvDialogProps } from "@/extension/components/csv-dialog/types";

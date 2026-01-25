@@ -1,6 +1,6 @@
 import { FileJson, FileSpreadsheet, FileText } from "lucide-react";
 
-import type { FormatOption } from "./types";
+import type { FormatOption } from "@/extension/components/export-dialog/types";
 
 export const FORMAT_OPTIONS: FormatOption[] = [
   {

@@ -3,7 +3,7 @@ import "@/extension/assets/styles.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import Options from "./Options";
+import Options from "@/extension/entrypoints/options/Options";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

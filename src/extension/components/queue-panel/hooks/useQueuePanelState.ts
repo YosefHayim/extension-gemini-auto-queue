@@ -8,10 +8,10 @@ import {
   type QueueItem,
 } from "@/backend/types";
 
-import { useFilteredQueue, usePromptPreviewCount } from "./useQueueFilters";
-import { useQueueStats } from "./useQueueStats";
+import { useFilteredQueue, usePromptPreviewCount } from "@/extension/components/queue-panel/hooks/useQueueFilters";
+import { useQueueStats } from "@/extension/components/queue-panel/hooks/useQueueStats";
 
-import type { TextSelection } from "../types";
+import type { TextSelection } from "@/extension/components/queue-panel/types";
 
 interface UseQueuePanelStateProps {
   queue: QueueItem[];

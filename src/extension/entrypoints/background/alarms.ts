@@ -1,8 +1,8 @@
 import { getQueue, getSettings, setSettings } from "@/backend/services/storageService";
 import { QueueStatus } from "@/backend/types";
 
-import { getProcessingState } from "./state";
-import { SCHEDULE_ALARM_NAME } from "./types";
+import { getProcessingState } from "@/extension/entrypoints/background/state";
+import { SCHEDULE_ALARM_NAME } from "@/extension/entrypoints/background/types";
 
 export function setupAlarmListener(startProcessing: () => Promise<void>): void {
   chrome.alarms.onAlarm.addListener(async (alarm) => {

@@ -4,7 +4,7 @@ import { SiGoogle, SiOpenai, SiAnthropic } from "react-icons/si";
 
 import { AIProvider, AI_PROVIDER_INFO, GeminiModel, ThemeMode } from "@/backend/types";
 
-import type { SettingsPanelProps } from "./types";
+import type { SettingsPanelProps } from "@/extension/components/settings-panel/types";
 
 const PROVIDER_ICONS: Record<AIProvider, React.ElementType> = {
   [AIProvider.GEMINI]: SiGoogle,
@@ -245,4 +245,4 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
 export default SettingsPanel;
 
-export type { SettingsPanelProps } from "./types";
+export type { SettingsPanelProps } from "@/extension/components/settings-panel/types";

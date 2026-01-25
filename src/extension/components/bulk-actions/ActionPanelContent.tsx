@@ -2,10 +2,10 @@ import React from "react";
 
 import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiTool } from "@/backend/types";
 
-import { DESIGN } from "./bulkActionsDesign";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
 import type { GeminiMode } from "@/backend/types";
-import type { BulkActionType, SelectedFile } from "./types";
+import type { BulkActionType, SelectedFile } from "@/extension/components/bulk-actions/types";
 
 interface ActionPanelContentProps {
   activeAction: BulkActionType;

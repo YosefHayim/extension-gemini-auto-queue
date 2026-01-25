@@ -1,11 +1,11 @@
 import { Download, X } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { FORMAT_OPTIONS } from "./constants";
-import { FormatOptionButton } from "./FormatOptionButton";
-import { downloadExport } from "./utils";
+import { FORMAT_OPTIONS } from "@/extension/components/export-dialog/constants";
+import { FormatOptionButton } from "@/extension/components/export-dialog/FormatOptionButton";
+import { downloadExport } from "@/extension/components/export-dialog/utils";
 
-import type { ExportDialogProps, ExportFormat } from "./types";
+import type { ExportDialogProps, ExportFormat } from "@/extension/components/export-dialog/types";
 
 export const ExportDialog: React.FC<ExportDialogProps> = ({
   isOpen,
@@ -115,4 +115,4 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
 export default ExportDialog;
 
-export type { ExportDialogProps, ExportFormat } from "./types";
+export type { ExportDialogProps, ExportFormat } from "@/extension/components/export-dialog/types";

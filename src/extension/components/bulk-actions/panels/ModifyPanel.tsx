@@ -1,8 +1,8 @@
 import React from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { ModifyPanelProps } from "../types";
+import type { ModifyPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const ModifyPanel: React.FC<ModifyPanelProps> = ({
   isDark,

@@ -10,7 +10,7 @@ import {
   type QueueItem,
 } from "@/backend/types";
 
-import { QueueList } from "./QueueList";
+import { QueueList } from "@/extension/components/queue-panel/QueueList";
 
 interface QueueContentProps {
   queue: QueueItem[];

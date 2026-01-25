@@ -1,6 +1,6 @@
 import React from "react";
 
-import { DESIGN } from "./bulkActionsDesign";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
 interface ActionIconContainerProps {
   icon: React.ElementType;

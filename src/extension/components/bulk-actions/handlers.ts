@@ -1,4 +1,4 @@
-import type { ResetFilter, SelectedFile } from "./types";
+import type { ResetFilter, SelectedFile } from "@/extension/components/bulk-actions/types";
 
 export async function readFilesAsBase64(files: File[]): Promise<SelectedFile[]> {
   const readPromises = files.map((file) => {

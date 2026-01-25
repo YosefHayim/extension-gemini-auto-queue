@@ -5,7 +5,7 @@ import { validateApiKey } from "@/backend/services/geminiService";
 import { DEFAULT_SETTINGS, getSettings, setSettings } from "@/backend/services/storageService";
 import { type GeminiModel, ThemeMode, type AppSettings } from "@/backend/types";
 
-import { ApiKeySection, ModelSection, PromptSettingsSection, AdvancedSection } from "./components";
+import { ApiKeySection, ModelSection, PromptSettingsSection, AdvancedSection } from "@/extension/entrypoints/options/components";
 
 export default function Options() {
   const [settings, setSettingsState] = useState<AppSettings>(DEFAULT_SETTINGS);

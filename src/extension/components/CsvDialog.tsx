@@ -1,2 +1,2 @@
-export { CsvDialog } from "./csv-dialog";
-export type { CsvDialogProps } from "./csv-dialog";
+export { CsvDialog } from "@/extension/components/csv-dialog";
+export type { CsvDialogProps } from "@/extension/components/csv-dialog";

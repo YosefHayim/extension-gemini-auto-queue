@@ -1,4 +1,4 @@
-import type { ParsedRow } from "./types";
+import type { ParsedRow } from "@/extension/components/csv-dialog/types";
 
 export const parseCSV = (text: string): ParsedRow[] => {
   const rows = text.split("\n");

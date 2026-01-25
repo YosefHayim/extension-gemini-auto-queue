@@ -35,7 +35,7 @@ import {
   type QueueItem,
 } from "@/backend/types";
 
-import { ClearAllConfirm, FooterControls, Header, LoadingScreen, Navigation } from "./components";
+import { ClearAllConfirm, FooterControls, Header, LoadingScreen, Navigation } from "@/extension/entrypoints/sidepanel/components";
 import {
   useBulkModifyActions,
   useBulkResetActions,
@@ -45,9 +45,9 @@ import {
   useQueueHandlers,
   useQueueItemHandlers,
   useSettingsHandlers,
-} from "./hooks";
+} from "@/extension/entrypoints/sidepanel/hooks";
 
-import type { TabType } from "./types";
+import type { TabType } from "@/extension/entrypoints/sidepanel/types";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);

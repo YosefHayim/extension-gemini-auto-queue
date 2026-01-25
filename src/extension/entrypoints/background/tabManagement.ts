@@ -1,7 +1,7 @@
 import { MessageType } from "@/backend/types";
 import { logger } from "@/backend/utils/logger";
 
-import { getProcessingState, setProcessingState } from "./state";
+import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
 
 import type { ExtensionMessage } from "@/backend/types";
 

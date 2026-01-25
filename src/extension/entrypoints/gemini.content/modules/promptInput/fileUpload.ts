@@ -5,7 +5,7 @@ import {
   tryHiddenFileSelector,
   tryPasteApproach,
   tryDropApproach,
-} from "./uploadStrategies";
+} from "@/extension/entrypoints/gemini.content/modules/promptInput/uploadStrategies";
 
 const log = logger.module("PromptInput");
 

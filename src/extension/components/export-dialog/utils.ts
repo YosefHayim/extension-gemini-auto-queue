@@ -1,4 +1,4 @@
-import type { ExportFormat } from "./types";
+import type { ExportFormat } from "@/extension/components/export-dialog/types";
 import type { QueueItem } from "@/backend/types";
 
 export const escapeCSV = (value: string): string => {

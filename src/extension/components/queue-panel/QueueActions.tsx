@@ -1,7 +1,7 @@
 import { Download, Layers, Sparkles, Trash2 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-import { ClearMenu } from "./ClearMenu";
+import { ClearMenu } from "@/extension/components/queue-panel/ClearMenu";
 
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 

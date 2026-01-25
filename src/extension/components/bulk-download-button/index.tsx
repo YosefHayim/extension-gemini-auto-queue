@@ -8,10 +8,10 @@ import {
   type MediaItem,
 } from "@/backend/utils/mediaDownloader";
 
-import { DownloadPanel } from "./DownloadPanel";
-import { getMediaCounts } from "./types";
+import { DownloadPanel } from "@/extension/components/bulk-download-button/DownloadPanel";
+import { getMediaCounts } from "@/extension/components/bulk-download-button/types";
 
-import type { BulkDownloadButtonProps, DownloadMethod, DownloadState } from "./types";
+import type { BulkDownloadButtonProps, DownloadMethod, DownloadState } from "@/extension/components/bulk-download-button/types";
 
 export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({
   isDark: _isDark,
@@ -144,4 +144,4 @@ export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({
 
 export default BulkDownloadButton;
 
-export type { BulkDownloadButtonProps } from "./types";
+export type { BulkDownloadButtonProps } from "@/extension/components/bulk-download-button/types";

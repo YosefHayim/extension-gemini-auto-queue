@@ -1,2 +1,2 @@
-export { BulkActionsDialog } from "./bulk-actions";
-export type { BulkActionsDialogProps, ResetFilter, ChatMediaCounts } from "./bulk-actions";
+export { BulkActionsDialog } from "@/extension/components/bulk-actions";
+export type { BulkActionsDialogProps, ResetFilter, ChatMediaCounts } from "@/extension/components/bulk-actions";

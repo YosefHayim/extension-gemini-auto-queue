@@ -2,9 +2,9 @@ import React from "react";
 
 import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool, QueueStatus } from "@/backend/types";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { ResetPanelProps } from "../types";
+import type { ResetPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const ResetPanel: React.FC<ResetPanelProps> = ({
   isDark,

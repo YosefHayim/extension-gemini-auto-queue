@@ -1,10 +1,10 @@
 import { ChevronDown, Filter, X } from "lucide-react";
 import React, { useState } from "react";
 
-import { FilterPanel } from "./FilterPanel";
-import { SearchInput } from "./SearchInput";
+import { FilterPanel } from "@/extension/components/search-filter/FilterPanel";
+import { SearchInput } from "@/extension/components/search-filter/SearchInput";
 
-import type { SearchFilterProps } from "./types";
+import type { SearchFilterProps } from "@/extension/components/search-filter/types";
 import type { ContentType, GeminiMode, GeminiTool, QueueStatus } from "@/backend/types";
 
 export const SearchFilter: React.FC<SearchFilterProps> = ({
@@ -150,4 +150,4 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
 
 export default SearchFilter;
 
-export type { SearchFilterProps } from "./types";
+export type { SearchFilterProps } from "@/extension/components/search-filter/types";

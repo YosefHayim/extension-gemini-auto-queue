@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { FormatOption } from "./types";
+import type { FormatOption } from "@/extension/components/export-dialog/types";
 
 interface FormatOptionButtonProps {
   option: FormatOption;

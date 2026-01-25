@@ -3,7 +3,7 @@ import "@/extension/assets/styles.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import Popup from "./Popup";
+import Popup from "@/extension/entrypoints/popup/Popup";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

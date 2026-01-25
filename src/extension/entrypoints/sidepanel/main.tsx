@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 
 import { queryClient } from "@/extension/hooks";
 
-import App from "./App";
+import App from "@/extension/entrypoints/sidepanel/App";
 import "@/extension/assets/styles.css";
 
 const rootElement = document.getElementById("root");

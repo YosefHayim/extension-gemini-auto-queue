@@ -2,13 +2,13 @@ import React from "react";
 
 import { GeminiMode, QueueStatus } from "@/backend/types";
 
-import { BulkActionsHandler } from "./BulkActionsHandler";
-import { EmptyQueue } from "./EmptyQueue";
-import { useQueuePanelState } from "./hooks/useQueuePanelState";
-import { PromptInput } from "./PromptInput";
-import { QueueContent } from "./QueueContent";
+import { BulkActionsHandler } from "@/extension/components/queue-panel/BulkActionsHandler";
+import { EmptyQueue } from "@/extension/components/queue-panel/EmptyQueue";
+import { useQueuePanelState } from "@/extension/components/queue-panel/hooks/useQueuePanelState";
+import { PromptInput } from "@/extension/components/queue-panel/PromptInput";
+import { QueueContent } from "@/extension/components/queue-panel/QueueContent";
 
-import type { QueuePanelProps } from "./types";
+import type { QueuePanelProps } from "@/extension/components/queue-panel/types";
 
 export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
   const {

@@ -1,4 +1,4 @@
-import { FORMAT_INFO, getPresetById } from "./imagePresets";
+import { FORMAT_INFO, getPresetById } from "@/backend/utils/imagePresets";
 
 import type { ProcessingOptions } from "@/backend/types/imageProcessing";
 

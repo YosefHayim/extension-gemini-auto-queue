@@ -15,7 +15,7 @@ import {
 } from "@/backend/services/storageService";
 import type { AppSettings, AuthUser, Folder, QueueItem } from "@/backend/types";
 
-import { queryKeys } from "./queryClient";
+import { queryKeys } from "@/extension/hooks/queryClient";
 
 export function useAuthQuery() {
   return useQuery({

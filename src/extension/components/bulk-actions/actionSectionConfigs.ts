@@ -20,9 +20,9 @@ import {
   Wand2,
 } from "lucide-react";
 
-import { DESIGN } from "./bulkActionsDesign";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
-import type { ActionSection } from "./actionTypes";
+import type { ActionSection } from "@/extension/components/bulk-actions/actionTypes";
 
 export const getActionSections = (): ActionSection[] => [
   {

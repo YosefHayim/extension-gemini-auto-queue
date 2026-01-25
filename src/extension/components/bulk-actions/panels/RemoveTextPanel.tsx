@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { RemoveTextPanelProps } from "../types";
+import type { RemoveTextPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const RemoveTextPanel: React.FC<RemoveTextPanelProps> = ({
   isDark,

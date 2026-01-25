@@ -1,4 +1,4 @@
-import { sleep } from "./timing";
+import { sleep } from "@/backend/utils/timing";
 
 export function findElement(...selectors: string[]): Element | null {
   for (const selector of selectors) {

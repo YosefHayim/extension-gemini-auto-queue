@@ -1,2 +1,2 @@
-export { SettingsPanel } from "./settings-panel";
-export type { SettingsPanelProps } from "./settings-panel";
+export { SettingsPanel } from "@/extension/components/settings-panel";
+export type { SettingsPanelProps } from "@/extension/components/settings-panel";

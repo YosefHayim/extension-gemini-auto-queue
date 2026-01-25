@@ -2,9 +2,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React from "react";
 
-import { QueueItemCard } from "../QueueItemCard";
+import { QueueItemCard } from "@/extension/components/QueueItemCard";
 
-import type { SortableQueueItemProps } from "./types";
+import type { SortableQueueItemProps } from "@/extension/components/queue-panel/types";
 
 export const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
   item,

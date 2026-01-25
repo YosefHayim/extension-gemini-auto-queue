@@ -1,4 +1,4 @@
-export { queryClient, queryKeys } from "./queryClient";
+export { queryClient, queryKeys } from "@/extension/hooks/queryClient";
 
 export {
   useAppData,
@@ -16,9 +16,9 @@ export {
   useSignOutMutation,
   useUpdateQueueItemMutation,
   useUpdateSettingsMutation,
-} from "./queries";
+} from "@/extension/hooks/queries";
 
-export { constructFinalPrompt, createQueueItems, useQueue } from "./useQueue";
-export { useFormSubmit } from "./useFormSubmit";
-export { useStorage, useStorageListener } from "./useStorage";
-export { useBulkActionsState } from "./useBulkActionsState";
+export { constructFinalPrompt, createQueueItems, useQueue } from "@/extension/hooks/useQueue";
+export { useFormSubmit } from "@/extension/hooks/useFormSubmit";
+export { useStorage, useStorageListener } from "@/extension/hooks/useStorage";
+export { useBulkActionsState } from "@/extension/hooks/useBulkActionsState";

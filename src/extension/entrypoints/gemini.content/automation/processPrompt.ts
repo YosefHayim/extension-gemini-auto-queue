@@ -8,7 +8,7 @@ import {
   pastePromptToInput,
   submitPrompt,
   waitForGenerationComplete,
-} from "../modules";
+} from "@/extension/entrypoints/gemini.content/modules";
 
 const log = logger.module("Automation");
 

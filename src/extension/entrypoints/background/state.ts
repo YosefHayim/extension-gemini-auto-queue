@@ -1,8 +1,8 @@
 import { logger } from "@/backend/utils/logger";
 
-import { DEFAULT_PROCESSING_STATE } from "./types";
+import { DEFAULT_PROCESSING_STATE } from "@/extension/entrypoints/background/types";
 
-import type { ProcessingState } from "./types";
+import type { ProcessingState } from "@/extension/entrypoints/background/types";
 
 const log = logger.module("State");
 

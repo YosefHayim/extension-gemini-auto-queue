@@ -8,7 +8,7 @@ import {
   labelClasses,
   getToggleButtonClasses,
   getToggleKnobClasses,
-} from "./styles";
+} from "@/extension/components/settings-panel/styles";
 
 interface InterfaceTabProps {
   settings: AppSettings;

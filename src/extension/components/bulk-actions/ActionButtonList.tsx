@@ -1,9 +1,9 @@
 import React from "react";
 
-import { ActionButton } from "./ActionButton";
-import { getActionButtonConfigs } from "./actionButtonConfigs";
+import { ActionButton } from "@/extension/components/bulk-actions/ActionButton";
+import { getActionButtonConfigs } from "@/extension/components/bulk-actions/actionButtonConfigs";
 
-import type { BulkActionType, ChatMediaCounts } from "./types";
+import type { BulkActionType, ChatMediaCounts } from "@/extension/components/bulk-actions/types";
 
 interface ActionButtonListProps {
   isDark: boolean;

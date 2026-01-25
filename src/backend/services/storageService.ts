@@ -18,7 +18,7 @@ import {
   onQueueChange as onQueueChangeDb,
   migrateFromChromeStorage,
   requestPersistentStorage,
-} from "./queueDb";
+} from "@/backend/services/queueDb";
 
 /**
  * Default application settings

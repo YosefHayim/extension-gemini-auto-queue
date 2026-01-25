@@ -1,10 +1,10 @@
 import { MessageType } from "@/backend/types";
 import { logger } from "@/backend/utils";
 
-import { initNetworkMonitor, selectMode } from "../modules";
+import { initNetworkMonitor, selectMode } from "@/extension/entrypoints/gemini.content/modules";
 
-import { setupMessageListener, setupKeyboardShortcuts } from "./messageHandler";
-import { processPromptThroughUI } from "./processPrompt";
+import { setupMessageListener, setupKeyboardShortcuts } from "@/extension/entrypoints/gemini.content/automation/messageHandler";
+import { processPromptThroughUI } from "@/extension/entrypoints/gemini.content/automation/processPrompt";
 
 const log = logger.module("Automation");
 

@@ -1,7 +1,7 @@
 import { Image as ImageIcon, Loader2, Pencil, Plus, Trash2, Wand2 } from "lucide-react";
 import React from "react";
 
-import type { DisplayedTemplate } from "./types";
+import type { DisplayedTemplate } from "@/extension/components/templates-panel/types";
 
 interface TemplateCardProps {
   template: DisplayedTemplate;

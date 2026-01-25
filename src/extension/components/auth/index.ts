@@ -1,3 +1,3 @@
-export { LoginPage } from "./LoginPage";
-export { UserAvatar } from "./UserAvatar";
-export { AuthSuccessDialog } from "./AuthSuccessDialog";
+export { LoginPage } from "@/extension/components/auth/LoginPage";
+export { UserAvatar } from "@/extension/components/auth/UserAvatar";
+export { AuthSuccessDialog } from "@/extension/components/auth/AuthSuccessDialog";

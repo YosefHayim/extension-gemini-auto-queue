@@ -1,9 +1,9 @@
 import { File, Paperclip, X } from "lucide-react";
 import React from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { AttachPanelProps } from "../types";
+import type { AttachPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const AttachPanel: React.FC<AttachPanelProps> = ({
   isDark,

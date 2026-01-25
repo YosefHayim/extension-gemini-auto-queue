@@ -3,11 +3,11 @@ import React, { useState } from "react";
 
 import { MessageType } from "@/backend/types";
 
-import { ActiveSchedulePopover } from "./ActiveSchedulePopover";
-import { ScheduleFormPopover } from "./ScheduleFormPopover";
-import { useCountdown } from "./useCountdown";
+import { ActiveSchedulePopover } from "@/extension/components/schedule-button/ActiveSchedulePopover";
+import { ScheduleFormPopover } from "@/extension/components/schedule-button/ScheduleFormPopover";
+import { useCountdown } from "@/extension/components/schedule-button/useCountdown";
 
-import type { ScheduleButtonProps } from "./types";
+import type { ScheduleButtonProps } from "@/extension/components/schedule-button/types";
 
 export const ScheduleButton: React.FC<ScheduleButtonProps> = ({ schedule, hasPendingItems }) => {
   const [showPopover, setShowPopover] = useState(false);
@@ -102,4 +102,4 @@ export const ScheduleButton: React.FC<ScheduleButtonProps> = ({ schedule, hasPen
 
 export default ScheduleButton;
 
-export type { ScheduleButtonProps } from "./types";
+export type { ScheduleButtonProps } from "@/extension/components/schedule-button/types";

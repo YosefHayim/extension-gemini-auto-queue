@@ -1,9 +1,9 @@
 import React from "react";
 
-import { EmptyState } from "./EmptyState";
-import { TemplateCard } from "./TemplateCard";
+import { EmptyState } from "@/extension/components/templates-panel/EmptyState";
+import { TemplateCard } from "@/extension/components/templates-panel/TemplateCard";
 
-import type { DisplayedTemplate } from "./types";
+import type { DisplayedTemplate } from "@/extension/components/templates-panel/types";
 
 interface TemplateListProps {
   templates: DisplayedTemplate[];

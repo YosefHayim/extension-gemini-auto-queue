@@ -1,5 +1,5 @@
-import { setProcessingState } from "./state";
-import { isPermittedHost } from "./types";
+import { setProcessingState } from "@/extension/entrypoints/background/state";
+import { isPermittedHost } from "@/extension/entrypoints/background/types";
 
 export function setupTabListeners(): void {
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

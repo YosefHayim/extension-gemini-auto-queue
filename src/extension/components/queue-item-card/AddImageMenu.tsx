@@ -1,7 +1,7 @@
 import { Link, Paperclip, Upload } from "lucide-react";
 import React, { useRef, useState, useEffect } from "react";
 
-import { MAX_IMAGES_PER_CARD } from "./types";
+import { MAX_IMAGES_PER_CARD } from "@/extension/components/queue-item-card/types";
 
 interface AddImageMenuProps {
   images: string[] | undefined;

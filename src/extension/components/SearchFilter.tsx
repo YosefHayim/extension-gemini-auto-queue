@@ -1,2 +1,2 @@
-export { SearchFilter } from "./search-filter";
-export type { SearchFilterProps } from "./search-filter";
+export { SearchFilter } from "@/extension/components/search-filter";
+export type { SearchFilterProps } from "@/extension/components/search-filter";

@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 
-import { ImagePreview } from "./ImagePreview";
-import { PromptHeader } from "./PromptHeader";
-import { WeightingToolbar } from "./WeightingToolbar";
+import { ImagePreview } from "@/extension/components/queue-panel/ImagePreview";
+import { PromptHeader } from "@/extension/components/queue-panel/PromptHeader";
+import { WeightingToolbar } from "@/extension/components/queue-panel/WeightingToolbar";
 
-import type { TextSelection } from "./types";
+import type { TextSelection } from "@/extension/components/queue-panel/types";
 
 interface PromptInputProps {
   bulkInput: string;

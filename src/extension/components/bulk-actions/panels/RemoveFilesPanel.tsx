@@ -1,9 +1,9 @@
 import { X } from "lucide-react";
 import React, { useMemo } from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { RemoveFilesPanelProps } from "../types";
+import type { RemoveFilesPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const RemoveFilesPanel: React.FC<RemoveFilesPanelProps> = ({
   isDark,

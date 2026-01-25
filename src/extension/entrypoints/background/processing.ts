@@ -7,10 +7,10 @@ import {
 import { GeminiTool, MessageType, QueueStatus } from "@/backend/types";
 import { logger } from "@/backend/utils/logger";
 
-import { broadcastMessage, sendToContentScript } from "./contentScriptBridge";
-import { handleProcessingError } from "./errorHandling";
-import { getProcessingState, setProcessingState } from "./state";
-import { findGeminiTab } from "./tabManagement";
+import { broadcastMessage, sendToContentScript } from "@/extension/entrypoints/background/contentScriptBridge";
+import { handleProcessingError } from "@/extension/entrypoints/background/errorHandling";
+import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
+import { findGeminiTab } from "@/extension/entrypoints/background/tabManagement";
 
 const log = logger.module("Processing");
 

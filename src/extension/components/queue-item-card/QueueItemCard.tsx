@@ -2,16 +2,16 @@ import React, { useState, useEffect } from "react";
 
 import { QueueStatus } from "@/backend/types";
 
-import { ActionButtons } from "./ActionButtons";
-import { CardFooter } from "./CardFooter";
-import { DragHandle } from "./DragHandle";
-import { EditModeForm } from "./EditModeForm";
-import { ImageThumbnails } from "./ImageThumbnails";
-import { PromptDisplay } from "./PromptDisplay";
-import { SelectionCheckbox } from "./SelectionCheckbox";
-import { StatusSection } from "./StatusSection";
+import { ActionButtons } from "@/extension/components/queue-item-card/ActionButtons";
+import { CardFooter } from "@/extension/components/queue-item-card/CardFooter";
+import { DragHandle } from "@/extension/components/queue-item-card/DragHandle";
+import { EditModeForm } from "@/extension/components/queue-item-card/EditModeForm";
+import { ImageThumbnails } from "@/extension/components/queue-item-card/ImageThumbnails";
+import { PromptDisplay } from "@/extension/components/queue-item-card/PromptDisplay";
+import { SelectionCheckbox } from "@/extension/components/queue-item-card/SelectionCheckbox";
+import { StatusSection } from "@/extension/components/queue-item-card/StatusSection";
 
-import type { QueueItemCardProps } from "./types";
+import type { QueueItemCardProps } from "@/extension/components/queue-item-card/types";
 
 export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   item,

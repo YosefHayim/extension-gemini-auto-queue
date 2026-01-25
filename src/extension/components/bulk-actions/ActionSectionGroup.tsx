@@ -1,9 +1,9 @@
 import React from "react";
 
-import { ActionRow } from "./ActionRow";
-import { DESIGN } from "./bulkActionsDesign";
+import { ActionRow } from "@/extension/components/bulk-actions/ActionRow";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
-import type { ActionSection } from "./actionTypes";
+import type { ActionSection } from "@/extension/components/bulk-actions/actionTypes";
 
 interface ActionSectionGroupProps {
   section: ActionSection;

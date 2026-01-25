@@ -20,10 +20,10 @@ import {
   type QueueItem,
 } from "@/backend/types";
 
-import { sendToContentScript } from "./contentScriptBridge";
-import { startProcessing, pauseProcessing, stopProcessing } from "./processing";
-import { setProcessingState } from "./state";
-import { SCHEDULE_ALARM_NAME, isPermittedHost } from "./types";
+import { sendToContentScript } from "@/extension/entrypoints/background/contentScriptBridge";
+import { startProcessing, pauseProcessing, stopProcessing } from "@/extension/entrypoints/background/processing";
+import { setProcessingState } from "@/extension/entrypoints/background/state";
+import { SCHEDULE_ALARM_NAME, isPermittedHost } from "@/extension/entrypoints/background/types";
 
 export async function handleMessage(
   message: ExtensionMessage,

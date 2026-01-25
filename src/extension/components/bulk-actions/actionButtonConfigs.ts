@@ -9,7 +9,7 @@ import {
   Wand2,
 } from "lucide-react";
 
-import type { BulkActionType, ChatMediaCounts } from "./types";
+import type { BulkActionType, ChatMediaCounts } from "@/extension/components/bulk-actions/types";
 import type { LucideIcon } from "lucide-react";
 
 export interface ActionButtonConfig {

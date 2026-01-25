@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import React from "react";
 
-import type { ActionButtonConfig } from "./actionButtonConfigs";
+import type { ActionButtonConfig } from "@/extension/components/bulk-actions/actionButtonConfigs";
 
 interface ActionButtonProps {
   action: ActionButtonConfig;

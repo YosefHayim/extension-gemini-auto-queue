@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { MessageType } from "@/backend/types";
 
-import type { SendMessageFn } from "../types";
+import type { SendMessageFn } from "@/extension/entrypoints/sidepanel/types";
 
 interface UseProcessingHandlersProps {
   isProcessing: boolean;

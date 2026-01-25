@@ -1,8 +1,8 @@
 import { File, X } from "lucide-react";
 import React from "react";
 
-import { AddImageMenu } from "./AddImageMenu";
-import { MAX_IMAGES_PER_CARD } from "./types";
+import { AddImageMenu } from "@/extension/components/queue-item-card/AddImageMenu";
+import { MAX_IMAGES_PER_CARD } from "@/extension/components/queue-item-card/types";
 
 interface ImageThumbnailsProps {
   images: string[] | undefined;

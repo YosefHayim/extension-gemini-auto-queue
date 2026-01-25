@@ -1,10 +1,10 @@
 import { initializeQueueStorage } from "@/backend/services/storageService";
 import { logger } from "@/backend/utils/logger";
 
-import { setupAlarmListener } from "./alarms";
-import { handleMessage } from "./messageHandlers";
-import { startProcessing, restoreProcessingStateOnStartup } from "./processing";
-import { setupTabListeners } from "./tabListeners";
+import { setupAlarmListener } from "@/extension/entrypoints/background/alarms";
+import { handleMessage } from "@/extension/entrypoints/background/messageHandlers";
+import { startProcessing, restoreProcessingStateOnStartup } from "@/extension/entrypoints/background/processing";
+import { setupTabListeners } from "@/extension/entrypoints/background/tabListeners";
 
 import type { ExtensionMessage, ExtensionResponse } from "@/backend/types";
 

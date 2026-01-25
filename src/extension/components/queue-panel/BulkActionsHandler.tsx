@@ -2,7 +2,7 @@ import React from "react";
 
 import { QueueStatus, type GeminiMode, type GeminiTool, type QueueItem } from "@/backend/types";
 
-import { BulkActionsDialog, type ResetFilter } from "../BulkActionsDialog";
+import { BulkActionsDialog, type ResetFilter } from "@/extension/components/BulkActionsDialog";
 
 interface BulkActionsHandlerProps {
   isOpen: boolean;

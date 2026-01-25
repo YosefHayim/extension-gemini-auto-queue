@@ -1,8 +1,8 @@
 import React from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { DownloadChatPanelProps } from "../types";
+import type { DownloadChatPanelProps } from "@/extension/components/bulk-actions/types";
 
 export const DownloadChatPanel: React.FC<DownloadChatPanelProps> = ({
   isDark,

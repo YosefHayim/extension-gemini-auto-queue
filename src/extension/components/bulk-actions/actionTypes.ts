@@ -1,4 +1,4 @@
-import type { BulkActionType } from "./types";
+import type { BulkActionType } from "@/extension/components/bulk-actions/types";
 
 export type ActionItemId =
   | BulkActionType

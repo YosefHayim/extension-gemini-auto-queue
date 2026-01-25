@@ -1,10 +1,10 @@
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
-import { ActionIconContainer } from "./ActionIconContainer";
-import { DESIGN } from "./bulkActionsDesign";
+import { ActionIconContainer } from "@/extension/components/bulk-actions/ActionIconContainer";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
-import type { ActionItem } from "./actionTypes";
+import type { ActionItem } from "@/extension/components/bulk-actions/actionTypes";
 
 interface ActionRowProps {
   action: ActionItem;

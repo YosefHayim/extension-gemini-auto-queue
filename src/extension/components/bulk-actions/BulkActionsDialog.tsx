@@ -1,15 +1,15 @@
 import React from "react";
 
-import { ActionPanelContent } from "./ActionPanelContent";
-import { ActionSectionGroup } from "./ActionSectionGroup";
-import { getActionSections } from "./actionSectionConfigs";
-import { DESIGN } from "./bulkActionsDesign";
-import { DialogHeader } from "./DialogHeader";
-import { DialogShell } from "./DialogShell";
-import { buildResetFilter, readFilesAsBase64 } from "./handlers";
+import { ActionPanelContent } from "@/extension/components/bulk-actions/ActionPanelContent";
+import { ActionSectionGroup } from "@/extension/components/bulk-actions/ActionSectionGroup";
+import { getActionSections } from "@/extension/components/bulk-actions/actionSectionConfigs";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
+import { DialogHeader } from "@/extension/components/bulk-actions/DialogHeader";
+import { DialogShell } from "@/extension/components/bulk-actions/DialogShell";
+import { buildResetFilter, readFilesAsBase64 } from "@/extension/components/bulk-actions/handlers";
 import { useBulkActionsState } from "@/extension/hooks/useBulkActionsState";
 
-import type { BulkActionsDialogProps, BulkActionType } from "./types";
+import type { BulkActionsDialogProps, BulkActionType } from "@/extension/components/bulk-actions/types";
 
 const ACTION_ID_TO_TYPE: Record<string, BulkActionType> = {
   reset: "reset",

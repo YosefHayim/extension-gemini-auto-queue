@@ -1,14 +1,14 @@
 import { Search, Folder, Plus } from "lucide-react";
 import React, { useMemo } from "react";
 
-import { FolderBar } from "./FolderBar";
-import { FolderCreateDialog } from "./FolderCreateDialog";
-import { ImproveFolderButton } from "./ImproveFolderButton";
-import { TemplateEditDialog } from "./TemplateEditDialog";
-import { TemplateList } from "./TemplateList";
-import { useTemplatesPanel } from "./useTemplatesPanel";
+import { FolderBar } from "@/extension/components/templates-panel/FolderBar";
+import { FolderCreateDialog } from "@/extension/components/templates-panel/FolderCreateDialog";
+import { ImproveFolderButton } from "@/extension/components/templates-panel/ImproveFolderButton";
+import { TemplateEditDialog } from "@/extension/components/templates-panel/TemplateEditDialog";
+import { TemplateList } from "@/extension/components/templates-panel/TemplateList";
+import { useTemplatesPanel } from "@/extension/components/templates-panel/useTemplatesPanel";
 
-import type { TemplatesPanelProps } from "./types";
+import type { TemplatesPanelProps } from "@/extension/components/templates-panel/types";
 
 export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   folders,

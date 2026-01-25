@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import React from "react";
 
-import { DESIGN } from "./bulkActionsDesign";
+import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
 interface DialogHeaderProps {
   pendingCount: number;

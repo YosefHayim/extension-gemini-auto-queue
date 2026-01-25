@@ -1,4 +1,4 @@
-import { FORMAT_INFO, getPresetById, getAspectRatioById } from "./imagePresets";
+import { FORMAT_INFO, getPresetById, getAspectRatioById } from "@/backend/utils/imagePresets";
 
 import type { ProcessingOptions } from "@/backend/types/imageProcessing";
 

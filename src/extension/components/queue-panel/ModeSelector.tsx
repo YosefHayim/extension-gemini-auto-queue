@@ -2,7 +2,7 @@ import React from "react";
 
 import { GEMINI_MODE_INFO, GeminiMode } from "@/backend/types";
 
-import { MODE_ICONS, MODE_SELECTOR_STYLES } from "./constants";
+import { MODE_ICONS, MODE_SELECTOR_STYLES } from "@/extension/components/queue-panel/constants";
 
 interface ModeSelectorProps {
   selectedMode: GeminiMode;

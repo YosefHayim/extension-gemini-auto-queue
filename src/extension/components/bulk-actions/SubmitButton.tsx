@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { BulkActionType, ChatMediaCounts, SelectedFile, ResetFilter } from "./types";
+import type { BulkActionType, ChatMediaCounts, SelectedFile, ResetFilter } from "@/extension/components/bulk-actions/types";
 
 interface SubmitButtonProps {
   isDark: boolean;

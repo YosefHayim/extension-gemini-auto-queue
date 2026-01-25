@@ -1,6 +1,6 @@
 import { Folder, List, Settings as SettingsIcon } from "lucide-react";
 
-import type { TabType } from "../types";
+import type { TabType } from "@/extension/entrypoints/sidepanel/types";
 
 interface NavigationProps {
   isDark?: boolean;

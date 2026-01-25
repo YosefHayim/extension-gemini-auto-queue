@@ -15,7 +15,7 @@ import {
 } from "@dnd-kit/sortable";
 import React, { useState } from "react";
 
-import { SortableQueueItem } from "./SortableQueueItem";
+import { SortableQueueItem } from "@/extension/components/queue-panel/SortableQueueItem";
 
 import type { QueueItem, QueueStatus } from "@/backend/types";
 

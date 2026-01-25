@@ -1,7 +1,7 @@
 import { Maximize2, TrendingUp, Type, X } from "lucide-react";
 import React from "react";
 
-import type { TextSelection } from "./types";
+import type { TextSelection } from "@/extension/components/queue-panel/types";
 
 interface WeightingToolbarProps {
   selection: TextSelection | null;

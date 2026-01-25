@@ -10,7 +10,7 @@ import {
   getSelectClasses,
   getToggleButtonClasses,
   getToggleKnobClasses,
-} from "./styles";
+} from "@/extension/components/settings-panel/styles";
 
 interface GenerationTabProps {
   settings: AppSettings;

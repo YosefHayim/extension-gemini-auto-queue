@@ -1,7 +1,7 @@
 import { GEMINI_MODE_INFO, GeminiMode } from "@/backend/types";
 import { sleep, logger } from "@/backend/utils";
 
-import { simulateClick, isModeCurrentlyActive, openModeMenu } from "./modeHelpers";
+import { simulateClick, isModeCurrentlyActive, openModeMenu } from "@/extension/entrypoints/gemini.content/modules/modeSelection/modeHelpers";
 
 const log = logger.module("ModeSelection");
 

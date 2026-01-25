@@ -1,6 +1,6 @@
-import { buildGoogleImageUrl, canUseServerSideProcessing } from "./googleImageUrl";
-import { FORMAT_INFO } from "./imagePresets";
-import { downloadBlob, processWithCanvas } from "./imageProcessor";
+import { buildGoogleImageUrl, canUseServerSideProcessing } from "@/backend/utils/googleImageUrl";
+import { FORMAT_INFO } from "@/backend/utils/imagePresets";
+import { downloadBlob, processWithCanvas } from "@/backend/utils/imageProcessor";
 
 import type {
   BatchProgress,

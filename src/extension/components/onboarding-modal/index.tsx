@@ -1,7 +1,7 @@
 import { ArrowRight, Image, Layers, Rocket, Sparkles, Timer } from "lucide-react";
 import React from "react";
 
-import type { OnboardingModalProps } from "./types";
+import type { OnboardingModalProps } from "@/extension/components/onboarding-modal/types";
 
 const STARTER_PROMPT =
   "A futuristic chrome extension icon with a lightning bolt, minimalist design, gradient purple and blue background, 3D render";
@@ -110,4 +110,4 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, on
 
 export default OnboardingModal;
 
-export type { OnboardingModalProps } from "./types";
+export type { OnboardingModalProps } from "@/extension/components/onboarding-modal/types";

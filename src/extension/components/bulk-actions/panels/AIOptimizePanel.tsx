@@ -1,8 +1,8 @@
 import React from "react";
 
-import { BackButton } from "../BackButton";
+import { BackButton } from "@/extension/components/bulk-actions/BackButton";
 
-import type { AIOptimizePanelProps } from "../types";
+import type { AIOptimizePanelProps } from "@/extension/components/bulk-actions/types";
 
 export const AIOptimizePanel: React.FC<AIOptimizePanelProps> = ({
   isDark,
