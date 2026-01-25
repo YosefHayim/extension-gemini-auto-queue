@@ -59,8 +59,8 @@ export default function Popup() {
     <div className="w-80 border border-border bg-background">
       <div className="flex flex-col gap-6 p-5">
         <div className="flex flex-col items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
-            <Zap className="h-8 w-8 text-primary-foreground" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-900">
+            <Zap className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-[22px] font-bold text-foreground">Nano Flow</h1>
           <p className="text-center text-[13px] text-muted-foreground">
@@ -73,7 +73,7 @@ export default function Popup() {
             <button
               onClick={openSidePanel}
               disabled={loading || !enabled}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
             >
               <PanelRight className="h-[18px] w-[18px]" />
               Open Side Panel
@@ -81,7 +81,7 @@ export default function Popup() {
           ) : (
             <button
               onClick={openGemini}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
             >
               <ExternalLink className="h-[18px] w-[18px]" />
               Open Gemini

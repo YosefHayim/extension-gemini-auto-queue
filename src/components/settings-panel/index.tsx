@@ -1,7 +1,7 @@
 import { Crown, Eye, EyeOff, ExternalLink, Key } from "lucide-react";
 import React, { useState } from "react";
 
-import { AIProvider, AI_PROVIDER_INFO, GeminiModel, SidebarPosition, ThemeMode } from "@/types";
+import { AIProvider, AI_PROVIDER_INFO, GeminiModel, ThemeMode } from "@/types";
 
 import type { SettingsPanelProps } from "./types";
 
@@ -76,21 +76,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               )}
             />
           </button>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <label className="text-sm font-normal text-foreground">Panel Position</label>
-            <p className={descriptionClasses}>Where to show the sidebar</p>
-          </div>
-          <select
-            value={settings.position || SidebarPosition.RIGHT}
-            onChange={(e) => onUpdateSettings({ position: e.target.value as SidebarPosition })}
-            className="rounded-md border border-border bg-secondary px-3 py-2 pr-8 text-sm text-foreground outline-none"
-          >
-            <option value={SidebarPosition.LEFT}>Left</option>
-            <option value={SidebarPosition.RIGHT}>Right</option>
-          </select>
         </div>
       </div>
 
@@ -240,10 +225,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <ExternalLink size={14} className="text-muted-foreground" />
             </a>
           ))}
-        </div>
-
-        <div className="pt-2">
-          <p className="text-xs text-muted-foreground">Nano Flow v1.0.0</p>
         </div>
       </div>
     </div>
