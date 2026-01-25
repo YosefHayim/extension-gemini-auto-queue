@@ -87,8 +87,8 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
       >
         <div className="mb-3 flex items-center gap-3">
           <div
-            className={`rounded-lg p-2 ${
-              isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-600"
+            className={`rounded-md p-2 ${
+              isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-600"
             }`}
           >
             {step.icon}
@@ -114,7 +114,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
             <div
               key={idx}
               className={`h-1 flex-1 rounded-full transition-all ${
-                idx <= currentStep ? "bg-blue-500" : isDark ? "bg-white/10" : "bg-slate-200"
+                idx <= currentStep ? "bg-emerald-500" : isDark ? "bg-white/10" : "bg-slate-200"
               }`}
             />
           ))}
@@ -124,11 +124,13 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
           {currentStep > 0 ? (
             <button
               onClick={onBack}
-              className={`flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-[10px] font-bold transition-all ${
-                isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"
+              className={`flex items-center justify-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
+                isDark
+                  ? "border-slate-700 bg-slate-800 hover:bg-slate-700"
+                  : "border-slate-200 bg-slate-50 hover:bg-slate-100"
               }`}
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft size={16} />
               Back
             </button>
           ) : (
@@ -137,16 +139,16 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
 
           <button
             onClick={onNext}
-            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-[10px] font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-emerald-600"
           >
             {!isLastStep ? (
               <>
                 Next
-                <ChevronRight size={14} />
+                <ChevronRight size={16} />
               </>
             ) : (
               <>
-                <Sparkles size={14} />
+                <Sparkles size={16} />
                 Get Started
               </>
             )}

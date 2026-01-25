@@ -23,9 +23,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({ searchText, onSearchCh
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder="Search prompts..."
         title="Search queue items by prompt text"
-        className={`w-full rounded-lg border py-2 pl-9 pr-8 text-xs outline-none transition-all duration-200 ${
+        className={`w-full rounded-md border py-2.5 pl-9 pr-8 text-sm outline-none transition-all duration-200 ${
           isDark
-            ? "border-white/10 bg-white/5 text-white/90 placeholder-white/30 focus:border-white/20 focus:bg-white/[0.07]"
+            ? "border-slate-700 bg-slate-900 text-white placeholder-slate-500 focus:border-slate-500"
             : "border-slate-200 bg-white text-slate-700 placeholder-slate-400 focus:border-slate-300 focus:shadow-sm"
         }`}
       />

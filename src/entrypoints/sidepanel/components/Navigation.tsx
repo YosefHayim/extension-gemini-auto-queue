@@ -16,11 +16,7 @@ const tabs = [
 
 export function Navigation({ isDark, activeTab, setActiveTab }: NavigationProps) {
   return (
-    <nav
-      className={`flex gap-1 border-b p-2 ${
-        isDark ? "border-slate-700/50 bg-slate-800/50" : "border-slate-200 bg-slate-100"
-      }`}
-    >
+    <nav className={`flex gap-1 rounded-md p-1 ${isDark ? "bg-slate-800/50" : "bg-slate-100"}`}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
@@ -29,7 +25,7 @@ export function Navigation({ isDark, activeTab, setActiveTab }: NavigationProps)
             onClick={() => {
               setActiveTab(tab.id);
             }}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-[13px] font-medium transition-all ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded px-4 py-2 text-sm font-medium transition-all ${
               isActive
                 ? isDark
                   ? "bg-slate-900 text-white shadow-sm"

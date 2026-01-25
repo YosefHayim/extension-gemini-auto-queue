@@ -18,7 +18,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   return (
     <div
       data-onboarding="mode-selector"
-      className={`inline-flex rounded-lg p-0.5 ${isDark ? "bg-slate-800" : "bg-slate-100"}`}
+      className={`inline-flex gap-1 rounded-md p-1 ${isDark ? "bg-slate-800/50" : "bg-slate-100"}`}
     >
       {Object.values(GeminiMode).map((mode) => {
         const modeInfo = GEMINI_MODE_INFO[mode];
@@ -30,7 +30,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             key={mode}
             onClick={() => onModeChange(mode)}
             title={modeInfo.description}
-            className={`flex min-h-[36px] items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+            className={`flex items-center gap-1.5 rounded px-3 py-2 text-xs font-medium transition-all ${
               isSelected
                 ? styles.selected
                 : isDark
@@ -38,7 +38,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
                   : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            <Icon size={12} />
+            <Icon size={14} />
             <span>{modeInfo.label}</span>
           </button>
         );

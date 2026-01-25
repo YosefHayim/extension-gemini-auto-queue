@@ -62,7 +62,7 @@ export const ScheduleButton: React.FC<ScheduleButtonProps> = ({
       <div className="relative">
         <button
           onClick={() => setShowPopover(!showPopover)}
-          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
             isDark
               ? "bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30"
               : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
@@ -86,7 +86,7 @@ export const ScheduleButton: React.FC<ScheduleButtonProps> = ({
         onClick={() => setShowPopover(!showPopover)}
         disabled={!hasPendingItems}
         title={hasPendingItems ? "Schedule queue processing" : "Add items to queue first"}
-        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
           isDark
             ? "text-slate-400 hover:bg-slate-700 hover:text-slate-300"
             : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"

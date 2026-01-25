@@ -80,9 +80,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
       <button
         onClick={handleSkip}
-        className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-bold text-white backdrop-blur-md transition-all hover:bg-white/20"
+        className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20"
       >
-        <SkipForward size={14} />
+        <SkipForward size={16} />
         Skip Tour
       </button>
 

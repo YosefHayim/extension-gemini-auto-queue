@@ -47,7 +47,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
       onClick={handleBackdropClick}
     >
       <div
-        className={`animate-in zoom-in-95 w-full max-w-md rounded-xl border shadow-2xl duration-200 ${ExportDialogTokens.getDialogContainerClass(isDark)}`}
+        className={`animate-in zoom-in-95 w-full max-w-md rounded-lg border shadow-2xl duration-200 ${ExportDialogTokens.getDialogContainerClass(isDark)}`}
       >
         <div
           className={`flex items-center justify-between border-b ${ExportDialogTokens.getHeaderDividerClass()} px-5 py-4`}
@@ -67,7 +67,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
           <button
             onClick={onClose}
             title="Close dialog"
-            className={`rounded-lg p-2 transition-all ${
+            className={`rounded-md p-2 transition-all ${
               isDark
                 ? "text-white/60 hover:bg-white/10 hover:text-white"
                 : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
@@ -108,7 +108,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
                 ? "No items to export"
                 : `Export as ${selectedOption?.extension || ""}`
             }
-            className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all ${ExportDialogTokens.getExportButtonClass(isDark, queue.length === 0)}`}
+            className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${ExportDialogTokens.getExportButtonClass(isDark, queue.length === 0)}`}
           >
             <Download size={18} />
             Export as {selectedOption?.extension || ""}

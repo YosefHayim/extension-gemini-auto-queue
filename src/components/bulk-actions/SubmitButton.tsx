@@ -84,7 +84,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
       <button
         onClick={onSubmit}
         disabled={isDisabled}
-        className={`w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wide text-white transition-all disabled:opacity-50 ${getButtonColorClass()}`}
+        className={`w-full rounded-md px-4 py-2.5 text-sm font-medium text-white transition-all disabled:opacity-50 ${getButtonColorClass()}`}
       >
         {getButtonLabel()}
       </button>

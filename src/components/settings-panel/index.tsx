@@ -42,13 +42,13 @@ const selectClasses = (isDark: boolean) =>
   } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`;
 
 const getToggleButtonClasses = (isActive: boolean, isDark: boolean) =>
-  `relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+  `relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
     isActive ? "bg-emerald-500" : isDark ? "bg-slate-600" : "bg-slate-300"
   }`;
 
 const getToggleKnobClasses = (isActive: boolean) =>
-  `inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
-    isActive ? "translate-x-4" : "translate-x-0.5"
+  `inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+    isActive ? "translate-x-5" : "translate-x-0.5"
   }`;
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({

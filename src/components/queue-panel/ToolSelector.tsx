@@ -14,7 +14,10 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
   isDark,
 }) => {
   return (
-    <div data-onboarding="tool-selector" className="flex flex-wrap gap-1">
+    <div
+      data-onboarding="tool-selector"
+      className={`inline-flex gap-1 rounded-md p-1 ${isDark ? "bg-slate-800/50" : "bg-slate-100"}`}
+    >
       {Object.entries(GEMINI_TOOL_INFO)
         .filter(([tool]) => (tool as GeminiTool) !== GeminiTool.NONE)
         .map(([tool, info]) => {
@@ -27,12 +30,14 @@ export const ToolSelector: React.FC<ToolSelectorProps> = ({
                 onToolChange(toolEnum);
               }}
               title={info.description}
-              className={`flex min-h-[44px] items-center gap-1 rounded-md px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wide transition-all ${
+              className={`flex items-center gap-1.5 rounded px-3 py-2 text-xs font-medium transition-all ${
                 isSelected
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? isDark
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "bg-white text-slate-900 shadow-sm"
                   : isDark
-                    ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                    ? "text-slate-400 hover:text-slate-200"
+                    : "text-slate-500 hover:text-slate-700"
               }`}
             >
               <span>{React.createElement(info.icon, { size: 14 })}</span>

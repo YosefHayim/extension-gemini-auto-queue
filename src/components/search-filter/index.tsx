@@ -74,10 +74,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border transition-all duration-300 ${
-        isDark
-          ? "border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02]"
-          : "border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50 shadow-sm"
+      className={`overflow-hidden rounded-lg border transition-all duration-300 ${
+        isDark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50 shadow-sm"
       }`}
     >
       <div className="relative flex items-center gap-2 p-2.5">
@@ -86,13 +84,13 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           title={isExpanded ? "Collapse filters" : "Expand filters"}
-          className={`relative flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium transition-all duration-200 ${
+          className={`relative flex items-center gap-1.5 rounded-md border px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
             isExpanded
               ? isDark
-                ? "border-white/20 bg-white/10 text-white"
+                ? "border-slate-600 bg-slate-700 text-white"
                 : "border-slate-300 bg-slate-100 text-slate-700"
               : isDark
-                ? "border-white/10 text-white/60 hover:border-white/20 hover:text-white/80"
+                ? "border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-200"
                 : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
           }`}
         >

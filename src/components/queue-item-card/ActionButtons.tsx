@@ -85,11 +85,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           onDuplicateWithAI(itemId);
         }}
         title="Duplicate and enhance with AI"
-        className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
-          isDark
-            ? "bg-blue-900/30 text-blue-400 hover:bg-blue-900/50"
-            : "bg-blue-100 text-blue-600 hover:bg-blue-200"
-        }`}
+        className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-100 text-blue-500 transition-colors hover:bg-blue-200"
       >
         <Wand2 size={14} />
       </button>

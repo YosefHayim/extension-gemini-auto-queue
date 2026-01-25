@@ -21,7 +21,7 @@ export const DialogShell: React.FC<DialogShellProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
-        className={`mx-4 w-full max-w-sm rounded-xl border shadow-2xl ${
+        className={`mx-4 w-full max-w-sm rounded-lg border shadow-2xl ${
           isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
         }`}
       >
@@ -29,7 +29,7 @@ export const DialogShell: React.FC<DialogShellProps> = ({
           className={`flex items-center justify-between border-b p-4 ${isDark ? "border-slate-700" : "border-slate-200"}`}
         >
           <div>
-            <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+            <h3 className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
               Bulk Actions
             </h3>
             <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -38,7 +38,7 @@ export const DialogShell: React.FC<DialogShellProps> = ({
           </div>
           <button
             onClick={onClose}
-            className={`rounded-lg p-2 transition-colors ${
+            className={`rounded-md p-2 transition-colors ${
               isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100"
             }`}
           >
