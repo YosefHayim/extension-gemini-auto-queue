@@ -24,26 +24,19 @@ import {
 
 import type { SettingsPanelProps } from "./types";
 
-const getSectionClasses = (isDark: boolean) =>
-  `space-y-4 rounded-lg ${isDark ? "bg-slate-800/50" : "bg-slate-50"} p-4 border ${isDark ? "border-slate-700" : "border-slate-200"}`;
+const getSectionClasses = () => `space-y-4 rounded-lg bg-muted p-4 border border-border`;
 
 const labelClasses = "text-sm font-medium text-foreground flex items-center gap-1.5";
 const descriptionClasses = "text-xs text-muted-foreground";
-const inputClasses = (isDark: boolean) =>
-  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 ${
-    isDark
-      ? "border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
-      : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-  } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`;
+const inputClasses = () =>
+  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 border-border bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary`;
 
-const selectClasses = (isDark: boolean) =>
-  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 ${
-    isDark ? "border-slate-700 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-900"
-  } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`;
+const selectClasses = () =>
+  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 border-border bg-background text-foreground focus:border-primary focus:ring-1 focus:ring-primary`;
 
-const getToggleButtonClasses = (isActive: boolean, isDark: boolean) =>
+const getToggleButtonClasses = (isActive: boolean) =>
   `relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-    isActive ? "bg-emerald-500" : isDark ? "bg-slate-600" : "bg-slate-300"
+    isActive ? "bg-primary" : "bg-muted-foreground"
   }`;
 
 const getToggleKnobClasses = (isActive: boolean) =>
@@ -83,7 +76,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   return (
     <div className="animate-in fade-in space-y-6 overflow-y-auto duration-300">
-      <div className={getSectionClasses(isDark)}>
+      <div className={getSectionClasses()}>
         <h3 className={labelClasses}>Appearance</h3>
 
         <div className="flex items-center justify-between">
@@ -103,10 +96,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 title={`Use ${label.toLowerCase()} theme`}
                 className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors duration-150 ${
                   settings.theme === mode
-                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-500"
-                    : isDark
-                      ? "border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-200"
-                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-secondary text-muted-foreground hover:border-border hover:text-foreground"
                 }`}
               >
                 <Icon size={14} />
@@ -120,7 +111,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <select
             value={settings.position || SidebarPosition.RIGHT}
             onChange={(e) => onUpdateSettings({ position: e.target.value as SidebarPosition })}
-            className={selectClasses(isDark)}
+            className={selectClasses()}
           >
             <option value={SidebarPosition.LEFT}>Left</option>
             <option value={SidebarPosition.RIGHT}>Right</option>
@@ -138,7 +129,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           </div>
           <button
             onClick={() => onUpdateSettings({ dripFeed: !settings.dripFeed })}
-            className={getToggleButtonClasses(settings.dripFeed || false, isDark)}
+            className={getToggleButtonClasses(settings.dripFeed || false)}
           >
             <div className={getToggleKnobClasses(settings.dripFeed || false)} />
           </button>

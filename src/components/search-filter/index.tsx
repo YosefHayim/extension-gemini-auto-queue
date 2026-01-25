@@ -73,11 +73,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   };
 
   return (
-    <div
-      className={`overflow-hidden rounded-lg border transition-all duration-300 ${
-        isDark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-slate-50 shadow-sm"
-      }`}
-    >
+    <div className="overflow-hidden rounded-lg border border-border bg-muted transition-all duration-300">
       <div className="relative flex items-center gap-2 p-2.5">
         <SearchInput searchText={searchText} onSearchChange={onSearchChange} isDark={isDark} />
 
@@ -86,12 +82,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           title={isExpanded ? "Collapse filters" : "Expand filters"}
           className={`relative flex items-center gap-1.5 rounded-md border px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
             isExpanded
-              ? isDark
-                ? "border-slate-600 bg-slate-700 text-white"
-                : "border-slate-300 bg-slate-100 text-slate-700"
-              : isDark
-                ? "border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-200"
-                : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+              ? "border-border bg-secondary text-foreground"
+              : "border-border text-muted-foreground hover:border-border hover:text-foreground"
           }`}
         >
           <Filter size={12} />
@@ -100,11 +92,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
             className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
           />
           {hasActiveFilters && (
-            <span
-              className={`absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${
-                isDark ? "bg-blue-500 text-white" : "bg-blue-500 text-white"
-              }`}
-            >
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-[9px] font-bold text-white">
               {selectedTools.length +
                 selectedModes.length +
                 selectedContentTypes.length +
@@ -135,20 +123,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
         </div>
       </div>
 
-      <div
-        className={`flex items-center justify-between border-t px-3 py-2 ${
-          isDark ? "border-white/5" : "border-slate-100"
-        }`}
-      >
+      <div className="flex items-center justify-between border-t border-border px-3 py-2">
         <span
           className={`text-[10px] font-medium ${
-            isFiltered
-              ? isDark
-                ? "text-blue-400"
-                : "text-blue-600"
-              : isDark
-                ? "text-white/40"
-                : "text-slate-500"
+            isFiltered ? "text-info" : "text-muted-foreground"
           }`}
         >
           Showing <span className={`font-bold ${isFiltered ? "" : ""}`}>{filteredCount}</span> of{" "}
@@ -159,11 +137,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           <button
             onClick={handleClearAll}
             title="Clear all filters"
-            className={`flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-semibold transition-all duration-200 ${
-              isDark
-                ? "text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
-                : "text-red-500/70 hover:bg-red-50 hover:text-red-600"
-            }`}
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-semibold text-destructive/70 transition-all duration-200 hover:bg-destructive/10 hover:text-destructive"
           >
             <X size={10} />
             Clear all

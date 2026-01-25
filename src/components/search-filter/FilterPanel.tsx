@@ -38,17 +38,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   const allModes = Object.values(GeminiMode);
 
   return (
-    <div
-      className={`border-t px-3 py-3 ${
-        isDark ? "border-white/5 bg-white/[0.01]" : "border-slate-100 bg-slate-50/50"
-      }`}
-    >
+    <div className="border-t border-border bg-muted/50 px-3 py-3">
       <div className="mb-3">
-        <div
-          className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
-            isDark ? "text-white/40" : "text-slate-500"
-          }`}
-        >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Filter by Tool
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -62,12 +54,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 title={toolInfo.description}
                 className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold transition-all duration-200 ${
                   isSelected
-                    ? isDark
-                      ? "border-white/30 bg-white/15 text-white shadow-sm"
-                      : "border-slate-400 bg-slate-700 text-white shadow-sm"
-                    : isDark
-                      ? "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
-                      : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                    ? "border-border bg-secondary text-foreground shadow-sm"
+                    : "border-border text-muted-foreground hover:border-border hover:text-foreground"
                 }`}
               >
                 {React.createElement(toolInfo.icon, { size: 10 })}
@@ -79,11 +67,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       </div>
 
       <div>
-        <div
-          className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
-            isDark ? "text-white/40" : "text-slate-500"
-          }`}
-        >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Filter by Mode
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -110,11 +94,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       </div>
 
       <div className="mt-3">
-        <div
-          className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
-            isDark ? "text-white/40" : "text-slate-500"
-          }`}
-        >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Filter by Content
         </div>
         <div className="flex flex-wrap gap-1.5">
