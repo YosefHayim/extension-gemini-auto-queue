@@ -9,7 +9,6 @@ import { ImageThumbnails } from "./ImageThumbnails";
 import { PromptDisplay } from "./PromptDisplay";
 import { SelectionCheckbox } from "./SelectionCheckbox";
 import { StatusSection } from "./StatusSection";
-import { STATUS_BORDER_STYLES } from "./types";
 
 import type { QueueItemCardProps } from "./types";
 
@@ -54,10 +53,10 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-lg border-l-[3px] transition-all duration-150 ${STATUS_BORDER_STYLES[item.status]} ${
+      className={`group relative overflow-hidden rounded-lg border transition-all duration-150 ${
         isDark
-          ? "bg-slate-800/50 shadow-sm shadow-black/10 hover:bg-slate-800/70"
-          : "bg-white shadow-sm shadow-slate-200/60 hover:shadow-md hover:shadow-slate-200/80"
+          ? "border-slate-700 bg-slate-800/50 hover:bg-slate-800/70"
+          : "border-slate-200 bg-white hover:border-slate-300"
       }`}
     >
       <div className="relative flex items-start gap-2 p-3">

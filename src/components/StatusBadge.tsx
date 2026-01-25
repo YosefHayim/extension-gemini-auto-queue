@@ -8,10 +8,10 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<QueueStatus, string> = {
-  [QueueStatus.Pending]: "bg-amber-500/20 text-amber-400",
-  [QueueStatus.Processing]: "bg-blue-500/20 text-blue-400 animate-pulse",
-  [QueueStatus.Completed]: "bg-emerald-500/20 text-emerald-400",
-  [QueueStatus.Failed]: "bg-red-500/20 text-red-400",
+  [QueueStatus.Pending]: "bg-amber-100 text-amber-600",
+  [QueueStatus.Processing]: "bg-blue-100 text-blue-600 animate-pulse",
+  [QueueStatus.Completed]: "bg-emerald-100 text-emerald-600",
+  [QueueStatus.Failed]: "bg-red-100 text-red-600",
 };
 
 const statusDescriptions: Record<QueueStatus, string> = {
@@ -30,7 +30,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, errorMessage }
   return (
     <div
       title={tooltipText}
-      className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${statusStyles[status]} ${status === QueueStatus.Failed && errorMessage ? "cursor-help" : ""}`}
+      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusStyles[status]} ${status === QueueStatus.Failed && errorMessage ? "cursor-help" : ""}`}
     >
       {status}
     </div>

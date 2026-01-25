@@ -1,4 +1,4 @@
-import { BookMarked, Cpu, Settings as SettingsIcon } from "lucide-react";
+import { Folder, List, Settings as SettingsIcon } from "lucide-react";
 
 import type { TabType } from "../types";
 
@@ -9,33 +9,41 @@ interface NavigationProps {
 }
 
 const tabs = [
-  { id: "queue" as const, icon: Cpu, label: "Queue" },
-  { id: "templates" as const, icon: BookMarked, label: "Templates" },
+  { id: "queue" as const, icon: List, label: "Queue" },
+  { id: "templates" as const, icon: Folder, label: "Templates" },
   { id: "settings" as const, icon: SettingsIcon, label: "Settings" },
 ];
 
 export function Navigation({ isDark, activeTab, setActiveTab }: NavigationProps) {
   return (
     <nav
-      className={`flex overflow-hidden border-b ${isDark ? "bg-white/2 border-white/5" : "border-slate-100"}`}
+      className={`flex gap-1 border-b p-2 ${
+        isDark ? "border-slate-700/50 bg-slate-800/50" : "border-slate-200 bg-slate-100"
+      }`}
     >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => {
-            setActiveTab(tab.id);
-          }}
-          className={`group relative flex min-h-[48px] flex-1 flex-col items-center justify-center gap-1.5 py-2 text-[11px] font-bold uppercase tracking-wide transition-all ${
-            activeTab === tab.id ? "text-blue-500" : "opacity-40 hover:opacity-100"
-          }`}
-        >
-          <tab.icon size={16} />
-          <span className="w-full truncate px-1 text-center">{tab.label}</span>
-          {activeTab === tab.id && (
-            <div className="absolute bottom-0 left-2 right-2 h-0.5 rounded-t-md bg-blue-500" />
-          )}
-        </button>
-      ))}
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setActiveTab(tab.id);
+            }}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-[13px] font-medium transition-all ${
+              isActive
+                ? isDark
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "bg-white text-slate-900 shadow-sm"
+                : isDark
+                  ? "text-slate-400 hover:text-slate-200"
+                  : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            <tab.icon size={14} />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
