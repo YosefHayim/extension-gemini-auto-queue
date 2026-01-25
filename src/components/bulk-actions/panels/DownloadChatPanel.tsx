@@ -35,9 +35,7 @@ export const DownloadChatPanel: React.FC<DownloadChatPanelProps> = ({
             className={`grid grid-cols-3 gap-2 rounded-lg border p-3 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-slate-50"}`}
           >
             <div className="text-center">
-              <div
-                className={`text-lg font-bold ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
-              >
+              <div className={`text-lg font-bold ${isDark ? "text-zinc-200" : "text-zinc-700"}`}>
                 {chatMediaCounts.images}
               </div>
               <div

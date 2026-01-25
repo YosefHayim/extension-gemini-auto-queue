@@ -43,8 +43,8 @@ export function FooterControls({
             isProcessing
               ? "bg-amber-500 shadow-amber-500/30"
               : isPaused
-                ? "bg-green-600 shadow-green-600/30"
-                : "bg-blue-600 shadow-blue-600/30"
+                ? "bg-zinc-800 shadow-zinc-800/30"
+                : "bg-zinc-900 shadow-zinc-900/30"
           } text-white disabled:opacity-30`}
         >
           {isProcessing ? (

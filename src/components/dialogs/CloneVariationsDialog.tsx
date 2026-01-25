@@ -99,7 +99,7 @@ export const CloneVariationsDialog: React.FC<CloneVariationsDialogProps> = ({
             onClick={handleApply}
             disabled={count <= 0}
             className={`rounded-md px-4 py-2.5 text-sm font-medium text-white transition-colors ${
-              count > 0 ? "bg-emerald-500 hover:bg-emerald-600" : "cursor-not-allowed bg-slate-400"
+              count > 0 ? "bg-zinc-800 hover:bg-zinc-700" : "cursor-not-allowed bg-slate-400"
             }`}
           >
             Clone

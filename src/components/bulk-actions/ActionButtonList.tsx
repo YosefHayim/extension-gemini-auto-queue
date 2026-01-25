@@ -127,13 +127,13 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
   ];
 
   const getIconColorClass = (type: string, isCopySuccess: boolean) => {
-    if (type === "copy" && isCopySuccess) return "bg-green-500/20 text-green-500";
+    if (type === "copy" && isCopySuccess) return "bg-zinc-500/20 text-zinc-600 dark:text-zinc-300";
     if (type === "ai") return "bg-violet-500/20 text-violet-500";
     if (type === "attach") return "bg-indigo-500/20 text-indigo-500";
     if (type === "reset") return "bg-amber-500/20 text-amber-500";
     if (type === "copy") return "bg-cyan-500/20 text-cyan-500";
     if (type === "removeText" || type === "removeFiles") return "bg-rose-500/20 text-rose-500";
-    return "bg-emerald-500/20 text-emerald-500";
+    return "bg-zinc-500/20 text-zinc-600 dark:text-zinc-300";
   };
 
   return (
@@ -152,7 +152,7 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
           disabled={!action.available || (action.type === "copy" && copySuccess)}
           className={`flex w-full items-center gap-3 rounded-md border p-3 text-left transition-all ${
             action.type === "copy" && copySuccess
-              ? "border-green-500 bg-green-500/20"
+              ? "border-zinc-400 bg-zinc-200/50 dark:border-zinc-600 dark:bg-zinc-700/50"
               : action.available
                 ? isDark
                   ? "border-slate-700 bg-slate-800 hover:border-slate-600 hover:bg-slate-700"
@@ -171,7 +171,7 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
             <div
               className={`text-sm font-semibold ${
                 action.type === "copy" && copySuccess
-                  ? "text-green-500"
+                  ? "text-zinc-700 dark:text-zinc-200"
                   : isDark
                     ? "text-white"
                     : "text-slate-900"

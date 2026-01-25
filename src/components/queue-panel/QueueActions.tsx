@@ -71,7 +71,7 @@ export const QueueActions: React.FC<QueueActionsProps> = ({
         <button
           onClick={onClearCompleted}
           title="Clear completed items"
-          className="flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-600 transition-all hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400 dark:hover:bg-emerald-900"
+          className="flex items-center gap-1.5 rounded-md border border-zinc-300 bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
           <Sparkles size={16} />
           <span>Clear Done</span>

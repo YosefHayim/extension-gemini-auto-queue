@@ -38,7 +38,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({
             <span>Tool type: image, video, canvas, research, learning, layout</span>
           </div>
           <div className="flex items-start gap-2">
-            <span className="shrink-0 rounded bg-emerald-500/20 px-1.5 py-0.5 text-[8px] font-bold text-emerald-400">
+            <span className="shrink-0 rounded bg-zinc-500/20 px-1.5 py-0.5 text-[8px] font-bold text-zinc-400">
               Column C
             </span>
             <span>Image references (optional)</span>

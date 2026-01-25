@@ -28,8 +28,8 @@ export const ModifyPanel: React.FC<ModifyPanelProps> = ({
           placeholder="e.g., 4K, cinematic, dramatic lighting..."
           className={`min-h-[80px] w-full rounded-lg border p-3 text-sm outline-none transition-colors ${
             isDark
-              ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-emerald-500"
-              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-emerald-500"
+              ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-zinc-500"
+              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-zinc-400"
           }`}
         />
       </div>
@@ -47,7 +47,7 @@ export const ModifyPanel: React.FC<ModifyPanelProps> = ({
               onClick={() => setModifyPosition(pos)}
               className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
                 modifyPosition === pos
-                  ? "border-emerald-500 bg-emerald-500/20 text-emerald-500"
+                  ? "border-zinc-500 bg-zinc-500/20 text-zinc-700 dark:text-zinc-300"
                   : isDark
                     ? "border-slate-700 text-slate-400 hover:border-slate-600"
                     : "border-slate-200 text-slate-500 hover:border-slate-300"

@@ -44,7 +44,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
             </div>
           </div>
         ) : (
-          <div className="text-[9px] text-emerald-600 dark:text-emerald-400">
+          <div className="text-[9px] text-zinc-600 dark:text-zinc-400">
             All image references matched ({imageMap.size} images loaded)
           </div>
         )}

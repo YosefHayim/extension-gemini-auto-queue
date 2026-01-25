@@ -111,7 +111,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                   onClick={() => setSelectedFolderId(folder.id)}
                   className={`flex flex-col items-start gap-1.5 rounded-lg border p-3 transition-colors ${
                     selectedFolderId === folder.id
-                      ? "border-emerald-500 bg-emerald-500/10"
+                      ? "border-zinc-400 bg-zinc-100 dark:border-zinc-500 dark:bg-zinc-800/50"
                       : "border-border hover:border-muted-foreground/30"
                   }`}
                 >

@@ -88,7 +88,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
         <div className="mb-3 flex items-center gap-3">
           <div
             className={`rounded-md p-2 ${
-              isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-600"
+              isDark ? "bg-zinc-700 text-zinc-200" : "bg-zinc-200 text-zinc-700"
             }`}
           >
             {step.icon}
@@ -114,7 +114,11 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
             <div
               key={idx}
               className={`h-1 flex-1 rounded-full transition-all ${
-                idx <= currentStep ? "bg-emerald-500" : isDark ? "bg-white/10" : "bg-slate-200"
+                idx <= currentStep
+                  ? "bg-zinc-700 dark:bg-zinc-300"
+                  : isDark
+                    ? "bg-white/10"
+                    : "bg-slate-200"
               }`}
             />
           ))}

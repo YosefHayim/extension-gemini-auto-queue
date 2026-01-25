@@ -63,7 +63,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
     if (activeAction === "removeText" || activeAction === "removeFiles")
       return "bg-rose-600 hover:bg-rose-500";
     if (activeAction === "downloadChat") return "bg-blue-600 hover:bg-blue-500";
-    return "bg-emerald-600 hover:bg-emerald-500";
+    return "bg-zinc-800 hover:bg-zinc-700";
   };
 
   const getButtonLabel = () => {

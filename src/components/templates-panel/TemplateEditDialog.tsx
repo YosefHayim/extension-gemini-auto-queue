@@ -146,8 +146,8 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               placeholder="Neon City Night Scene"
               className={`w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-colors ${
                 isDark
-                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder-zinc-500 focus:border-emerald-500"
-                  : "border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 focus:border-emerald-500"
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder-zinc-500 focus:border-zinc-500"
+                  : "border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 focus:border-zinc-400"
               }`}
             />
           </div>
@@ -213,8 +213,8 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               rows={4}
               className={`w-full resize-none rounded-md border px-3 py-3 text-sm leading-relaxed outline-none transition-colors ${
                 isDark
-                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder-zinc-500 focus:border-emerald-500"
-                  : "border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 focus:border-emerald-500"
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder-zinc-500 focus:border-zinc-500"
+                  : "border-zinc-200 bg-white text-zinc-900 placeholder-zinc-400 focus:border-zinc-400"
               }`}
             />
           </div>
@@ -278,7 +278,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
                 onClick={() => setActiveImageTab("upload")}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition-colors ${
                   activeImageTab === "upload"
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                     : isDark
                       ? "border border-zinc-700 bg-zinc-900 text-zinc-300"
                       : "border border-zinc-200 bg-white text-zinc-600"
@@ -292,7 +292,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
                 onClick={() => setActiveImageTab("icon")}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition-colors ${
                   activeImageTab === "icon"
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
                     : isDark
                       ? "border border-zinc-700 bg-zinc-900 text-zinc-300"
                       : "border border-zinc-200 bg-white text-zinc-600"
@@ -374,7 +374,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
           <button
             type="button"
             onClick={onSave}
-            className="flex items-center gap-1.5 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
+            className="flex items-center gap-1.5 rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             <Plus size={16} />
             <span>{isNewTemplate ? "Create Template" : "Save Changes"}</span>

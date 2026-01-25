@@ -104,8 +104,8 @@ export const DownloadPanel: React.FC<DownloadPanelProps> = ({
                 isDark={isDark}
                 isLoading={downloadState.isDownloading}
                 icon={Image}
-                iconBgClass={isDark ? "bg-emerald-500/20" : "bg-emerald-100"}
-                iconClass={isDark ? "text-emerald-400" : "text-emerald-600"}
+                iconBgClass={isDark ? "bg-zinc-600/30" : "bg-zinc-200"}
+                iconClass={isDark ? "text-zinc-300" : "text-zinc-700"}
                 label="Images"
                 count={imageCount}
                 onClick={() => onDownload("direct", "image")}
