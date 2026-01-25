@@ -201,11 +201,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             onChange={(e) => onUpdateSettings({ globalNegatives: e.target.value })}
             placeholder="Things to avoid in all generations..."
             disabled={!settings.globalNegativesEnabled}
-            className={`min-h-[80px] w-full rounded-md border p-3 text-sm outline-none transition-all duration-150 ${
-              isDark
-                ? "border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
-                : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-            } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
+            className={`min-h-[80px] w-full rounded-md border border-border bg-background p-3 text-sm text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
           />
         </div>
       </div>
@@ -213,7 +209,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <div className={getSectionClasses(isDark)}>
         <h3 className={labelClasses}>Account</h3>
 
-        <div className="space-y-3 border-t border-slate-700/50 pt-3">
+        <div className="space-y-3 border-t border-border pt-3">
           <button
             onClick={() => setIsAIProvidersExpanded(!isAIProvidersExpanded)}
             className="flex w-full items-center justify-between"
@@ -232,7 +228,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </span>
               <ChevronDown
                 size={14}
-                className={`text-slate-400 transition-transform duration-200 ${
+                className={`text-muted-foreground transition-transform duration-200 ${
                   isAIProvidersExpanded ? "rotate-180" : ""
                 }`}
               />
@@ -248,7 +244,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   onChange={(e) =>
                     onUpdateSettings({ preferredAIProvider: e.target.value as AIProvider })
                   }
-                  className={selectClasses(isDark)}
+                  className={selectClasses()}
                 >
                   {Object.entries(AI_PROVIDER_INFO).map(([provider, info]) => (
                     <option key={provider} value={provider}>
