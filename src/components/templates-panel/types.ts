@@ -12,6 +12,7 @@ export interface TemplatesPanelProps {
   onSaveTemplate: (folderId: string, template: Partial<PromptTemplate>) => void;
   onImproveTemplate: (folderId: string, templateId: string) => Promise<void>;
   onImproveFolder: (folderId: string) => Promise<void>;
+  onUpdateFolder?: (folderId: string, name: string, color?: string, icon?: string) => void;
 }
 
 export interface DisplayedTemplate extends PromptTemplate {

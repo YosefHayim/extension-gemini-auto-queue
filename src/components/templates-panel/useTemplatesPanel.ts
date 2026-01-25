@@ -11,6 +11,7 @@ interface UseTemplatesPanelParams {
   onSaveTemplate: (folderId: string, template: Partial<PromptTemplate>) => void;
   onImproveTemplate: (folderId: string, templateId: string) => Promise<void>;
   onImproveFolder: (folderId: string) => Promise<void>;
+  onUpdateFolder?: (folderId: string, name: string, color?: string, icon?: string) => void;
 }
 
 export function useTemplatesPanel({
@@ -21,12 +22,14 @@ export function useTemplatesPanel({
   onSaveTemplate,
   onImproveTemplate,
   onImproveFolder,
+  onUpdateFolder,
 }: UseTemplatesPanelParams) {
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [improvingIds, setImprovingIds] = useState<Set<string>>(new Set());
   const [editingTemplate, setEditingTemplate] = useState<EditingTemplateState | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [editingFolder, setEditingFolder] = useState<Folder | null>(null);
 
   const displayedTemplates = useMemo<DisplayedTemplate[]>(() => {
     if (selectedFolderId === null) {
@@ -137,6 +140,26 @@ export function useTemplatesPanel({
     }
   };
 
+  const handleEditFolder = (folder: Folder) => {
+    setEditingFolder(folder);
+    setNewFolderName(folder.name);
+    setIsCreatingFolder(true);
+  };
+
+  const handleUpdateFolder = (folderId: string, name: string, color?: string, icon?: string) => {
+    if (!name.trim()) return;
+    onUpdateFolder?.(folderId, name.trim(), color, icon);
+    setEditingFolder(null);
+    setNewFolderName("");
+    setIsCreatingFolder(false);
+  };
+
+  const handleCloseDialog = () => {
+    setIsCreatingFolder(false);
+    setEditingFolder(null);
+    setNewFolderName("");
+  };
+
   const totalTemplateCount = folders.reduce((sum, f) => sum + f.templates.length, 0);
   const selectedFolder = selectedFolderId ? folders.find((f) => f.id === selectedFolderId) : null;
   const isImprovingFolder = selectedFolderId ? improvingIds.has(selectedFolderId) : false;
@@ -151,6 +174,7 @@ export function useTemplatesPanel({
     setEditingTemplate,
     selectedFolderId,
     setSelectedFolderId,
+    editingFolder,
     displayedTemplates,
     totalTemplateCount,
     selectedFolder,
@@ -162,5 +186,8 @@ export function useTemplatesPanel({
     handleSaveTemplate,
     handleImproveTemplate,
     handleImproveFolder,
+    handleEditFolder,
+    handleUpdateFolder,
+    handleCloseDialog,
   };
 }

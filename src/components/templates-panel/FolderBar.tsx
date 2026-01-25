@@ -1,7 +1,40 @@
-import { Folder as FolderIcon, FolderPlus, Layers, X } from "lucide-react";
 import React from "react";
+import {
+  Briefcase,
+  Camera,
+  Coffee,
+  Folder as FolderIcon,
+  FolderPlus,
+  Gamepad2,
+  Heart,
+  Layers,
+  Music,
+  Palette,
+  Pencil,
+  Rocket,
+  Sparkles,
+  Star,
+  X,
+  Zap,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-import type { Folder } from "@/types";
+import type { Folder, FolderIcon as FolderIconType } from "@/types";
+
+const ICON_COMPONENTS: Record<FolderIconType, LucideIcon> = {
+  folder: FolderIcon,
+  star: Star,
+  heart: Heart,
+  zap: Zap,
+  rocket: Rocket,
+  sparkles: Sparkles,
+  briefcase: Briefcase,
+  palette: Palette,
+  camera: Camera,
+  music: Music,
+  "gamepad-2": Gamepad2,
+  coffee: Coffee,
+};
 
 interface FolderBarProps {
   folders: Folder[];
@@ -12,6 +45,7 @@ interface FolderBarProps {
   onSelectFolder: (folderId: string | null) => void;
   onToggleFolder: (folderId: string) => void;
   onDeleteFolder: (folderId: string, e: React.MouseEvent) => void;
+  onEditFolder?: (folder: Folder) => void;
 }
 
 export const FolderBar: React.FC<FolderBarProps> = ({
@@ -22,7 +56,15 @@ export const FolderBar: React.FC<FolderBarProps> = ({
   onSelectFolder,
   onToggleFolder,
   onDeleteFolder,
+  onEditFolder,
 }) => {
+  const getFolderIcon = (folder: Folder) => {
+    const iconName = (folder.icon ?? "folder") as FolderIconType;
+    const IconComponent = ICON_COMPONENTS[iconName] ?? FolderIcon;
+    const iconColor = folder.color ?? "#F59E0B";
+    return <IconComponent size={18} style={{ color: iconColor }} />;
+  };
+
   return (
     <div className="no-scrollbar flex-shrink-0 overflow-x-auto">
       <div className="flex flex-nowrap gap-2 p-2">
@@ -62,18 +104,32 @@ export const FolderBar: React.FC<FolderBarProps> = ({
                   : "bg-muted opacity-60 hover:opacity-100"
               }`}
             >
-              <FolderIcon size={18} className="text-amber-500" />
+              {getFolderIcon(folder)}
               <span className="max-w-[60px] truncate text-[10px] font-medium text-muted-foreground">
                 {folder.name}
               </span>
             </button>
-            <button
-              onClick={(e) => onDeleteFolder(folder.id, e)}
-              title="Delete folder"
-              className="absolute -right-1 -top-1 rounded-full bg-red-500 p-1 text-white opacity-0 shadow-sm transition-all hover:bg-red-600 group-hover/folder:opacity-100"
-            >
-              <X size={10} />
-            </button>
+            <div className="absolute -right-1 -top-1 flex gap-0.5 opacity-0 transition-all group-hover/folder:opacity-100">
+              {onEditFolder && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditFolder(folder);
+                  }}
+                  title="Edit folder"
+                  className="rounded-full bg-blue-500 p-1 text-white shadow-sm transition-all hover:bg-blue-600"
+                >
+                  <Pencil size={10} />
+                </button>
+              )}
+              <button
+                onClick={(e) => onDeleteFolder(folder.id, e)}
+                title="Delete folder"
+                className="rounded-full bg-red-500 p-1 text-white shadow-sm transition-all hover:bg-red-600"
+              >
+                <X size={10} />
+              </button>
+            </div>
           </div>
         ))}
       </div>

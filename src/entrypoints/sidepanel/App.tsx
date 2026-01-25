@@ -202,6 +202,7 @@ export default function App() {
     handleBulkRetryFailed,
     handleBulkChangeTool,
     handleBulkChangeMode,
+    handleBulkDelete,
   } = useBulkModifyActions({
     queue,
     setQueueState,
@@ -239,6 +240,7 @@ export default function App() {
     handleSaveTemplate,
     handleImproveTemplate,
     handleImproveFolder,
+    handleUpdateFolder,
   } = useFolderHandlers({
     folders,
     setFoldersState,
@@ -356,6 +358,7 @@ export default function App() {
               onBulkRetryFailed={handleBulkRetryFailed}
               onBulkChangeTool={handleBulkChangeTool}
               onBulkChangeMode={handleBulkChangeMode}
+              onBulkDelete={handleBulkDelete}
             />
           </div>
         )}
@@ -374,6 +377,7 @@ export default function App() {
               onSaveTemplate={handleSaveTemplate}
               onImproveTemplate={handleImproveTemplate}
               onImproveFolder={handleImproveFolder}
+              onUpdateFolder={handleUpdateFolder}
             />
           </div>
         )}

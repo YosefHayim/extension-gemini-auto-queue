@@ -151,6 +151,17 @@ export function useFolderHandlers({
     [folders, setFoldersState]
   );
 
+  const handleUpdateFolder = useCallback(
+    async (folderId: string, name: string, color?: string, icon?: string) => {
+      const updatedFolders = folders.map((f) =>
+        f.id === folderId ? { ...f, name, color, icon } : f
+      );
+      setFoldersState(updatedFolders);
+      await setFolders(updatedFolders);
+    },
+    [folders, setFoldersState]
+  );
+
   return {
     handleCreateFolder,
     handleDeleteFolder,
@@ -160,5 +171,6 @@ export function useFolderHandlers({
     handleSaveTemplate,
     handleImproveTemplate,
     handleImproveFolder,
+    handleUpdateFolder,
   };
 }

@@ -197,6 +197,7 @@ export interface PromptTemplate {
   lastEditedAt: number;
   timesUsed: number;
   images?: string[];
+  tool?: GeminiTool;
 }
 
 export interface Folder {

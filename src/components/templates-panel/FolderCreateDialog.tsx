@@ -1,24 +1,26 @@
-import type { LucideIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import {
   Briefcase,
   Camera,
   Coffee,
+  Folder,
   FolderPlus,
   Gamepad2,
   Heart,
   Music,
   Palette,
+  Pencil,
   Rocket,
   Sparkles,
   Star,
   Upload,
   X,
   Zap,
-  Folder,
 } from "lucide-react";
-import React, { useState } from "react";
+import type { LucideIcon } from "lucide-react";
 
-import { FOLDER_COLORS, FOLDER_ICONS, type FolderIcon } from "@/types";
+import { FOLDER_COLORS, FOLDER_ICONS } from "@/types";
+import type { Folder as FolderType, FolderIcon } from "@/types";
 
 interface FolderCreateDialogProps {
   isOpen: boolean;
@@ -27,6 +29,8 @@ interface FolderCreateDialogProps {
   onFolderNameChange: (name: string) => void;
   onCreateFolder: (color?: string, icon?: string) => void;
   onClose: () => void;
+  editingFolder?: FolderType | null;
+  onUpdateFolder?: (folderId: string, name: string, color?: string, icon?: string) => void;
 }
 
 const ICON_COMPONENTS: Record<FolderIcon, LucideIcon> = {
@@ -50,23 +54,44 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
   onFolderNameChange,
   onCreateFolder,
   onClose,
+  editingFolder,
+  onUpdateFolder,
 }) => {
   const [selectedColor, setSelectedColor] = useState<string>(FOLDER_COLORS[0]);
   const [selectedIcon, setSelectedIcon] = useState<FolderIcon | null>(null);
   const [iconTab, setIconTab] = useState<"upload" | "choose">("choose");
 
+  const isEditMode = Boolean(editingFolder);
+
+  useEffect(() => {
+    if (editingFolder) {
+      setSelectedColor(editingFolder.color ?? FOLDER_COLORS[0]);
+      setSelectedIcon((editingFolder.icon as FolderIcon) ?? null);
+    } else {
+      setSelectedColor(FOLDER_COLORS[0]);
+      setSelectedIcon(null);
+    }
+  }, [editingFolder]);
+
   if (!isOpen) return null;
 
-  const handleCreate = () => {
-    onCreateFolder(selectedColor, selectedIcon ?? undefined);
+  const handleSubmit = () => {
+    if (isEditMode && editingFolder && onUpdateFolder) {
+      onUpdateFolder(editingFolder.id, newFolderName, selectedColor, selectedIcon ?? undefined);
+    } else {
+      onCreateFolder(selectedColor, selectedIcon ?? undefined);
+    }
+    resetState();
+  };
+
+  const resetState = () => {
     setSelectedColor(FOLDER_COLORS[0]);
     setSelectedIcon(null);
   };
 
   const handleClose = () => {
     onClose();
-    setSelectedColor(FOLDER_COLORS[0]);
-    setSelectedIcon(null);
+    resetState();
   };
 
   return (
@@ -75,11 +100,19 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
         <div className="flex items-center justify-between border-b border-border p-5">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
-              <FolderPlus size={20} className="text-foreground" />
+              {isEditMode ? (
+                <Pencil size={20} className="text-foreground" />
+              ) : (
+                <FolderPlus size={20} className="text-foreground" />
+              )}
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-base font-semibold text-foreground">New Folder</span>
-              <span className="text-[13px] text-muted-foreground">Organize your templates</span>
+              <span className="text-base font-semibold text-foreground">
+                {isEditMode ? "Edit Folder" : "New Folder"}
+              </span>
+              <span className="text-[13px] text-muted-foreground">
+                {isEditMode ? "Modify folder settings" : "Organize your templates"}
+              </span>
             </div>
           </div>
           <button
@@ -98,7 +131,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
               autoFocus
               value={newFolderName}
               onChange={(e) => onFolderNameChange(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && newFolderName.trim() && handleCreate()}
+              onKeyDown={(e) => e.key === "Enter" && newFolderName.trim() && handleSubmit()}
               placeholder="Enter folder name..."
               className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
@@ -198,12 +231,12 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleCreate}
+            onClick={handleSubmit}
             disabled={!newFolderName.trim()}
             className="flex items-center gap-1.5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
           >
-            <FolderPlus size={16} />
-            Create Folder
+            {isEditMode ? <Pencil size={16} /> : <FolderPlus size={16} />}
+            {isEditMode ? "Save Changes" : "Create Folder"}
           </button>
         </div>
       </div>

@@ -22,6 +22,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onSaveTemplate,
   onImproveTemplate,
   onImproveFolder,
+  onUpdateFolder,
 }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
 
@@ -35,6 +36,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     setEditingTemplate,
     selectedFolderId,
     setSelectedFolderId,
+    editingFolder,
     displayedTemplates,
     totalTemplateCount,
     selectedFolder,
@@ -46,6 +48,9 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     handleSaveTemplate,
     handleImproveTemplate,
     handleImproveFolder,
+    handleEditFolder,
+    handleUpdateFolder,
+    handleCloseDialog,
   } = useTemplatesPanel({
     folders,
     onCreateFolder,
@@ -54,6 +59,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     onSaveTemplate,
     onImproveTemplate,
     onImproveFolder,
+    onUpdateFolder,
   });
 
   const filteredFolders = useMemo(() => {
@@ -163,6 +169,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onSelectFolder={setSelectedFolderId}
           onToggleFolder={onToggleFolder}
           onDeleteFolder={handleDeleteFolder}
+          onEditFolder={handleEditFolder}
         />
 
         {selectedFolder && selectedFolder.templates.length > 0 && hasAIKey && (
@@ -199,11 +206,14 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
         newFolderName={newFolderName}
         onFolderNameChange={setNewFolderName}
         onCreateFolder={handleCreateFolder}
-        onClose={() => setIsCreatingFolder(false)}
+        onClose={handleCloseDialog}
+        editingFolder={editingFolder}
+        onUpdateFolder={handleUpdateFolder}
       />
 
       <TemplateEditDialog
         editingTemplate={editingTemplate}
+        folders={folders}
         isDark={isDark}
         onTemplateChange={setEditingTemplate}
         onSave={handleSaveTemplate}

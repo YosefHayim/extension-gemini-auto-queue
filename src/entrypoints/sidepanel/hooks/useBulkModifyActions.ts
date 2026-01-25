@@ -323,6 +323,28 @@ export function useBulkModifyActions({
     [queue, setQueueState]
   );
 
+  const handleBulkDelete = useCallback(
+    async (selectedIds?: string[]) => {
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+
+      const updatedQueue = targetIds
+        ? queue.filter((item) => !targetIds.has(item.id))
+        : queue.filter((item) => item.status !== QueueStatus.Pending);
+
+      const deletedCount = queue.length - updatedQueue.length;
+
+      if (deletedCount === 0) {
+        toast.info("No items to delete");
+        return;
+      }
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Deleted ${deletedCount} item${deletedCount !== 1 ? "s" : ""}`);
+    },
+    [queue, setQueueState]
+  );
+
   return {
     handleBulkAttachImages,
     handleBulkAIOptimize,
@@ -334,6 +356,7 @@ export function useBulkModifyActions({
     handleBulkRetryFailed,
     handleBulkChangeTool,
     handleBulkChangeMode,
+    handleBulkDelete,
   };
 }
 

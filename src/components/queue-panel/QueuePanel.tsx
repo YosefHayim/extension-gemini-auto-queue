@@ -45,6 +45,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
     onBulkRetryFailed,
     onBulkChangeTool,
     onBulkChangeMode,
+    onBulkDelete,
   } = props;
 
   const state = useQueuePanelState({
@@ -86,6 +87,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         onBulkRetryFailed={onBulkRetryFailed}
         onBulkChangeTool={onBulkChangeTool}
         onBulkChangeMode={onBulkChangeMode}
+        onBulkDelete={onBulkDelete}
       />
 
       <PromptInput
