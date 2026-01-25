@@ -30,15 +30,15 @@ export const FolderBar: React.FC<FolderBarProps> = ({
         <button
           onClick={onCreateFolderClick}
           title="Create new folder"
-          className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-xl border-2 border-dashed px-4 py-3 transition-all ${
+          className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-lg border-2 border-dashed px-4 py-3 transition-all ${
             isDark
-              ? "border-slate-600 bg-slate-800/50 hover:border-blue-500/50 hover:bg-slate-800"
-              : "border-slate-300 bg-slate-100/50 hover:border-blue-400 hover:bg-slate-100"
+              ? "border-slate-600 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800"
+              : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-slate-100"
           }`}
         >
-          <FolderPlus size={20} className={isDark ? "text-slate-400" : "text-slate-500"} />
+          <FolderPlus size={18} className={isDark ? "text-slate-400" : "text-slate-500"} />
           <span
-            className={`text-[10px] font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}
+            className={`text-[10px] font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
           >
             New
           </span>
@@ -46,19 +46,19 @@ export const FolderBar: React.FC<FolderBarProps> = ({
 
         <button
           onClick={() => onSelectFolder(null)}
-          className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-3 transition-all ${
+          className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-lg px-4 py-3 transition-all ${
             selectedFolderId === null
               ? isDark
-                ? "bg-slate-700 shadow-md"
-                : "bg-slate-200 shadow-md"
+                ? "bg-slate-700 shadow-sm"
+                : "bg-white shadow-sm"
               : isDark
                 ? "bg-slate-800/50 opacity-60 hover:opacity-100"
                 : "bg-slate-100/50 opacity-60 hover:opacity-100"
           }`}
         >
-          <Layers size={20} className={isDark ? "text-blue-400" : "text-blue-500"} />
+          <Layers size={18} className={isDark ? "text-blue-400" : "text-blue-500"} />
           <span
-            className={`max-w-[60px] truncate text-[10px] font-semibold ${isDark ? "text-slate-300" : "text-slate-600"}`}
+            className={`max-w-[60px] truncate text-[10px] font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}
           >
             All ({totalTemplateCount})
           </span>
@@ -71,19 +71,19 @@ export const FolderBar: React.FC<FolderBarProps> = ({
                 onSelectFolder(folder.id);
                 onToggleFolder(folder.id);
               }}
-              className={`flex flex-col items-center gap-1 rounded-xl px-4 py-3 transition-all ${
+              className={`flex flex-col items-center gap-1 rounded-lg px-4 py-3 transition-all ${
                 selectedFolderId === folder.id
                   ? isDark
-                    ? "bg-slate-700 shadow-md"
-                    : "bg-slate-200 shadow-md"
+                    ? "bg-slate-700 shadow-sm"
+                    : "bg-white shadow-sm"
                   : isDark
                     ? "bg-slate-800/50 opacity-60 hover:opacity-100"
                     : "bg-slate-100/50 opacity-60 hover:opacity-100"
               }`}
             >
-              <FolderIcon size={20} className={isDark ? "text-amber-400" : "text-amber-500"} />
+              <FolderIcon size={18} className={isDark ? "text-amber-400" : "text-amber-500"} />
               <span
-                className={`max-w-[60px] truncate text-[10px] font-semibold ${isDark ? "text-slate-300" : "text-slate-600"}`}
+                className={`max-w-[60px] truncate text-[10px] font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}
               >
                 {folder.name}
               </span>
@@ -91,7 +91,7 @@ export const FolderBar: React.FC<FolderBarProps> = ({
             <button
               onClick={(e) => onDeleteFolder(folder.id, e)}
               title="Delete folder"
-              className="absolute -right-1 -top-1 rounded-full bg-red-500 p-1 text-white opacity-0 shadow-lg transition-all hover:bg-red-600 group-hover/folder:opacity-100"
+              className="absolute -right-1 -top-1 rounded-full bg-red-500 p-1 text-white opacity-0 shadow-sm transition-all hover:bg-red-600 group-hover/folder:opacity-100"
             >
               <X size={10} />
             </button>

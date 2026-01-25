@@ -22,12 +22,12 @@ export const ImproveFolderButton: React.FC<ImproveFolderButtonProps> = ({
         onClick={(e) => onImproveFolder(selectedFolder.id, e)}
         disabled={isImproving}
         title="Improve all templates in this folder with AI"
-        className={`flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+        className={`flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-all ${
           isImproving
-            ? "animate-pulse bg-amber-500 text-white"
+            ? "animate-pulse bg-blue-500 text-white"
             : isDark
-              ? "bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
-              : "bg-amber-100 text-amber-600 hover:bg-amber-200"
+              ? "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+              : "bg-blue-100 text-blue-600 hover:bg-blue-200"
         }`}
       >
         {isImproving ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}

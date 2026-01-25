@@ -127,11 +127,13 @@ export const PromptInput: React.FC<PromptInputProps> = ({
               onEnqueue();
             }
           }}
-          placeholder="Enter prompts separated by blank lines..."
-          className={`max-h-[280px] min-h-[120px] w-full overflow-y-auto rounded-lg border p-3 pb-14 text-sm leading-relaxed outline-none transition-all ${
+          placeholder="Enter your prompts here...
+
+Separate multiple prompts with blank lines. Each paragraph becomes a separate queue item."
+          className={`max-h-[280px] min-h-[120px] w-full overflow-y-auto rounded-md border p-3 pb-14 text-[13px] leading-relaxed outline-none transition-all ${
             isDark
-              ? "border-slate-700 bg-slate-900 placeholder:text-slate-600 focus:border-indigo-500/60"
-              : "border-slate-200 bg-white placeholder:text-slate-400 focus:border-indigo-500/60"
+              ? "border-slate-700 bg-slate-900 placeholder:text-slate-500 focus:border-slate-500"
+              : "border-slate-200 bg-white placeholder:text-slate-400 focus:border-slate-400"
           }`}
         />
 
@@ -149,7 +151,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
         <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
           {promptPreviewCount > 0 && (
             <span
-              className={`rounded-md px-2 py-1 text-[10px] font-semibold ${
+              className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
                 isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
               }`}
             >
@@ -161,9 +163,13 @@ export const PromptInput: React.FC<PromptInputProps> = ({
             onClick={onEnqueue}
             disabled={promptPreviewCount === 0 && selectedImages.length === 0}
             title="Add prompt to processing queue (Ctrl+Enter)"
-            className="min-h-[44px] rounded-lg bg-indigo-600 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-indigo-600/25 transition-all hover:bg-indigo-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${
+              isDark
+                ? "bg-slate-100 text-slate-900 hover:bg-white"
+                : "bg-slate-900 text-white hover:bg-slate-800"
+            }`}
           >
-            Add to Queue
+            Add
           </button>
         </div>
       </div>

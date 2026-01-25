@@ -74,7 +74,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   return (
     <>
       <div className="flex h-full flex-col">
-        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-md border border-border bg-muted px-3 py-2.5">
           <Search size={16} className="text-muted-foreground" />
           <input
             type="text"
@@ -91,26 +91,26 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <h3 className="text-sm font-semibold text-foreground">Folders</h3>
               <button
                 onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-1 text-xs font-medium text-info hover:text-info/80"
+                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 <Plus size={14} />
                 New Folder
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {filteredFolders.slice(0, 4).map((folder) => (
                 <button
                   key={folder.id}
                   onClick={() => setSelectedFolderId(folder.id)}
-                  className={`flex flex-col items-start gap-2 rounded-md border p-3 transition-colors ${
+                  className={`flex flex-col items-start gap-1.5 rounded-lg border p-3 transition-colors ${
                     selectedFolderId === folder.id
-                      ? "border-info bg-info/10"
-                      : "border-border hover:border-border/80"
+                      ? "border-emerald-500 bg-emerald-500/10"
+                      : "border-border hover:border-muted-foreground/30"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Folder size={16} className="text-muted-foreground" />
+                    <Folder size={16} className="text-amber-500" />
                     <span className="text-sm font-medium text-foreground">{folder.name}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">
@@ -129,7 +129,7 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
               <h3 className="text-sm font-semibold text-foreground">Recent Templates</h3>
               <button
                 onClick={() => {}}
-                className="text-xs font-medium text-info hover:text-info/80"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 View All
               </button>

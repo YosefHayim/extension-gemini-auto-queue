@@ -25,30 +25,30 @@ import {
 import type { SettingsPanelProps } from "./types";
 
 const getSectionClasses = (isDark: boolean) =>
-  `space-y-3 rounded-lg ${isDark ? "bg-slate-800/50" : "bg-slate-50"} p-4 border ${isDark ? "border-slate-700" : "border-slate-200"}`;
+  `space-y-4 rounded-lg ${isDark ? "bg-slate-800/50" : "bg-slate-50"} p-4 border ${isDark ? "border-slate-700" : "border-slate-200"}`;
 
-const labelClasses = "text-sm font-semibold text-foreground flex items-center gap-1.5";
+const labelClasses = "text-sm font-medium text-foreground flex items-center gap-1.5";
 const descriptionClasses = "text-xs text-muted-foreground";
 const inputClasses = (isDark: boolean) =>
-  `w-full rounded-lg border px-3 py-2 text-sm outline-none transition-all duration-150 ${
+  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 ${
     isDark
       ? "border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
       : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-  }`;
+  } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`;
 
 const selectClasses = (isDark: boolean) =>
-  `w-full rounded-lg border px-3 py-2 text-sm outline-none transition-all duration-150 ${
+  `w-full rounded-md border px-3 py-2.5 text-sm outline-none transition-all duration-150 ${
     isDark ? "border-slate-700 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-900"
-  }`;
+  } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500`;
 
 const getToggleButtonClasses = (isActive: boolean, isDark: boolean) =>
-  `relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-    isActive ? "bg-emerald-500" : isDark ? "bg-slate-700" : "bg-slate-300"
+  `relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
+    isActive ? "bg-emerald-500" : isDark ? "bg-slate-600" : "bg-slate-300"
   }`;
 
 const getToggleKnobClasses = (isActive: boolean) =>
-  `inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-200 ${
-    isActive ? "translate-x-5" : "translate-x-0.5"
+  `inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+    isActive ? "translate-x-4" : "translate-x-0.5"
   }`;
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -101,12 +101,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 key={mode}
                 onClick={() => onUpdateSettings({ theme: mode })}
                 title={`Use ${label.toLowerCase()} theme`}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors duration-150 ${
+                className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors duration-150 ${
                   settings.theme === mode
-                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
+                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-500"
                     : isDark
-                      ? "border-slate-700 bg-slate-900 text-slate-400 hover:text-slate-200"
-                      : "border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-700"
+                      ? "border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-200"
+                      : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
                 }`}
               >
                 <Icon size={14} />
@@ -210,11 +210,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             onChange={(e) => onUpdateSettings({ globalNegatives: e.target.value })}
             placeholder="Things to avoid in all generations..."
             disabled={!settings.globalNegativesEnabled}
-            className={`min-h-[80px] w-full rounded-lg border p-3 text-xs outline-none transition-all duration-150 ${
+            className={`min-h-[80px] w-full rounded-md border p-3 text-sm outline-none transition-all duration-150 ${
               isDark
                 ? "border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
                 : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-            } ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
+            } focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
           />
         </div>
       </div>
@@ -312,17 +312,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
 
         <div
-          className={`rounded-lg p-4 ${isDark ? "bg-slate-700/50" : "bg-slate-100"} border ${isDark ? "border-slate-600" : "border-slate-300"}`}
+          className={`rounded-lg p-4 ${isDark ? "bg-slate-700/50" : "bg-slate-100"} border ${isDark ? "border-slate-600" : "border-slate-200"}`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Crown size={16} className="text-amber-500" />
               <div>
-                <p className="text-sm font-semibold text-foreground">Free Plan</p>
+                <p className="text-sm font-medium text-foreground">Free Plan</p>
                 <p className={descriptionClasses}>Upgrade for advanced features</p>
               </div>
             </div>
-            <button className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors duration-150 hover:bg-emerald-600">
+            <button className="rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white transition-colors duration-150 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
               Upgrade
             </button>
           </div>
