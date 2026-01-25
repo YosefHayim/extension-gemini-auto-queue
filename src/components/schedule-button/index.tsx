@@ -9,10 +9,7 @@ import { useCountdown } from "./useCountdown";
 
 import type { ScheduleButtonProps } from "./types";
 
-export const ScheduleButton: React.FC<ScheduleButtonProps> = ({
-  schedule,
-  hasPendingItems,
-}) => {
+export const ScheduleButton: React.FC<ScheduleButtonProps> = ({ schedule, hasPendingItems }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");

@@ -108,12 +108,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                 onClick={() => onContentTypeToggle(type)}
                 className={`flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold transition-all duration-200 ${
                   isSelected
-                    ? isDark
-                      ? "border-white/30 bg-white/15 text-white shadow-sm"
-                      : "border-slate-400 bg-slate-700 text-white shadow-sm"
-                    : isDark
-                      ? "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
-                      : "border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                    ? "border-border bg-secondary text-foreground shadow-sm"
+                    : "border-border text-muted-foreground hover:border-border hover:text-foreground"
                 }`}
               >
                 <Icon size={10} />

@@ -140,7 +140,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <select
             value={settings.primaryModel}
             onChange={(e) => onUpdateSettings({ primaryModel: e.target.value as GeminiModel })}
-            className={selectClasses(isDark)}
+            className={selectClasses()}
           >
             <option value={GeminiModel.FLASH}>Flash 2.0 (High Speed)</option>
             <option value={GeminiModel.PRO}>Imagen 3 (High Fidelity)</option>
@@ -152,7 +152,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <select
             value={settings.defaultTool || GeminiTool.IMAGE}
             onChange={(e) => onUpdateSettings({ defaultTool: e.target.value as GeminiTool })}
-            className={selectClasses(isDark)}
+            className={selectClasses()}
           >
             {Object.entries(GEMINI_TOOL_INFO).map(([tool, info]) => (
               <option key={tool} value={tool}>
