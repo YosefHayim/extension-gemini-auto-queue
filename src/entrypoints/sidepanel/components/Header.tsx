@@ -1,8 +1,6 @@
-import { Clock } from "lucide-react";
-
-import { UserAvatar } from "@/components/auth";
-
 import type { AuthUser } from "@/types";
+import { Clock } from "lucide-react";
+import { UserAvatar } from "@/components/auth";
 
 interface HeaderProps {
   isDark: boolean;
