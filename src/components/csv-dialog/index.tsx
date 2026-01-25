@@ -121,11 +121,7 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
       className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md"
       onClick={handleBackdropClick}
     >
-      <div
-        className={`w-full max-w-lg rounded-md border p-2 shadow-2xl ${
-          isDark ? "glass-panel border-border" : "border-border bg-background"
-        }`}
-      >
+      <div className="dark:glass-panel w-full max-w-lg rounded-md border border-border bg-background p-2 shadow-2xl">
         <div className="flex items-center justify-between p-2">
           <div className="flex items-center gap-2">
             <FileText size={18} className="text-primary" />

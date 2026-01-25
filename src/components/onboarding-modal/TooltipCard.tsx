@@ -65,7 +65,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
   currentStep,
   totalSteps,
   targetRect,
-  isDark,
+  isDark: _isDark,
   isTransitioning,
   onNext,
   onBack,
@@ -78,21 +78,9 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
       className={`absolute z-10 transition-all duration-300 ${isTransitioning ? "scale-95 opacity-0" : "scale-100 opacity-100"}`}
       style={getTooltipStyle(targetRect, step)}
     >
-      <div
-        className={`rounded-xl border p-4 shadow-2xl backdrop-blur-xl ${
-          isDark
-            ? "border-white/10 bg-gray-900/95 text-white"
-            : "border-slate-200 bg-white/95 text-slate-900"
-        }`}
-      >
+      <div className="bg-popover text-popover-foreground rounded-xl border border-border p-4 shadow-2xl backdrop-blur-xl">
         <div className="mb-3 flex items-center gap-3">
-          <div
-            className={`rounded-md p-2 ${
-              isDark ? "bg-zinc-700 text-zinc-200" : "bg-zinc-200 text-zinc-700"
-            }`}
-          >
-            {step.icon}
-          </div>
+          <div className="rounded-md bg-muted p-2 text-muted-foreground">{step.icon}</div>
           <div className="flex-1">
             <h3 className="text-sm font-black">{step.title}</h3>
             <div className="mt-0.5 text-[10px] font-medium opacity-50">
@@ -114,11 +102,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
             <div
               key={idx}
               className={`h-1 flex-1 rounded-full transition-all ${
-                idx <= currentStep
-                  ? "bg-zinc-700 dark:bg-zinc-300"
-                  : isDark
-                    ? "bg-white/10"
-                    : "bg-slate-200"
+                idx <= currentStep ? "bg-foreground" : "bg-muted"
               }`}
             />
           ))}
@@ -128,11 +112,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
           {currentStep > 0 ? (
             <button
               onClick={onBack}
-              className={`flex items-center justify-center gap-1.5 rounded-md border px-4 py-2.5 text-sm font-medium transition-all ${
-                isDark
-                  ? "border-slate-700 bg-slate-800 hover:bg-slate-700"
-                  : "border-slate-200 bg-slate-50 hover:bg-slate-100"
-              }`}
+              className="flex items-center justify-center gap-1.5 rounded-md border border-border bg-secondary px-4 py-2.5 text-sm font-medium transition-all hover:bg-secondary/80"
             >
               <ChevronLeft size={16} />
               Back
@@ -162,7 +142,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
 
       {targetRect && (
         <div
-          className={`absolute h-3 w-3 rotate-45 ${isDark ? "bg-gray-900" : "bg-white"}`}
+          className="bg-popover absolute h-3 w-3 rotate-45"
           style={{
             ...(step.position === "top" && {
               bottom: -6,

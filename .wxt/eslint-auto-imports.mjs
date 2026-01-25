@@ -53,6 +53,7 @@ const globals = {
   "categorizeError": true,
   "clickElement": true,
   "clickNativeDownloadButton": true,
+  "cn": true,
   "constructFinalPrompt": true,
   "countExpandedPrompts": true,
   "createIframeUi": true,

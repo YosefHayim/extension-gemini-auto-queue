@@ -12,7 +12,7 @@ interface FormatOptionButtonProps {
 export const FormatOptionButton: React.FC<FormatOptionButtonProps> = ({
   option,
   isSelected,
-  isDark,
+  isDark: _isDark,
   onSelect,
 }) => {
   const Icon = option.icon;
@@ -23,21 +23,13 @@ export const FormatOptionButton: React.FC<FormatOptionButtonProps> = ({
       title={`Export as ${option.name}`}
       className={`group relative w-full rounded-lg border p-4 text-left transition-all duration-200 ${
         isSelected
-          ? isDark
-            ? "border-blue-500/50 bg-blue-500/10 shadow-lg shadow-blue-500/10"
-            : "border-blue-500/50 bg-blue-50 shadow-lg shadow-blue-500/10"
-          : isDark
-            ? "border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]"
-            : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
+          ? "border-primary/50 bg-primary/10 shadow-lg shadow-primary/10"
+          : "border-border bg-card hover:border-border/80 hover:bg-muted"
       }`}
     >
       <div
         className={`absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 transition-all ${
-          isSelected
-            ? "border-blue-500 bg-blue-500"
-            : isDark
-              ? "border-white/20 bg-transparent"
-              : "border-slate-300 bg-transparent"
+          isSelected ? "border-primary bg-primary" : "border-muted-foreground/30 bg-transparent"
         }`}
       >
         {isSelected && (
@@ -51,10 +43,8 @@ export const FormatOptionButton: React.FC<FormatOptionButtonProps> = ({
         <div
           className={`rounded-lg p-2 transition-colors ${
             isSelected
-              ? "bg-blue-500 text-white"
-              : isDark
-                ? "bg-white/5 text-white/60 group-hover:bg-white/10 group-hover:text-white/80"
-                : "bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-600"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground group-hover:bg-muted/80 group-hover:text-foreground"
           }`}
         >
           <Icon size={18} />
@@ -63,40 +53,20 @@ export const FormatOptionButton: React.FC<FormatOptionButtonProps> = ({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span
-              className={`font-bold ${
-                isSelected
-                  ? isDark
-                    ? "text-white"
-                    : "text-slate-900"
-                  : isDark
-                    ? "text-white/80"
-                    : "text-slate-700"
-              }`}
+              className={`font-bold ${isSelected ? "text-card-foreground" : "text-card-foreground/80"}`}
             >
               {option.name}
             </span>
             <span
               className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
-                isSelected
-                  ? "bg-blue-500/20 text-blue-400"
-                  : isDark
-                    ? "bg-white/5 text-white/40"
-                    : "bg-slate-100 text-slate-400"
+                isSelected ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
               }`}
             >
               {option.extension}
             </span>
           </div>
           <p
-            className={`mt-0.5 text-xs ${
-              isSelected
-                ? isDark
-                  ? "text-white/60"
-                  : "text-slate-600"
-                : isDark
-                  ? "text-white/40"
-                  : "text-slate-400"
-            }`}
+            className={`mt-0.5 text-xs ${isSelected ? "text-muted-foreground" : "text-muted-foreground/70"}`}
           >
             {option.description}
           </p>

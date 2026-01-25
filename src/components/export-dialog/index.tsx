@@ -4,11 +4,15 @@ import React, { useCallback, useEffect, useState } from "react";
 import { FORMAT_OPTIONS } from "./constants";
 import { FormatOptionButton } from "./FormatOptionButton";
 import { downloadExport } from "./utils";
-import { ExportDialogTokens } from "@/utils/designTokens";
 
 import type { ExportDialogProps, ExportFormat } from "./types";
 
-export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, queue, isDark }) => {
+export const ExportDialog: React.FC<ExportDialogProps> = ({
+  isOpen,
+  onClose,
+  queue,
+  isDark: _isDark,
+}) => {
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>("txt");
 
   const handleKeyDown = useCallback(
@@ -46,43 +50,27 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
       className="animate-in fade-in fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md duration-200"
       onClick={handleBackdropClick}
     >
-      <div
-        className={`animate-in zoom-in-95 w-full max-w-md rounded-lg border shadow-2xl duration-200 ${ExportDialogTokens.getDialogContainerClass(isDark)}`}
-      >
-        <div
-          className={`flex items-center justify-between border-b ${ExportDialogTokens.getHeaderDividerClass()} px-5 py-4`}
-        >
+      <div className="animate-in zoom-in-95 w-full max-w-md rounded-lg border border-border bg-card shadow-2xl duration-200">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div>
-            <h2
-              className={`text-base font-black tracking-tight ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
-            >
+            <h2 className="text-base font-black tracking-tight text-card-foreground">
               Export Queue
             </h2>
-            <p className={`mt-0.5 text-xs ${isDark ? "text-white/50" : "text-slate-500"}`}>
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Export {queue.length} {queue.length === 1 ? "item" : "items"}
             </p>
           </div>
           <button
             onClick={onClose}
             title="Close dialog"
-            className={`rounded-md p-2 transition-all ${
-              isDark
-                ? "text-white/60 hover:bg-white/10 hover:text-white"
-                : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-            }`}
+            className="rounded-md p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
           >
             <X size={18} />
           </button>
         </div>
 
         <div className="space-y-2 p-5">
-          <label
-            className={`mb-3 block text-[10px] font-bold uppercase tracking-widest ${
-              isDark ? "text-white/40" : "text-slate-400"
-            }`}
-          >
+          <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Select Format
           </label>
 
@@ -92,14 +80,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
                 key={option.id}
                 option={option}
                 isSelected={selectedFormat === option.id}
-                isDark={isDark}
+                isDark={false}
                 onSelect={() => setSelectedFormat(option.id)}
               />
             ))}
           </div>
         </div>
 
-        <div className={`border-t ${ExportDialogTokens.getFooterDividerClass()} px-5 py-4`}>
+        <div className="border-t border-border px-5 py-4">
           <button
             onClick={handleExport}
             disabled={queue.length === 0}
@@ -108,16 +96,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
                 ? "No items to export"
                 : `Export as ${selectedOption?.extension || ""}`
             }
-            className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${ExportDialogTokens.getExportButtonClass(isDark, queue.length === 0)}`}
+            className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all ${queue.length === 0 ? "cursor-not-allowed bg-muted text-muted-foreground" : "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"}`}
           >
             <Download size={18} />
             Export as {selectedOption?.extension || ""}
           </button>
 
           {queue.length === 0 && (
-            <p
-              className={`mt-2 text-center text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}
-            >
+            <p className="mt-2 text-center text-xs text-muted-foreground">
               Add items to the queue to enable export
             </p>
           )}

@@ -1,7 +1,14 @@
 import { Crown, Eye, EyeOff, ExternalLink, Key } from "lucide-react";
 import React, { useState } from "react";
+import { SiGoogle, SiOpenai, SiAnthropic } from "react-icons/si";
 
 import { AIProvider, AI_PROVIDER_INFO, GeminiModel, ThemeMode } from "@/types";
+
+const PROVIDER_ICONS: Record<AIProvider, React.ElementType> = {
+  [AIProvider.GEMINI]: SiGoogle,
+  [AIProvider.OPENAI]: SiOpenai,
+  [AIProvider.ANTHROPIC]: SiAnthropic,
+};
 
 import type { SettingsPanelProps } from "./types";
 
@@ -145,9 +152,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             const apiKey = settings.aiApiKeys?.[providerKey] ?? "";
             const isVisible = visibleKeys[providerKey];
 
+            const ProviderIcon = PROVIDER_ICONS[providerKey];
             return (
               <div key={provider} className="space-y-1.5">
-                <label className="text-sm font-normal text-foreground">
+                <label className="flex items-center gap-2 text-sm font-normal text-foreground">
+                  <ProviderIcon size={14} className="text-muted-foreground" />
                   {info.label}
                   {apiKey && <span className="ml-1.5 text-emerald-500">*</span>}
                 </label>

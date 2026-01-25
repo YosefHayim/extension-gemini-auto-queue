@@ -13,7 +13,10 @@ import { getMediaCounts } from "./types";
 
 import type { BulkDownloadButtonProps, DownloadMethod, DownloadState } from "./types";
 
-export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({ isDark, onToast }) => {
+export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({
+  isDark: _isDark,
+  onToast,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [downloadState, setDownloadState] = useState<DownloadState>({
@@ -112,22 +115,14 @@ export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({ isDark, 
         title="Bulk download all media from chat"
         className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition-all ${
           isExpanded
-            ? isDark
-              ? "bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30"
-              : "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
-            : isDark
-              ? "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800"
+            ? "bg-primary/20 text-primary ring-1 ring-primary/30"
+            : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
         }`}
       >
         {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
         <span>Bulk Download</span>
         {mediaCounts.totalCount > 0 && !isLoading && (
-          <span
-            className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-              isDark ? "bg-blue-500/30 text-blue-300" : "bg-blue-100 text-blue-600"
-            }`}
-          >
+          <span className="rounded-full bg-primary/30 px-1.5 py-0.5 text-[10px] font-bold text-primary">
             {mediaCounts.totalCount}
           </span>
         )}
@@ -135,7 +130,7 @@ export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({ isDark, 
 
       {isExpanded && (
         <DownloadPanel
-          isDark={isDark}
+          isDark={false}
           downloadState={downloadState}
           mediaCounts={mediaCounts}
           onClose={() => setIsExpanded(false)}

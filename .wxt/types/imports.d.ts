@@ -36,6 +36,7 @@ declare global {
   const categorizeError: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/retryStrategy')['categorizeError']
   const clickElement: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['clickElement']
   const clickNativeDownloadButton: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/mediaDownloader')['clickNativeDownloadButton']
+  const cn: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/index')['cn']
   const constructFinalPrompt: typeof import('/Applications/Github/extension-gemini-auto-queue/src/hooks/useQueue')['constructFinalPrompt']
   const countExpandedPrompts: typeof import('/Applications/Github/extension-gemini-auto-queue/src/utils/variableExpander')['countExpandedPrompts']
   const createIframeUi: typeof import('wxt/client')['createIframeUi']
