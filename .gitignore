@@ -35,3 +35,4 @@ node_modules/
 # Task files
 # tasks.json
 # tasks/ 
+client_secret*.json

@@ -1,5 +1,6 @@
-import type { AuthUser } from "@/backend/types";
 import { STORAGE_KEYS } from "@/backend/types";
+
+import type { AuthUser } from "@/backend/types";
 
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
