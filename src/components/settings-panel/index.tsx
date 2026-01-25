@@ -314,7 +314,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
       </div>
 
-      <div className={getSectionClasses(isDark)}>
+      <div className={getSectionClasses()}>
         <h3 className={labelClasses}>About</h3>
 
         <div className="space-y-0 border-t border-border">

@@ -23,7 +23,7 @@ export const InterfaceTab: React.FC<InterfaceTabProps> = ({
   isDark,
   onUpdateSettings,
 }) => {
-  const sectionClasses = getSectionClasses(isDark);
+  const sectionClasses = getSectionClasses();
 
   return (
     <div className="animate-in fade-in space-y-4 duration-200">
@@ -47,10 +47,8 @@ export const InterfaceTab: React.FC<InterfaceTabProps> = ({
               title={`Use ${label.toLowerCase()} theme${mode === ThemeMode.SYSTEM ? " (follows browser)" : ""}`}
               className={`flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-colors duration-150 ${
                 settings.theme === mode
-                  ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-500"
-                  : isDark
-                    ? "border-slate-700 bg-slate-800 text-slate-400 hover:text-slate-200"
-                    : "border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-700"
+                  ? "border-primary/50 bg-primary/10 text-primary"
+                  : "border-border bg-secondary text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon size={14} className={settings.theme === mode ? color : ""} />
@@ -74,7 +72,7 @@ export const InterfaceTab: React.FC<InterfaceTabProps> = ({
             title={
               settings.dripFeed ? "Disable random delays" : "Enable random delays between prompts"
             }
-            className={getToggleButtonClasses(settings.dripFeed || false, isDark)}
+            className={getToggleButtonClasses(settings.dripFeed || false)}
           >
             <div className={getToggleKnobClasses(settings.dripFeed || false)} />
           </button>
