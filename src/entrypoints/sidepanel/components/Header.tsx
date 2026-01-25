@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 
 import { UserAvatar } from "@/components/auth";
+
 import type { AuthUser } from "@/types";
 
 interface HeaderProps {

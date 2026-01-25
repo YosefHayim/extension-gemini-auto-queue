@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserInitials, signOut } from "@/services/authService";
+
 import type { AuthUser } from "@/types";
 
 interface UserAvatarProps {

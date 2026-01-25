@@ -1,5 +1,6 @@
-import type { AuthUser } from "@/types";
 import { STORAGE_KEYS } from "@/types";
+
+import type { AuthUser } from "@/types";
 
 const OAUTH_CONFIG = {
   clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "",
