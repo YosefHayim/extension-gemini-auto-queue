@@ -1,11 +1,7 @@
 import React from "react";
+import { ChevronDown, Play, Search, Settings2, SquareCheck, Timer } from "lucide-react";
 
-import { SearchFilter } from "../SearchFilter";
-
-import { EstimatedTime } from "./EstimatedTime";
-import { QueueActions } from "./QueueActions";
 import { QueueList } from "./QueueList";
-import { SelectionBar } from "./SelectionBar";
 
 import type { ContentType, GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
 
@@ -59,28 +55,28 @@ export const QueueContent: React.FC<QueueContentProps> = ({
   filteredQueue,
   isDark,
   searchText,
-  selectedToolFilters,
-  selectedModeFilters,
-  selectedContentFilters,
-  selectedStatusFilters,
+  selectedToolFilters: _selectedToolFilters,
+  selectedModeFilters: _selectedModeFilters,
+  selectedContentFilters: _selectedContentFilters,
+  selectedStatusFilters: _selectedStatusFilters,
   onSearchChange,
-  onToolsChange,
-  onModesChange,
-  onContentTypesChange,
-  onStatusesChange,
+  onToolsChange: _onToolsChange,
+  onModesChange: _onModesChange,
+  onContentTypesChange: _onContentTypesChange,
+  onStatusesChange: _onStatusesChange,
   selectedCount,
-  selectedPendingCount,
+  selectedPendingCount: _selectedPendingCount,
   onSelectAll,
   onClearSelection,
   estimatedTimeRemaining,
   pendingCount,
-  completedCount,
+  completedCount: _completedCount,
   onShowBulkActions,
-  onClearCompleted,
-  onOpenExport,
-  onClearAll,
-  onClearByFilter,
-  hasBulkActions,
+  onClearCompleted: _onClearCompleted,
+  onOpenExport: _onOpenExport,
+  onClearAll: _onClearAll,
+  onClearByFilter: _onClearByFilter,
+  hasBulkActions: _hasBulkActions,
   hasSelection,
   selectedIds,
   onRemoveFromQueue,
@@ -95,49 +91,91 @@ export const QueueContent: React.FC<QueueContentProps> = ({
   pendingStatus,
 }) => {
   return (
-    <>
-      <SearchFilter
-        searchText={searchText}
-        onSearchChange={onSearchChange}
-        selectedTools={selectedToolFilters}
-        onToolsChange={onToolsChange}
-        selectedModes={selectedModeFilters}
-        onModesChange={onModesChange}
-        selectedContentTypes={selectedContentFilters}
-        onContentTypesChange={onContentTypesChange}
-        selectedStatuses={selectedStatusFilters}
-        onStatusesChange={onStatusesChange}
-        isDark={isDark}
-        totalItems={queue.length}
-        filteredCount={filteredQueue.length}
-      />
+    <div className="flex h-full w-full flex-col">
+      <div className={`flex items-center justify-between border-b border-border px-4 py-3`}>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-foreground">Queue</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {queue.length}
+          </span>
+          {pendingCount > 0 && (
+            <div className="flex items-center gap-1.5 rounded bg-info/20 px-2.5 py-1 text-xs font-medium text-info">
+              <Timer size={12} />
+              {estimatedTimeRemaining || "calculating..."}
+            </div>
+          )}
+        </div>
 
-      <SelectionBar
-        selectedCount={selectedCount}
-        selectedPendingCount={selectedPendingCount}
-        onSelectAll={onSelectAll}
-        onClearSelection={onClearSelection}
-        isDark={isDark}
-      />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onSelectAll}
+            className="rounded bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80"
+          >
+            Select
+          </button>
+          <button
+            onClick={onShowBulkActions}
+            disabled={pendingCount === 0}
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              pendingCount === 0
+                ? "cursor-not-allowed bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
+          >
+            <Play size={14} />
+            Start
+          </button>
+        </div>
+      </div>
 
-      <EstimatedTime
-        estimatedTimeRemaining={estimatedTimeRemaining}
-        pendingCount={pendingCount}
-        isDark={isDark}
-      />
+      <div className="flex flex-col gap-2 border-b border-border px-3 py-2">
+        <div className="flex items-center gap-2">
+          <Search size={16} className="text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search prompts..."
+            value={searchText}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder-muted-foreground placeholder-opacity-60 outline-none"
+          />
+        </div>
 
-      <QueueActions
-        queue={queue}
-        pendingCount={pendingCount}
-        completedCount={completedCount}
-        isDark={isDark}
-        onShowBulkActions={onShowBulkActions}
-        onClearCompleted={onClearCompleted}
-        onOpenExport={onOpenExport}
-        onClearAll={onClearAll}
-        onClearByFilter={onClearByFilter}
-        hasBulkActions={hasBulkActions}
-      />
+        <div className="flex items-center gap-2">
+          <button className="flex flex-1 items-center justify-between gap-2 rounded border border-border bg-muted px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80">
+            <span>All Status</span>
+            <ChevronDown size={14} />
+          </button>
+          <button className="flex flex-1 items-center justify-between gap-2 rounded border border-border bg-muted px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80">
+            <span>All Models</span>
+            <ChevronDown size={14} />
+          </button>
+        </div>
+      </div>
+
+      {hasSelection && (
+        <div className="flex items-center justify-between bg-foreground px-4 py-2.5">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClearSelection}
+              className="flex h-5 w-5 items-center justify-center rounded border border-border transition-colors hover:bg-muted"
+            >
+              <SquareCheck size={16} className="text-primary-foreground" />
+            </button>
+            <span className="text-sm font-medium text-primary-foreground">
+              {selectedCount} selected
+            </span>
+          </div>
+
+          <button
+            onClick={onShowBulkActions}
+            className="flex items-center gap-1.5 rounded bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80"
+          >
+            <Settings2 size={14} />
+            Actions
+            <ChevronDown size={12} />
+          </button>
+        </div>
+      )}
 
       <QueueList
         queue={queue}
@@ -157,6 +195,6 @@ export const QueueContent: React.FC<QueueContentProps> = ({
         onToggleSelect={onToggleSelect}
         pendingStatus={pendingStatus}
       />
-    </>
+    </div>
   );
 };

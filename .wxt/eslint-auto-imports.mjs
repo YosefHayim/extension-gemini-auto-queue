@@ -45,7 +45,6 @@ const globals = {
   "SelectorKey": true,
   "SettingsPanel": true,
   "SettingsPanelProps": true,
-  "SettingsTab": true,
   "StatusBadge": true,
   "TOOL_SELECTORS": true,
   "TemplatesPanel": true,

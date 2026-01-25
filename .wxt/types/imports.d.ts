@@ -138,7 +138,7 @@ declare global {
   export type { SearchFilterProps } from '/Applications/Github/extension-gemini-auto-queue/src/components/SearchFilter'
   import('/Applications/Github/extension-gemini-auto-queue/src/components/SearchFilter')
   // @ts-ignore
-  export type { SettingsPanelProps, SettingsTab } from '/Applications/Github/extension-gemini-auto-queue/src/components/SettingsPanel'
+  export type { SettingsPanelProps } from '/Applications/Github/extension-gemini-auto-queue/src/components/SettingsPanel'
   import('/Applications/Github/extension-gemini-auto-queue/src/components/SettingsPanel')
   // @ts-ignore
   export type { TemplatesPanelProps } from '/Applications/Github/extension-gemini-auto-queue/src/components/TemplatesPanel'

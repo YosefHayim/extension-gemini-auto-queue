@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { Search, Folder, Plus } from "lucide-react";
 
 import { FolderBar } from "./FolderBar";
 import { FolderCreateDialog } from "./FolderCreateDialog";
@@ -22,6 +23,8 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   onImproveTemplate,
   onImproveFolder,
 }) => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   const {
     isCreatingFolder,
     setIsCreatingFolder,
@@ -53,9 +56,104 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
     onImproveFolder,
   });
 
+  const filteredFolders = useMemo(() => {
+    if (!searchQuery.trim()) return folders;
+    const query = searchQuery.toLowerCase();
+    return folders.filter(
+      (folder) =>
+        folder.name.toLowerCase().includes(query) ||
+        folder.templates.some((t) => t.text.toLowerCase().includes(query))
+    );
+  }, [folders, searchQuery]);
+
+  const recentTemplates = useMemo(() => {
+    const allTemplates = folders.flatMap((f) => f.templates.map((t) => ({ ...t, folderId: f.id })));
+    return allTemplates.slice(0, 5);
+  }, [folders]);
+
   return (
     <>
       <div className="flex h-full flex-col">
+        <div className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-2">
+          <Search size={16} className="text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 border-0 bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none"
+          />
+        </div>
+
+        {filteredFolders.length > 0 && (
+          <div className="flex flex-col gap-3 py-4">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-sm font-semibold text-foreground">Folders</h3>
+              <button
+                onClick={() => setIsCreatingFolder(true)}
+                className="flex items-center gap-1 text-xs font-medium text-info hover:text-info/80"
+              >
+                <Plus size={14} />
+                New Folder
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {filteredFolders.slice(0, 4).map((folder) => (
+                <button
+                  key={folder.id}
+                  onClick={() => setSelectedFolderId(folder.id)}
+                  className={`flex flex-col items-start gap-2 rounded-md border p-3 transition-colors ${
+                    selectedFolderId === folder.id
+                      ? "border-info bg-info/10"
+                      : "border-border hover:border-border/80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Folder size={16} className="text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">{folder.name}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {folder.templates.length} template
+                    {folder.templates.length !== 1 ? "s" : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {recentTemplates.length > 0 && (
+          <div className="flex flex-col gap-3 py-4">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-sm font-semibold text-foreground">Recent Templates</h3>
+              <button
+                onClick={() => {}}
+                className="text-xs font-medium text-info hover:text-info/80"
+              >
+                View All
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {recentTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  onClick={() => onUseTemplate(template.folderId, template.id)}
+                  className="truncate rounded px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted"
+                >
+                  <span className="text-muted-foreground">
+                    {template.text.substring(0, 50)}
+                    {template.text.length > 50 ? "..." : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="my-2 h-px bg-border" />
+
         <FolderBar
           folders={folders}
           selectedFolderId={selectedFolderId}
