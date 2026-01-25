@@ -168,7 +168,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             value={settings.prefix}
             onChange={(e) => onUpdateSettings({ prefix: e.target.value })}
             placeholder="Text to prepend to all prompts..."
-            className={inputClasses(isDark)}
+            className={inputClasses()}
           />
           <p className={descriptionClasses}>Added before every prompt</p>
         </div>
@@ -179,7 +179,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             value={settings.suffix}
             onChange={(e) => onUpdateSettings({ suffix: e.target.value })}
             placeholder="Text to append to all prompts..."
-            className={inputClasses(isDark)}
+            className={inputClasses()}
           />
           <p className={descriptionClasses}>Added after every prompt</p>
         </div>
@@ -191,7 +191,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               onClick={() =>
                 onUpdateSettings({ globalNegativesEnabled: !settings.globalNegativesEnabled })
               }
-              className={getToggleButtonClasses(settings.globalNegativesEnabled || false, isDark)}
+              className={getToggleButtonClasses(settings.globalNegativesEnabled || false)}
             >
               <div className={getToggleKnobClasses(settings.globalNegativesEnabled || false)} />
             </button>

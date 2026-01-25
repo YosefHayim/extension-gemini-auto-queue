@@ -20,7 +20,7 @@ interface FilterPanelProps {
   onContentTypeToggle: (type: ContentType) => void;
   selectedStatuses: QueueStatus[];
   onStatusToggle: (status: QueueStatus) => void;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
@@ -32,7 +32,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   onContentTypeToggle,
   selectedStatuses,
   onStatusToggle,
-  isDark,
 }) => {
   const allTools = Object.values(GeminiTool);
   const allModes = Object.values(GeminiMode);
@@ -121,11 +120,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       </div>
 
       <div className="mt-3">
-        <div
-          className={`mb-2 text-[10px] font-semibold uppercase tracking-wider ${
-            isDark ? "text-white/40" : "text-slate-500"
-          }`}
-        >
+        <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Filter by Status
         </div>
         <div className="flex flex-wrap gap-1.5">
