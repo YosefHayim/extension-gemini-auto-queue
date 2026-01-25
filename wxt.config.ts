@@ -1,12 +1,15 @@
 import { defineConfig } from "wxt";
 
 // OAuth Client ID - use environment variable or fallback to default
-// For dev: Create a Chrome Extension OAuth client in Google Cloud Console
-// and register your unpacked extension ID with it
-// For prod: Use the published extension's OAuth client ID
+// IMPORTANT: For Chrome Extension OAuth to work, you must:
+// 1. Get your unpacked extension ID from chrome://extensions/
+// 2. Edit the existing OAuth client in Google Cloud Console
+// 3. Add your unpacked extension ID to the "Application IDs" list
+// Note: Google may require the extension to be published for verification,
+// but you can still add multiple extension IDs to one OAuth client
 const GOOGLE_OAUTH_CLIENT_ID =
   process.env.GOOGLE_OAUTH_CLIENT_ID ||
-  "93413528149-h4ib3sng7loe4acd8ueaif6p501rn820.apps.googleusercontent.com";
+  "93413528149-bn5u1jet1gbq91kphgk7v52sie0hd7b2.apps.googleusercontent.com";
 
 export default defineConfig({
   srcDir: "src",
