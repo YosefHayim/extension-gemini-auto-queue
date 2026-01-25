@@ -114,18 +114,18 @@ export const CsvDialog: React.FC<CsvDialogProps> = ({ isOpen, isDark, onClose, o
     <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
       <div
         className={`w-full max-w-lg rounded-md border p-2 shadow-2xl ${
-          isDark ? "glass-panel border-white/10" : "border-slate-200 bg-white"
+          isDark ? "glass-panel border-border" : "border-border bg-background"
         }`}
       >
         <div className="flex items-center justify-between p-2">
           <div className="flex items-center gap-2">
-            <FileText size={18} className="text-blue-500" />
-            <h2 className="text-sm font-black">
+            <FileText size={18} className="text-primary" />
+            <h2 className="text-sm font-black text-foreground">
               {step === "upload" ? "Import Batch" : "Attach Images"}
             </h2>
           </div>
-          <button onClick={handleClose} className="rounded-md p-1 transition-all hover:bg-white/5">
-            <X size={18} />
+          <button onClick={handleClose} className="rounded-md p-1 transition-all hover:bg-muted">
+            <X size={18} className="text-muted-foreground" />
           </button>
         </div>
 

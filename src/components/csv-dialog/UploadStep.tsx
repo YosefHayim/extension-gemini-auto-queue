@@ -17,11 +17,11 @@ export const UploadStep: React.FC<UploadStepProps> = ({
   return (
     <div className="space-y-2 p-2">
       <div
-        className={`rounded-md border p-3 text-[10px] leading-relaxed ${
-          isDark ? "border-white/5 bg-white/5" : "border-slate-100 bg-slate-50"
+        className={`rounded-md border border-border p-3 text-[10px] leading-relaxed ${
+          isDark ? "bg-muted" : "bg-muted"
         }`}
       >
-        <div className="mb-2 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest opacity-60">
+        <div className="mb-2 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
           <Info size={10} /> CSV Format Guide
         </div>
         <div className="space-y-1.5">
@@ -45,11 +45,11 @@ export const UploadStep: React.FC<UploadStepProps> = ({
           </div>
         </div>
 
-        <div className="mt-3 space-y-1 border-t border-white/10 pt-2">
-          <div className="flex items-center gap-1.5 text-[9px] font-bold opacity-80">
+        <div className="mt-3 space-y-1 border-t border-border pt-2">
+          <div className="flex items-center gap-1.5 text-[9px] font-bold text-foreground">
             <Image size={10} /> Image Reference Options:
           </div>
-          <div className="ml-3 space-y-0.5 opacity-70">
+          <div className="ml-3 space-y-0.5 text-muted-foreground">
             <div className="flex items-center gap-1">
               <Link2 size={8} />
               <span>Cloud URL: https://example.com/image.jpg</span>
@@ -65,25 +65,21 @@ export const UploadStep: React.FC<UploadStepProps> = ({
           </div>
         </div>
 
-        <div className="mt-2 rounded bg-amber-500/10 p-1.5 text-[9px] text-amber-400">
+        <div className="mt-2 rounded bg-amber-500/10 p-1.5 text-[9px] text-amber-600 dark:text-amber-400">
           Tip: Use quotes for prompts with commas. Example: "A red, blue, green design"
         </div>
       </div>
 
       <button
         onClick={onDownloadTemplate}
-        className={`flex w-full items-center justify-center gap-2 rounded-md border p-2.5 text-xs font-black transition-all ${
-          isDark
-            ? "border-white/10 bg-white/5 hover:bg-white/10"
-            : "border-slate-200 bg-white hover:bg-slate-50"
-        }`}
+        className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-muted p-2.5 text-xs font-black text-foreground transition-all hover:bg-muted/80"
       >
         <Download size={16} /> Download Template CSV
       </button>
 
       <button
         onClick={() => csvInputRef.current?.click()}
-        className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 p-2.5 text-xs font-black text-white shadow-lg transition-all hover:bg-blue-500"
+        className="flex w-full items-center justify-center gap-2 rounded-md bg-primary p-2.5 text-xs font-black text-primary-foreground shadow-lg transition-all hover:bg-primary/90"
       >
         <Upload size={16} /> Upload CSV File
       </button>

@@ -63,13 +63,13 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
   return (
     <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/80 p-2 backdrop-blur-md">
       <div
-        className={`w-full max-w-xl rounded-md border p-2 shadow-2xl ${isDark ? "glass-panel border-white/10" : "border-slate-200 bg-white"}`}
+        className={`w-full max-w-xl rounded-md border p-2 shadow-2xl ${isDark ? "glass-panel" : "border-border bg-card"}`}
       >
         <div className="flex items-center justify-between p-2">
           <h2 className="text-sm font-black">
             {editingTemplate.template.createdAt ? "Refine Prompt" : "New Library Entry"}
           </h2>
-          <button onClick={onClose} title="Close" className="rounded-md p-1 hover:bg-white/5">
+          <button onClick={onClose} title="Close" className="rounded-md p-1 hover:bg-secondary/50">
             <X size={18} />
           </button>
         </div>
@@ -88,7 +88,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               onKeyDown={(e) => e.key === "Enter" && onSave()}
               placeholder="e.g. Dreamy Portrait"
               className={`w-full rounded-md border p-2 text-xs font-bold outline-none ${
-                isDark ? "border-white/10 bg-black/40" : "border-slate-200 bg-slate-50"
+                isDark ? "border-border bg-secondary/20" : "border-border bg-secondary"
               }`}
             />
           </div>
@@ -107,7 +107,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               }}
               placeholder="Add instructions..."
               className={`min-h-[100px] w-full rounded-md border p-2 text-xs outline-none ${
-                isDark ? "border-white/10 bg-black/40" : "border-slate-200 bg-slate-50"
+                isDark ? "border-border bg-secondary/20" : "border-border bg-secondary"
               }`}
             />
           </div>
@@ -118,8 +118,8 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
               onClick={() => templateImageInputRef.current?.click()}
               className={`flex min-h-[80px] cursor-pointer flex-wrap items-center justify-center gap-1 rounded-md border-2 border-dashed p-2 transition-all ${
                 isDark
-                  ? "border-white/10 bg-white/5 hover:border-blue-500/50"
-                  : "border-slate-200 bg-slate-50 hover:border-blue-500/50"
+                  ? "border-border bg-secondary/20 hover:border-info/50"
+                  : "border-border bg-secondary hover:border-info/50"
               }`}
             >
               <input
@@ -146,13 +146,13 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
                   >
                     <img
                       src={img}
-                      className="h-12 w-12 rounded-md border border-white/10 object-cover shadow-md"
+                      className="h-12 w-12 rounded-md border border-border object-cover shadow-md"
                       alt="ref"
                     />
                     <button
                       onClick={() => handleRemoveImage(idx)}
                       title="Remove image"
-                      className="absolute -right-1.5 -top-1.5 scale-75 rounded-md bg-red-600 p-1 text-white shadow-lg transition-transform hover:scale-100"
+                      className="absolute -right-1.5 -top-1.5 scale-75 rounded-md bg-destructive p-1 text-destructive-foreground shadow-lg transition-transform hover:scale-100"
                     >
                       <X size={8} />
                     </button>
@@ -165,7 +165,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
           <button
             onClick={onSave}
             title="Save template"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 p-2 text-xs font-black text-white shadow-lg hover:bg-blue-500"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-info p-2 text-xs font-black text-info-foreground shadow-lg hover:bg-info/90"
           >
             <Save size={14} /> Save Template
           </button>

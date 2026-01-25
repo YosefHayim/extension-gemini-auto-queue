@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { FORMAT_OPTIONS } from "./constants";
 import { FormatOptionButton } from "./FormatOptionButton";
 import { downloadExport } from "./utils";
+import { ExportDialogTokens } from "@/utils/designTokens";
 
 import type { ExportDialogProps, ExportFormat } from "./types";
 
@@ -46,13 +47,11 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
       onClick={handleBackdropClick}
     >
       <div
-        className={`animate-in zoom-in-95 w-full max-w-md rounded-xl border shadow-2xl duration-200 ${
-          isDark
-            ? "border-white/10 bg-gradient-to-b from-slate-900 to-slate-950"
-            : "border-slate-200 bg-gradient-to-b from-white to-slate-50"
-        }`}
+        className={`animate-in zoom-in-95 w-full max-w-md rounded-xl border shadow-2xl duration-200 ${ExportDialogTokens.getDialogContainerClass(isDark)}`}
       >
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+        <div
+          className={`flex items-center justify-between border-b ${ExportDialogTokens.getHeaderDividerClass()} px-5 py-4`}
+        >
           <div>
             <h2
               className={`text-base font-black tracking-tight ${
