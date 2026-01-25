@@ -5,6 +5,7 @@ export interface SortableQueueItemProps {
   item: QueueItem;
   isDark: boolean;
   searchText?: string;
+  queueNumber: number;
   onRemove: (id: string) => void;
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;
@@ -49,7 +50,6 @@ export interface QueuePanelProps {
   onModeChange?: (mode: GeminiMode) => void;
   onBulkAttachImages?: (images: string[], selectedIds?: string[]) => void;
   onBulkAIOptimize?: (instructions: string, selectedIds?: string[]) => Promise<void>;
-  onOpenAIOptimization?: () => void;
   onBulkModify?: (text: string, position: "prepend" | "append", selectedIds?: string[]) => void;
   onBulkReset?: (filter: ResetFilter, selectedIds?: string[]) => void;
   onBulkRemoveText?: (text: string, selectedIds?: string[]) => void;
@@ -66,6 +66,11 @@ export interface QueuePanelProps {
   ) => Promise<void>;
   onClearCompleted?: () => void;
   onOpenExport?: () => void;
+  onBulkShuffle?: (selectedIds?: string[]) => void;
+  onBulkMoveToTop?: (selectedIds?: string[]) => void;
+  onBulkRetryFailed?: (selectedIds?: string[]) => void;
+  onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;
+  onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
 }
 
 export interface TextSelection {

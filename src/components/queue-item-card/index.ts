@@ -1,6 +1,7 @@
 export { QueueItemCard, default } from "./QueueItemCard";
 export { ActionButtons } from "./ActionButtons";
 export { AddImageMenu } from "./AddImageMenu";
+export { CardFooter } from "./CardFooter";
 export { DragHandle } from "./DragHandle";
 export { EditModeForm } from "./EditModeForm";
 export { HighlightedText } from "./HighlightedText";

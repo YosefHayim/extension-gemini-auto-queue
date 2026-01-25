@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 
-import { AIOptimizationDialog } from "@/components/AIOptimizationDialog";
-import { ApiKeyDialog } from "@/components/ApiKeyDialog";
-import { BulkDownloadDialog } from "@/components/BulkDownloadDialog";
 import { CsvDialog } from "@/components/CsvDialog";
 import { ExportDialog } from "@/components/ExportDialog";
 import { Footer } from "@/components/Footer";
@@ -60,11 +57,8 @@ export default function App() {
   const [activeTimer, setActiveTimer] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCsvDialog, setShowCsvDialog] = useState(false);
-  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [showBulkDownloadDialog, setShowBulkDownloadDialog] = useState(false);
-  const [showAIOptimizationDialog, setShowAIOptimizationDialog] = useState(false);
 
   const [systemPrefersDark, setSystemPrefersDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -203,6 +197,11 @@ export default function App() {
     handleBulkModify,
     handleBulkRemoveText,
     handleBulkRemoveFiles,
+    handleBulkShuffle,
+    handleBulkMoveToTop,
+    handleBulkRetryFailed,
+    handleBulkChangeTool,
+    handleBulkChangeMode,
   } = useBulkModifyActions({
     queue,
     setQueueState,
@@ -226,7 +225,7 @@ export default function App() {
     sendMessage,
   });
 
-  const { handleUpdateSettings, handleSaveApiKey } = useSettingsHandlers({
+  const { handleUpdateSettings } = useSettingsHandlers({
     settings,
     setSettingsState,
   });
@@ -303,46 +302,11 @@ export default function App() {
         }}
       />
 
-      <ApiKeyDialog
-        isOpen={showApiKeyDialog}
-        isDark={isDark}
-        currentKey={settings.aiApiKeys.gemini}
-        onClose={() => setShowApiKeyDialog(false)}
-        onSave={(key) => {
-          handleSaveApiKey(key).catch(() => {});
-        }}
-      />
-
       <ExportDialog
         isOpen={showExportDialog}
         onClose={() => setShowExportDialog(false)}
         queue={queue}
         isDark={isDark}
-      />
-
-      <BulkDownloadDialog
-        isOpen={showBulkDownloadDialog}
-        onClose={() => setShowBulkDownloadDialog(false)}
-        queue={queue}
-        isDark={isDark}
-        onToast={(message, type) => {
-          if (type === "success") toast.success(message);
-          else if (type === "error") toast.error(message);
-          else toast.info(message);
-        }}
-      />
-
-      <AIOptimizationDialog
-        isOpen={showAIOptimizationDialog}
-        onClose={() => setShowAIOptimizationDialog(false)}
-        isDark={isDark}
-        hasApiKey={hasAnyAIKey(settings)}
-        pendingCount={queue.filter((item) => item.status === QueueStatus.Pending).length}
-        pendingItems={queue.filter((item) => item.status === QueueStatus.Pending)}
-        onOptimize={(instructions, persona) => {
-          setShowAIOptimizationDialog(false);
-          handleBulkAIOptimize(`${instructions}\nPersona: ${persona}`).catch(() => {});
-        }}
       />
 
       <Header
@@ -377,7 +341,6 @@ export default function App() {
               onUpdateItemImages={handleUpdateItemImages}
               onBulkAttachImages={handleBulkAttachImages}
               onBulkAIOptimize={handleBulkAIOptimize}
-              onOpenAIOptimization={() => setShowAIOptimizationDialog(true)}
               onBulkModify={handleBulkModify}
               onBulkReset={handleBulkReset}
               onBulkRemoveText={handleBulkRemoveText}
@@ -388,6 +351,11 @@ export default function App() {
                 handleClearCompleted().catch(() => {});
               }}
               onOpenExport={() => setShowExportDialog(true)}
+              onBulkShuffle={handleBulkShuffle}
+              onBulkMoveToTop={handleBulkMoveToTop}
+              onBulkRetryFailed={handleBulkRetryFailed}
+              onBulkChangeTool={handleBulkChangeTool}
+              onBulkChangeMode={handleBulkChangeMode}
             />
           </div>
         )}
@@ -440,7 +408,6 @@ export default function App() {
         onToggleProcessing={() => {
           toggleProcessing().catch(() => {});
         }}
-        onOpenBulkDownload={() => setShowBulkDownloadDialog(true)}
       />
 
       <Footer isDark={isDark} />

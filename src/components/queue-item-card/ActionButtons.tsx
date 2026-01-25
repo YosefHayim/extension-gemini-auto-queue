@@ -31,7 +31,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 }) => {
   return (
     <div
-      className={`flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 ${isEditing ? "hidden" : ""}`}
+      className={`flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 ${isEditing ? "hidden" : ""}`}
     >
       {(isPending || isFailed) && onRunSingle && (
         <button
@@ -40,7 +40,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             onRunSingle(itemId);
           }}
           title="Run this prompt now"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-primary transition-colors hover:bg-primary/10"
+          className="flex items-center justify-center rounded p-1 text-primary transition-colors hover:bg-primary/10"
         >
           <Play size={14} fill="currentColor" />
         </button>
@@ -53,7 +53,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             onEdit(itemId, originalPrompt);
           }}
           title="Edit prompt"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
+          className="flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted"
         >
           <Pencil size={14} />
         </button>
@@ -65,7 +65,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           onDuplicate(itemId);
         }}
         title="Duplicate this prompt"
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
+        className="flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted"
       >
         <Copy size={14} />
       </button>
@@ -76,7 +76,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           onDuplicateWithAI(itemId);
         }}
         title="Duplicate and enhance with AI"
-        className="flex h-7 w-7 items-center justify-center rounded-md bg-info/10 text-info transition-colors hover:bg-info/20"
+        className="flex items-center justify-center rounded bg-[#DBEAFE] p-1 text-[#3B82F6] transition-colors hover:bg-[#DBEAFE]/80"
       >
         <Wand2 size={14} />
       </button>
@@ -88,7 +88,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
             onRetry(itemId);
           }}
           title="Retry this prompt"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-info transition-colors hover:bg-info/10"
+          className="flex items-center justify-center rounded p-1 text-info transition-colors hover:bg-info/10"
         >
           <RefreshCw size={14} />
         </button>
@@ -100,7 +100,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
           onRemove(itemId);
         }}
         title="Remove from queue"
-        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
+        className="flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted"
       >
         <Trash2 size={14} />
       </button>

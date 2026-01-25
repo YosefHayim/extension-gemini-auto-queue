@@ -16,28 +16,21 @@ import {
 
 interface GenerationTabProps {
   settings: AppSettings;
-  isDark: boolean;
+  isDark?: boolean;
   onUpdateSettings: (updates: Partial<AppSettings>) => void;
 }
 
-export const GenerationTab: React.FC<GenerationTabProps> = ({
-  settings,
-  isDark,
-  onUpdateSettings,
-}) => {
-  const sectionClasses = getSectionClasses(isDark);
-  const inputClasses = getInputClasses(isDark);
-  const selectClasses = getSelectClasses(isDark);
+export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdateSettings }) => {
+  const sectionClasses = getSectionClasses();
+  const inputClasses = getInputClasses();
+  const selectClasses = getSelectClasses();
 
   return (
     <div className="animate-in fade-in space-y-4 duration-200">
       <div data-onboarding="model-selector" className={sectionClasses}>
         <label className={labelClasses}>
           Active Synthesis Model
-          <Tooltip
-            text="Flash 2.0 is faster, Imagen 3 produces higher quality images"
-            isDark={isDark}
-          />
+          <Tooltip text="Flash 2.0 is faster, Imagen 3 produces higher quality images" />
         </label>
         <select
           value={settings.primaryModel}
@@ -54,10 +47,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
       <div className={sectionClasses}>
         <label className={labelClasses}>
           Default Tool
-          <Tooltip
-            text="The Gemini tool to use for new prompts (Image, Video, Canvas, etc.)"
-            isDark={isDark}
-          />
+          <Tooltip text="The Gemini tool to use for new prompts (Image, Video, Canvas, etc.)" />
         </label>
         <select
           value={settings.defaultTool || GeminiTool.IMAGE}
@@ -78,33 +68,26 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
         <div className="mb-2 flex items-center justify-between px-1">
           <label className={labelClasses}>
             Tool Sequence
-            <Tooltip
-              text="Cycle through different tools for each prompt (e.g., Image -> Video -> Canvas -> repeat)"
-              isDark={isDark}
-            />
+            <Tooltip text="Cycle through different tools for each prompt (e.g., Image -> Video -> Canvas -> repeat)" />
           </label>
           <button
             onClick={() => onUpdateSettings({ useToolSequence: !settings.useToolSequence })}
             title={
               settings.useToolSequence ? "Disable tool sequence" : "Enable tool sequence cycling"
             }
-            className={getToggleButtonClasses(settings.useToolSequence || false, isDark)}
+            className={getToggleButtonClasses(settings.useToolSequence || false)}
           >
             <div className={getToggleKnobClasses(settings.useToolSequence || false)} />
           </button>
         </div>
 
         <div
-          className={`flex min-h-[44px] flex-wrap gap-1.5 rounded-lg border p-2.5 transition-opacity duration-150 ${
-            isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
-          } ${!settings.useToolSequence ? "opacity-40" : ""}`}
+          className={`flex min-h-[44px] flex-wrap gap-1.5 rounded-lg border border-border bg-background p-2.5 transition-opacity duration-150 ${!settings.useToolSequence ? "opacity-40" : ""}`}
         >
           {(settings.toolSequence ?? []).map((tool, idx) => (
             <div
               key={idx}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
-                isDark ? "bg-indigo-500/20 text-indigo-400" : "bg-indigo-100 text-indigo-600"
-              }`}
+              className="flex items-center gap-1.5 rounded-lg bg-primary/20 px-2.5 py-1.5 text-xs font-medium text-primary"
             >
               <span>
                 {GEMINI_TOOL_INFO[tool] && "icon" in GEMINI_TOOL_INFO[tool]
@@ -122,7 +105,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
                     });
                   }}
                   title="Remove from sequence"
-                  className="ml-0.5 text-slate-400 transition-colors duration-150 hover:text-slate-200"
+                  className="ml-0.5 text-muted-foreground transition-colors duration-150 hover:text-foreground"
                 >
                   <X size={12} />
                 </button>
@@ -130,7 +113,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
             </div>
           ))}
           {(settings.toolSequence ?? []).length === 0 && (
-            <span className="text-xs text-slate-400">No tools in sequence</span>
+            <span className="text-xs text-muted-foreground">No tools in sequence</span>
           )}
         </div>
 
@@ -147,11 +130,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
                     });
                   }}
                   title={`Add ${info.label} to sequence`}
-                  className={`min-h-[44px] rounded-lg px-3 py-2 text-xs font-medium transition-colors duration-150 ${
-                    isDark
-                      ? "border border-slate-700 bg-slate-800 hover:bg-slate-700"
-                      : "bg-slate-100 hover:bg-slate-200"
-                  }`}
+                  className="min-h-[44px] rounded-lg border border-border bg-secondary px-3 py-2 text-xs font-medium transition-colors duration-150 hover:bg-muted"
                 >
                   {React.createElement(info.icon, { size: 16 })}
                 </button>
@@ -163,10 +142,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
       <div className={sectionClasses}>
         <label className={labelClasses}>
           Global Prefix
-          <Tooltip
-            text="Text automatically added before every prompt (e.g., 'High quality, detailed')"
-            isDark={isDark}
-          />
+          <Tooltip text="Text automatically added before every prompt (e.g., 'High quality, detailed')" />
         </label>
         <input
           value={settings.prefix}
@@ -179,10 +155,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
       <div className={sectionClasses}>
         <label className={labelClasses}>
           Global Suffix
-          <Tooltip
-            text="Text automatically added after every prompt (e.g., '4K resolution, cinematic')"
-            isDark={isDark}
-          />
+          <Tooltip text="Text automatically added after every prompt (e.g., '4K resolution, cinematic')" />
         </label>
         <input
           value={settings.suffix}
@@ -196,10 +169,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
         <div className="mb-2 flex items-center justify-between px-1">
           <label className={labelClasses}>
             Negative Prompts
-            <Tooltip
-              text="Elements to avoid in images: blurry, extra fingers, watermarks, etc."
-              isDark={isDark}
-            />
+            <Tooltip text="Elements to avoid in images: blurry, extra fingers, watermarks, etc." />
           </label>
           <button
             onClick={() =>
@@ -210,7 +180,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
                 ? "Disable negative prompts"
                 : "Enable negative prompts"
             }
-            className={getToggleButtonClasses(settings.globalNegativesEnabled || false, isDark)}
+            className={getToggleButtonClasses(settings.globalNegativesEnabled || false)}
           >
             <div className={getToggleKnobClasses(settings.globalNegativesEnabled || false)} />
           </button>
@@ -220,11 +190,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({
           onChange={(e) => onUpdateSettings({ globalNegatives: e.target.value })}
           placeholder="Things to avoid in all generations..."
           disabled={!settings.globalNegativesEnabled}
-          className={`min-h-[80px] w-full rounded-lg border p-3 text-xs outline-none transition-all duration-150 ${
-            isDark
-              ? "border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
-              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-          } ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
+          className={`min-h-[80px] w-full rounded-lg border border-border bg-background p-3 text-xs text-foreground outline-none transition-all duration-150 placeholder:text-muted-foreground ${!settings.globalNegativesEnabled ? "opacity-40" : ""}`}
         />
       </div>
     </div>

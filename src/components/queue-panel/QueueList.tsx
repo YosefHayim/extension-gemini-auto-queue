@@ -82,39 +82,43 @@ export const QueueList: React.FC<QueueListProps> = ({
         strategy={verticalListSortingStrategy}
       >
         <div className="space-y-2">
-          {filteredQueue.map((item) => (
-            <SortableQueueItem
-              key={item.id}
-              item={item}
-              isDark={isDark}
-              searchText={searchText}
-              onRemove={onRemoveFromQueue}
-              onRetry={onRetryQueueItem}
-              onDuplicate={onDuplicateItem}
-              onDuplicateWithAI={onDuplicateWithAI}
-              onEdit={
-                onEditItem
-                  ? (id, prompt) => {
-                      const queueItem = queue.find((i) => i.id === id);
-                      if (prompt === queueItem?.originalPrompt && editingItemId !== id) {
-                        setEditingItemId(id);
-                      } else {
-                        if (queueItem && prompt !== queueItem.originalPrompt) {
-                          onEditItem(id, prompt);
+          {filteredQueue.map((item) => {
+            const queueNumber = queue.findIndex((q) => q.id === item.id) + 1;
+            return (
+              <SortableQueueItem
+                key={item.id}
+                item={item}
+                isDark={isDark}
+                searchText={searchText}
+                queueNumber={queueNumber}
+                onRemove={onRemoveFromQueue}
+                onRetry={onRetryQueueItem}
+                onDuplicate={onDuplicateItem}
+                onDuplicateWithAI={onDuplicateWithAI}
+                onEdit={
+                  onEditItem
+                    ? (id, prompt) => {
+                        const queueItem = queue.find((i) => i.id === id);
+                        if (prompt === queueItem?.originalPrompt && editingItemId !== id) {
+                          setEditingItemId(id);
+                        } else {
+                          if (queueItem && prompt !== queueItem.originalPrompt) {
+                            onEditItem(id, prompt);
+                          }
+                          setEditingItemId(null);
                         }
-                        setEditingItemId(null);
                       }
-                    }
-                  : undefined
-              }
-              onRunSingle={onRunSingleItem}
-              onUpdateImages={onUpdateItemImages}
-              isEditing={editingItemId === item.id}
-              isSelected={selectedIds.has(item.id)}
-              onToggleSelect={onToggleSelect}
-              showCheckbox={hasSelection || item.status === pendingStatus}
-            />
-          ))}
+                    : undefined
+                }
+                onRunSingle={onRunSingleItem}
+                onUpdateImages={onUpdateItemImages}
+                isEditing={editingItemId === item.id}
+                isSelected={selectedIds.has(item.id)}
+                onToggleSelect={onToggleSelect}
+                showCheckbox={hasSelection || item.status === pendingStatus}
+              />
+            );
+          })}
         </div>
       </SortableContext>
     </DndContext>

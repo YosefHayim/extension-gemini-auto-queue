@@ -169,7 +169,7 @@ export const TemplateEditDialog: React.FC<TemplateEditDialogProps> = ({
           <button
             onClick={onSave}
             title="Save template"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg hover:bg-emerald-600"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg hover:bg-primary/90"
           >
             <Save size={14} /> Save Template
           </button>

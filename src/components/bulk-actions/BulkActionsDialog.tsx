@@ -1,31 +1,137 @@
 import React from "react";
 import {
-  Copy,
-  FileUp,
-  Pencil,
-  RotateCcw,
-  Trash2,
-  Download,
-  Zap,
-  Image,
+  ArrowUpToLine,
   ChevronRight,
+  ClipboardCopy,
+  Copy,
+  Cpu,
+  FileSpreadsheet,
+  ImageMinus,
+  ImagePlus,
+  Languages,
+  MinusCircle,
+  Palette,
+  RefreshCw,
+  Replace,
+  RotateCcw,
+  Shuffle,
+  Sparkles,
+  TextCursorInput,
+  Trash2,
+  Wand2,
+  X,
+  BookmarkPlus,
 } from "lucide-react";
 
 import { DialogShell } from "./DialogShell";
 import { buildResetFilter, readFilesAsBase64 } from "./handlers";
-import { SubmitButton } from "./SubmitButton";
 import { useBulkActionsState } from "./useBulkActionsState";
 
 import type { BulkActionsDialogProps, BulkActionType } from "./types";
 
+// Design tokens from .pen file
+const DESIGN = {
+  colors: {
+    foreground: "#0D0D0D",
+    mutedForeground: "#71717A",
+    muted: "#F4F4F5",
+    border: "#E4E4E7",
+    background: "#FFFFFF",
+    card: "#FFFFFF",
+    // AI Tools special colors
+    aiBlue: "#DBEAFE",
+    aiBlueText: "#3B82F6",
+    aiPurple: "#F3E8FF",
+    aiGreen: "#D1FAE5",
+    // Danger Zone
+    dangerRed: "#DC2626",
+    dangerBg: "#FEF2F2",
+    dangerIconBg: "#FEE2E2",
+  },
+  spacing: {
+    actionPadding: "py-2 px-2.5", // [8, 10]
+    iconTextGap: "gap-2.5", // 10px
+    sectionGap: "gap-1.5", // 6px
+    actionGap: "gap-0.5", // 2px
+    contentPadding: "p-3", // 12px
+    contentGap: "gap-4", // 16px between sections
+    headerPadding: "p-4", // 16px
+  },
+  typography: {
+    dialogTitle: "text-base font-semibold", // 16px, 600
+    dialogSubtitle: "text-[13px] font-normal", // 13px, normal
+    sectionHeader: "text-[11px] font-semibold uppercase tracking-wide", // 11px, 600
+    actionLabel: "text-[13px] font-medium", // 13px, 500
+  },
+  sizes: {
+    iconContainer: "h-7 w-7", // 28x28
+    icon: 14, // 14x14
+    chevron: 14, // 14x14
+    closeIcon: 16, // 16x16
+  },
+  radius: {
+    sm: "rounded", // 4px
+    md: "rounded-md", // 6px
+    lg: "rounded-lg", // 8px
+  },
+} as const;
+
 interface ActionItem {
-  id: BulkActionType;
-  icon: React.ReactNode;
+  id:
+    | BulkActionType
+    | "shuffle"
+    | "moveTop"
+    | "retryFailed"
+    | "prefix"
+    | "findReplace"
+    | "negative"
+    | "stylePreset"
+    | "variations"
+    | "translate"
+    | "attachImages"
+    | "removeImages"
+    | "changeTool"
+    | "changeModel"
+    | "exportCsv"
+    | "copyClipboard"
+    | "saveTemplates"
+    | "delete";
+  icon: React.ElementType;
   label: string;
-  description?: string;
-  badge?: React.ReactNode;
+  hasChevron?: boolean;
+  iconBg?: string;
+  iconColor?: string;
+  badge?: { text: string; bg: string; color: string };
+}
+
+interface ActionSection {
+  title: string;
+  titleColor?: string;
+  actions: ActionItem[];
   isDanger?: boolean;
 }
+
+// Icon container component matching design exactly
+const ActionIconContainer: React.FC<{
+  icon: React.ElementType;
+  bg?: string;
+  color?: string;
+  isDanger?: boolean;
+}> = ({ icon: Icon, bg, color, isDanger }) => (
+  <div
+    className={`${DESIGN.sizes.iconContainer} ${DESIGN.radius.sm} flex flex-shrink-0 items-center justify-center`}
+    style={{
+      backgroundColor: isDanger ? DESIGN.colors.dangerIconBg : (bg ?? DESIGN.colors.muted),
+    }}
+  >
+    <Icon
+      size={DESIGN.sizes.icon}
+      style={{
+        color: isDanger ? DESIGN.colors.dangerRed : (color ?? DESIGN.colors.mutedForeground),
+      }}
+    />
+  </div>
+);
 
 export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   isOpen,
@@ -37,7 +143,6 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   pendingItems,
   onBulkAttach,
   onBulkAIOptimize,
-  onOpenAIOptimization,
   onBulkModify,
   onBulkReset,
   onCopyAllPrompts,
@@ -45,6 +150,11 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   onBulkRemoveFiles,
   onScanChatMedia,
   onDownloadChatMedia,
+  onBulkShuffle,
+  onBulkMoveToTop,
+  onBulkRetryFailed,
+  onBulkChangeTool: _onBulkChangeTool,
+  onBulkChangeMode: _onBulkChangeMode,
 }) => {
   const state = useBulkActionsState({
     pendingItems,
@@ -114,215 +224,307 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
     }
   };
 
-  const handleActionSelect = (type: Exclude<BulkActionType, null>) => {
-    if (type === "ai" && onOpenAIOptimization) {
-      handleClose();
-      onOpenAIOptimization();
-    } else {
-      state.setActiveAction(type);
+  const handleActionClick = (actionId: string) => {
+    if (actionId === "copyClipboard" || actionId === "copy") {
+      handleCopyAll();
+      return;
+    }
+
+    if (actionId === "shuffle" && onBulkShuffle) {
+      onBulkShuffle();
+      return;
+    }
+
+    if (actionId === "moveTop" && onBulkMoveToTop) {
+      onBulkMoveToTop();
+      return;
+    }
+
+    if (actionId === "retryFailed" && onBulkRetryFailed) {
+      onBulkRetryFailed();
+      return;
+    }
+
+    const actionMap: Record<string, BulkActionType> = {
+      reset: "reset",
+      prefix: "modify",
+      findReplace: "modify",
+      negative: "modify",
+      stylePreset: null,
+      ai: "ai",
+      variations: null,
+      translate: null,
+      attachImages: "attach",
+      attach: "attach",
+      removeImages: "removeFiles",
+      removeFiles: "removeFiles",
+      changeTool: null,
+      changeModel: null,
+      exportCsv: null,
+      saveTemplates: null,
+      delete: "reset",
+    };
+
+    const mappedAction = actionMap[actionId];
+    if (mappedAction) {
+      state.setActiveAction(mappedAction);
     }
   };
 
-  // TODO: Implement action panel UI for each action type
-  // TODO: Add form inputs for modify, reset, removeText actions
-  // TODO: Add file picker UI for attach action
-  // TODO: Add image preview for removeFiles action
-
-  const queueActions: ActionItem[] = [
+  // Define sections matching the design exactly
+  const sections: ActionSection[] = [
     {
-      id: "attach",
-      icon: <FileUp className="h-7 w-7" />,
-      label: "Attach Files",
+      title: "Queue Management",
+      actions: [
+        { id: "shuffle", icon: Shuffle, label: "Shuffle Order" },
+        { id: "moveTop", icon: ArrowUpToLine, label: "Move to Top" },
+        { id: "retryFailed", icon: RotateCcw, label: "Retry Failed" },
+        { id: "reset", icon: RefreshCw, label: "Reset Status" },
+      ],
     },
     {
-      id: "copy",
-      icon: <Copy className="h-7 w-7" />,
-      label: "Copy All Prompts",
-    },
-  ];
-
-  const promptActions: ActionItem[] = [
-    {
-      id: "modify",
-      icon: <Pencil className="h-7 w-7" />,
-      label: "Modify Text",
+      title: "Prompt Editing",
+      actions: [
+        { id: "prefix", icon: TextCursorInput, label: "Add Prefix/Suffix", hasChevron: true },
+        { id: "findReplace", icon: Replace, label: "Find & Replace", hasChevron: true },
+        { id: "negative", icon: MinusCircle, label: "Add Negative Prompts", hasChevron: true },
+        { id: "stylePreset", icon: Palette, label: "Apply Style Preset", hasChevron: true },
+      ],
     },
     {
-      id: "removeText",
-      icon: <Trash2 className="h-7 w-7" />,
-      label: "Remove Text",
+      title: "AI Tools",
+      actions: [
+        {
+          id: "ai",
+          icon: Sparkles,
+          label: "AI Optimize",
+          iconBg: DESIGN.colors.aiBlue,
+          badge: { text: "Pro", bg: DESIGN.colors.aiBlue, color: DESIGN.colors.aiBlueText },
+        },
+        {
+          id: "variations",
+          icon: Copy,
+          label: "Clone with Variations",
+          iconBg: DESIGN.colors.aiPurple,
+          hasChevron: true,
+        },
+        {
+          id: "translate",
+          icon: Languages,
+          label: "Translate Prompts",
+          iconBg: DESIGN.colors.aiGreen,
+          hasChevron: true,
+        },
+      ],
     },
-  ];
-
-  const aiActions: ActionItem[] = [
     {
-      id: "ai",
-      icon: <Zap className="h-7 w-7" />,
-      label: "AI Optimize",
-      badge: (
-        <span className="ml-auto inline-flex items-center rounded-full bg-info px-2 py-0.5 text-xs font-medium text-info-foreground">
-          PRO
-        </span>
-      ),
-    },
-  ];
-
-  const mediaActions: ActionItem[] = [
-    {
-      id: "removeFiles",
-      icon: <Image className="h-7 w-7" />,
-      label: "Remove Images",
+      title: "Media",
+      actions: [
+        { id: "attachImages", icon: ImagePlus, label: "Attach Images to All", hasChevron: true },
+        { id: "removeImages", icon: ImageMinus, label: "Remove All Images" },
+        { id: "changeTool", icon: Wand2, label: "Change Tool", hasChevron: true },
+        {
+          id: "changeModel",
+          icon: Cpu,
+          label: "Change Model",
+          iconBg: DESIGN.colors.aiPurple,
+          hasChevron: true,
+        },
+      ],
     },
     {
-      id: "downloadChat",
-      icon: <Download className="h-7 w-7" />,
-      label: "Download Media",
+      title: "Export",
+      actions: [
+        { id: "exportCsv", icon: FileSpreadsheet, label: "Export to CSV", hasChevron: true },
+        { id: "copyClipboard", icon: ClipboardCopy, label: "Copy to Clipboard" },
+        { id: "saveTemplates", icon: BookmarkPlus, label: "Save as Templates", hasChevron: true },
+      ],
     },
-  ];
-
-  const exportActions: ActionItem[] = [
-    // TODO: Add export to CSV action
-    // TODO: Add export to JSON action
-  ];
-
-  const dangerActions: ActionItem[] = [
     {
-      id: "reset",
-      icon: <RotateCcw className="h-7 w-7" />,
-      label: "Reset Queue",
+      title: "Danger Zone",
+      titleColor: DESIGN.colors.dangerRed,
       isDanger: true,
+      actions: [{ id: "delete", icon: Trash2, label: "Delete Selected" }],
     },
   ];
 
-  const renderSection = (title: string, actions: ActionItem[], isDanger = false) => {
-    if (actions.length === 0) return null;
-
-    return (
-      <div key={title} className="space-y-2">
-        <h3
-          className={`text-xs font-semibold uppercase tracking-wide ${
-            isDanger ? "text-destructive" : "text-muted-foreground"
-          }`}
+  const renderAction = (action: ActionItem, isDanger = false) => (
+    <button
+      key={action.id}
+      onClick={() => action.id && handleActionClick(action.id)}
+      className={`group flex w-full items-center ${DESIGN.spacing.actionPadding} ${DESIGN.spacing.iconTextGap} ${DESIGN.radius.sm} transition-colors hover:bg-black/5`}
+      style={isDanger ? { backgroundColor: DESIGN.colors.dangerBg } : undefined}
+    >
+      <ActionIconContainer
+        icon={action.icon}
+        bg={action.iconBg}
+        color={action.iconColor}
+        isDanger={isDanger}
+      />
+      <span
+        className={DESIGN.typography.actionLabel}
+        style={{ color: isDanger ? DESIGN.colors.dangerRed : DESIGN.colors.foreground }}
+      >
+        {action.label}
+      </span>
+      {action.badge && (
+        <span
+          className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold"
+          style={{ backgroundColor: action.badge.bg, color: action.badge.color }}
         >
-          {title}
-        </h3>
-        <div className="space-y-1">
-          {actions.map((action) => (
-            <button
-              key={action.id}
-              onClick={() => {
-                if (action.id === "copy") {
-                  handleCopyAll();
-                } else if (action.id !== null) {
-                  handleActionSelect(action.id);
-                }
-              }}
-              className={`group flex w-full items-center gap-3 rounded-sm px-2.5 py-2 transition-colors ${
-                action.isDanger ? "hover:bg-destructive/10" : "hover:bg-muted"
-              }`}
-            >
-              <div
-                className={`flex-shrink-0 ${
-                  action.isDanger ? "text-destructive" : "text-muted-foreground"
-                }`}
-              >
-                {action.icon}
-              </div>
-              <div className="flex flex-1 items-center gap-2">
-                <span
-                  className={`text-sm font-medium ${
-                    action.isDanger ? "text-destructive" : "text-foreground"
-                  }`}
-                >
-                  {action.label}
-                </span>
-                {action.badge}
-              </div>
-              <ChevronRight
-                className={`h-4 w-4 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100 ${
-                  action.isDanger ? "text-destructive" : "text-muted-foreground"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
+          {action.badge.text}
+        </span>
+      )}
+      {action.hasChevron && !action.badge && (
+        <ChevronRight
+          size={DESIGN.sizes.chevron}
+          className="ml-auto"
+          style={{ color: DESIGN.colors.mutedForeground }}
+        />
+      )}
+    </button>
+  );
+
+  const renderSection = (section: ActionSection) => (
+    <div
+      key={section.title}
+      className={DESIGN.spacing.sectionGap}
+      style={{ display: "flex", flexDirection: "column" }}
+    >
+      <span
+        className={DESIGN.typography.sectionHeader}
+        style={{ color: section.titleColor ?? DESIGN.colors.mutedForeground }}
+      >
+        {section.title}
+      </span>
+      <div
+        className={DESIGN.spacing.actionGap}
+        style={{ display: "flex", flexDirection: "column" }}
+      >
+        {section.actions.map((action) => renderAction(action, section.isDanger))}
       </div>
-    );
-  };
+    </div>
+  );
 
   if (!isOpen) return null;
 
   return (
-    <DialogShell isOpen={isOpen} isDark={isDark} pendingCount={pendingCount} onClose={handleClose}>
-      <div className="flex flex-col">
-        <div className="flex items-start justify-between border-b border-border px-4 py-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-base font-semibold text-foreground">Bulk Actions</h2>
-            <p className="text-xs text-muted-foreground">Apply to {pendingCount} selected items</p>
+    <DialogShell isOpen={isOpen} isDark={isDark} onClose={handleClose}>
+      <div className="flex flex-col" style={{ backgroundColor: DESIGN.colors.card }}>
+        <div
+          className={`flex items-center justify-between ${DESIGN.spacing.headerPadding}`}
+          style={{ borderBottom: `1px solid ${DESIGN.colors.border}` }}
+        >
+          <div className="flex flex-col gap-0.5">
+            <h2
+              className={DESIGN.typography.dialogTitle}
+              style={{ color: DESIGN.colors.foreground }}
+            >
+              Bulk Actions
+            </h2>
+            <p
+              className={DESIGN.typography.dialogSubtitle}
+              style={{ color: DESIGN.colors.mutedForeground }}
+            >
+              Apply to {pendingCount} selected items
+            </p>
           </div>
           <button
             onClick={handleClose}
-            className="rounded-sm p-1.5 transition-colors hover:bg-muted"
+            className={`${DESIGN.radius.sm} p-1.5 transition-colors hover:bg-black/5`}
+            style={{ backgroundColor: DESIGN.colors.muted }}
           >
-            <svg
-              className="h-4 w-4 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X size={DESIGN.sizes.closeIcon} style={{ color: DESIGN.colors.mutedForeground }} />
           </button>
         </div>
 
-        <div className="flex-1 space-y-6 overflow-y-auto bg-background p-3">
-          {renderSection("Queue Management", queueActions)}
-          {renderSection("Prompt Editing", promptActions)}
-          {renderSection("AI Tools", aiActions)}
-          {renderSection("Media", mediaActions)}
-          {renderSection("Export", exportActions)}
-          {renderSection("Danger Zone", dangerActions, true)}
+        <div
+          className={`max-h-[300px] overflow-y-auto ${DESIGN.spacing.contentPadding} ${DESIGN.spacing.contentGap}`}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: DESIGN.colors.background,
+          }}
+        >
+          {sections.map(renderSection)}
         </div>
 
         {state.activeAction && (
-          <div className="border-t border-border bg-muted px-4 py-4">
-            {/* TODO: Render action-specific form based on activeAction */}
-            <div className="mb-4 text-sm">
-              {state.activeAction === "attach" && (
+          <div
+            className="border-t p-4"
+            style={{ borderColor: DESIGN.colors.border, backgroundColor: DESIGN.colors.muted }}
+          >
+            {state.activeAction === "attach" && (
+              <div className="space-y-3">
                 <input
                   ref={state.fileInputRef}
                   type="file"
                   multiple
+                  accept="image/*"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-              )}
-            </div>
-            <SubmitButton
-              isDark={isDark}
-              activeAction={state.activeAction}
-              isProcessing={state.isProcessing}
-              selectedFiles={state.selectedFiles}
-              aiInstructions={state.aiInstructions}
-              modifyText={state.modifyText}
-              resetFilterType={state.resetFilterType}
-              resetTextMatch={state.resetTextMatch}
-              resetTool={state.resetTool}
-              resetMode={state.resetMode}
-              resetStatus={state.resetStatus}
-              textToRemove={state.textToRemove}
-              selectedImagesForRemoval={state.selectedImagesForRemoval}
-              chatMediaCounts={state.chatMediaCounts}
-              pendingCount={pendingCount}
-              resettableCount={state.resettableCount}
-              textMatchCount={state.textMatchCount}
-              onSubmit={handleSubmit}
-            />
+                <button
+                  onClick={() => state.fileInputRef.current?.click()}
+                  className="w-full rounded-md border-2 border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 hover:border-gray-400"
+                >
+                  Click to select images
+                </button>
+                {state.selectedFiles.length > 0 && (
+                  <p className="text-sm text-gray-600">
+                    {state.selectedFiles.length} files selected
+                  </p>
+                )}
+              </div>
+            )}
+            {state.activeAction === "ai" && (
+              <div className="space-y-3">
+                <textarea
+                  value={state.aiInstructions}
+                  onChange={(e) => state.setAiInstructions(e.target.value)}
+                  placeholder="Enter optimization instructions..."
+                  className="w-full rounded-md border p-2 text-sm"
+                  rows={3}
+                />
+              </div>
+            )}
+            {state.activeAction === "modify" && (
+              <div className="space-y-3">
+                <input
+                  value={state.modifyText}
+                  onChange={(e) => state.setModifyText(e.target.value)}
+                  placeholder="Text to add..."
+                  className="w-full rounded-md border p-2 text-sm"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => state.setModifyPosition("prepend")}
+                    className={`flex-1 rounded-md border p-2 text-sm ${state.modifyPosition === "prepend" ? "border-blue-500 bg-blue-50" : ""}`}
+                  >
+                    Prepend
+                  </button>
+                  <button
+                    onClick={() => state.setModifyPosition("append")}
+                    className={`flex-1 rounded-md border p-2 text-sm ${state.modifyPosition === "append" ? "border-blue-500 bg-blue-50" : ""}`}
+                  >
+                    Append
+                  </button>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={state.isProcessing}
+              className="mt-3 w-full rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {state.isProcessing ? "Processing..." : "Apply"}
+            </button>
+            <button
+              onClick={() => state.setActiveAction(null)}
+              className="mt-2 w-full rounded-md border py-2 text-sm font-medium hover:bg-gray-50"
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ export const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
   item,
   isDark,
   searchText,
+  queueNumber,
   onRemove,
   onRetry,
   onDuplicate,
@@ -34,6 +35,7 @@ export const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
         item={item}
         isDark={isDark}
         searchText={searchText}
+        queueNumber={queueNumber}
         onRemove={onRemove}
         onRetry={onRetry}
         onDuplicate={onDuplicate}

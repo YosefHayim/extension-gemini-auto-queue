@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import { improvePrompt } from "@/services/geminiService";
 import { hasAnyAIKey, setQueue } from "@/services/storageService";
-import { QueueStatus, type AppSettings, type QueueItem } from "@/types";
+import { GeminiMode, GeminiTool, QueueStatus, type AppSettings, type QueueItem } from "@/types";
 
 import type { ResetFilter } from "@/components/BulkActionsDialog";
 
@@ -187,12 +187,153 @@ export function useBulkModifyActions({
     [queue, setQueueState]
   );
 
+  const handleBulkShuffle = useCallback(
+    async (selectedIds?: string[]) => {
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+
+      const shuffleArray = <T>(arr: T[]): T[] => {
+        const shuffled = [...arr];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      };
+
+      let updatedQueue: QueueItem[];
+      if (targetIds) {
+        const selectedItems = queue.filter((item) => targetIds.has(item.id));
+        const otherItems = queue.filter((item) => !targetIds.has(item.id));
+        const shuffledSelected = shuffleArray(selectedItems);
+
+        updatedQueue = [];
+        let selectedIndex = 0;
+        for (const item of queue) {
+          if (targetIds.has(item.id)) {
+            updatedQueue.push(shuffledSelected[selectedIndex++]);
+          } else {
+            updatedQueue.push(otherItems.find((o) => o.id === item.id)!);
+          }
+        }
+      } else {
+        const pendingItems = queue.filter((i) => i.status === QueueStatus.Pending);
+        const nonPendingItems = queue.filter((i) => i.status !== QueueStatus.Pending);
+        updatedQueue = [...shuffleArray(pendingItems), ...nonPendingItems];
+      }
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      const count = targetIds
+        ? targetIds.size
+        : queue.filter((i) => i.status === QueueStatus.Pending).length;
+      toast.success(`Shuffled ${count} prompts`);
+    },
+    [queue, setQueueState]
+  );
+
+  const handleBulkMoveToTop = useCallback(
+    async (selectedIds?: string[]) => {
+      if (!selectedIds || selectedIds.length === 0) {
+        toast.info("Select items to move to top");
+        return;
+      }
+
+      const targetIds = new Set(selectedIds);
+      const selectedItems = queue.filter((item) => targetIds.has(item.id));
+      const otherItems = queue.filter((item) => !targetIds.has(item.id));
+      const updatedQueue = [...selectedItems, ...otherItems];
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Moved ${selectedItems.length} items to top`);
+    },
+    [queue, setQueueState]
+  );
+
+  const handleBulkRetryFailed = useCallback(
+    async (selectedIds?: string[]) => {
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+      let retryCount = 0;
+
+      const updatedQueue = queue.map((item) => {
+        const isTarget = targetIds ? targetIds.has(item.id) : item.status === QueueStatus.Failed;
+        if (isTarget && item.status === QueueStatus.Failed) {
+          retryCount++;
+          return {
+            ...item,
+            status: QueueStatus.Pending,
+            error: undefined,
+            retryInfo: undefined,
+          };
+        }
+        return item;
+      });
+
+      if (retryCount === 0) {
+        toast.info("No failed items to retry");
+        return;
+      }
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Reset ${retryCount} failed items to pending`);
+    },
+    [queue, setQueueState]
+  );
+
+  const handleBulkChangeTool = useCallback(
+    async (tool: GeminiTool, selectedIds?: string[]) => {
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+      let modifiedCount = 0;
+
+      const updatedQueue = queue.map((item) => {
+        const isTarget = targetIds ? targetIds.has(item.id) : item.status === QueueStatus.Pending;
+        if (isTarget) {
+          modifiedCount++;
+          return { ...item, tool };
+        }
+        return item;
+      });
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Changed tool for ${modifiedCount} prompts`);
+    },
+    [queue, setQueueState]
+  );
+
+  const handleBulkChangeMode = useCallback(
+    async (mode: GeminiMode, selectedIds?: string[]) => {
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+      let modifiedCount = 0;
+
+      const updatedQueue = queue.map((item) => {
+        const isTarget = targetIds ? targetIds.has(item.id) : item.status === QueueStatus.Pending;
+        if (isTarget) {
+          modifiedCount++;
+          return { ...item, mode };
+        }
+        return item;
+      });
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(`Changed mode for ${modifiedCount} prompts`);
+    },
+    [queue, setQueueState]
+  );
+
   return {
     handleBulkAttachImages,
     handleBulkAIOptimize,
     handleBulkModify,
     handleBulkRemoveText,
     handleBulkRemoveFiles,
+    handleBulkShuffle,
+    handleBulkMoveToTop,
+    handleBulkRetryFailed,
+    handleBulkChangeTool,
+    handleBulkChangeMode,
   };
 }
 

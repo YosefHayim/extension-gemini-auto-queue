@@ -40,9 +40,9 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, isDark, onUpdateSettin
     });
   };
 
-  const sectionClasses = getSectionClasses(isDark);
-  const inputClasses = getInputClasses(isDark);
-  const selectClasses = getSelectClasses(isDark);
+  const sectionClasses = getSectionClasses();
+  const inputClasses = getInputClasses();
+  const selectClasses = getSelectClasses();
 
   return (
     <div className="animate-in fade-in space-y-4 duration-200">
@@ -69,7 +69,7 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, isDark, onUpdateSettin
             </span>
             <ChevronDown
               size={14}
-              className={`text-slate-400 transition-transform duration-200 ${
+              className={`text-muted-foreground transition-transform duration-200 ${
                 isAIProvidersExpanded ? "rotate-180" : ""
               }`}
             />

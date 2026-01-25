@@ -48,7 +48,7 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
           />
           <button
             onClick={onCreateFolder}
-            className="w-full rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:bg-emerald-600"
+            className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:bg-primary/90"
           >
             Create
           </button>

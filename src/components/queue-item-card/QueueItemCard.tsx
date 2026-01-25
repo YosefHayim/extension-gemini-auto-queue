@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { QueueStatus } from "@/types";
 
 import { ActionButtons } from "./ActionButtons";
+import { CardFooter } from "./CardFooter";
 import { DragHandle } from "./DragHandle";
 import { EditModeForm } from "./EditModeForm";
 import { ImageThumbnails } from "./ImageThumbnails";
@@ -16,6 +17,7 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   item,
   isDark,
   searchText = "",
+  queueNumber,
   onRemove,
   onRetry,
   onDuplicate,
@@ -52,63 +54,65 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   const isFailed = item.status === QueueStatus.Failed;
 
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-border bg-background transition-all duration-150 hover:border-border/80">
-      <div className="relative flex items-start gap-2 p-3">
-        {(showCheckbox || isSelected) && (
-          <SelectionCheckbox
-            isSelected={isSelected}
-            isDark={isDark}
-            onToggle={() => onToggleSelect?.(item.id)}
-          />
-        )}
+    <div className="group relative overflow-hidden rounded-md border border-border bg-background">
+      <div className="flex flex-col gap-2.5 p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {(showCheckbox || isSelected) && (
+              <SelectionCheckbox
+                isSelected={isSelected}
+                isDark={isDark}
+                onToggle={() => onToggleSelect?.(item.id)}
+              />
+            )}
+            <DragHandle isDark={isDark} dragHandleProps={dragHandleProps} />
+            <StatusSection item={item} queueNumber={queueNumber} />
+          </div>
 
-        <DragHandle isDark={isDark} dragHandleProps={dragHandleProps} />
-
-        <div className="min-w-0 flex-1">
-          <StatusSection item={item} isDark={isDark} />
-
-          {isEditing && isPending ? (
-            <EditModeForm
-              value={editValue}
-              onChange={setEditValue}
-              onSubmit={handleEditSubmit}
-              onCancel={handleEditCancel}
-              isDark={isDark}
-            />
-          ) : (
-            <PromptDisplay
-              prompt={item.originalPrompt}
-              searchText={searchText}
-              isDark={isDark}
-              isPending={isPending}
-              onEdit={onEdit}
-              itemId={item.id}
-            />
-          )}
-
-          <ImageThumbnails
-            images={item.images}
+          <ActionButtons
+            itemId={item.id}
             isDark={isDark}
             isPending={isPending}
-            onUpdateImages={onUpdateImages}
-            itemId={item.id}
+            isFailed={isFailed}
+            isEditing={isEditing}
+            onRemove={onRemove}
+            onRetry={onRetry}
+            onDuplicate={onDuplicate}
+            onDuplicateWithAI={onDuplicateWithAI}
+            onEdit={onEdit}
+            onRunSingle={onRunSingle}
+            originalPrompt={item.originalPrompt}
           />
         </div>
 
-        <ActionButtons
-          itemId={item.id}
+        {isEditing && isPending ? (
+          <EditModeForm
+            value={editValue}
+            onChange={setEditValue}
+            onSubmit={handleEditSubmit}
+            onCancel={handleEditCancel}
+            isDark={isDark}
+          />
+        ) : (
+          <PromptDisplay
+            prompt={item.originalPrompt}
+            searchText={searchText}
+            isDark={isDark}
+            isPending={isPending}
+            onEdit={onEdit}
+            itemId={item.id}
+          />
+        )}
+
+        <ImageThumbnails
+          images={item.images}
           isDark={isDark}
           isPending={isPending}
-          isFailed={isFailed}
-          isEditing={isEditing}
-          onRemove={onRemove}
-          onRetry={onRetry}
-          onDuplicate={onDuplicate}
-          onDuplicateWithAI={onDuplicateWithAI}
-          onEdit={onEdit}
-          onRunSingle={onRunSingle}
-          originalPrompt={item.originalPrompt}
+          onUpdateImages={onUpdateImages}
+          itemId={item.id}
         />
+
+        <CardFooter item={item} />
       </div>
     </div>
   );

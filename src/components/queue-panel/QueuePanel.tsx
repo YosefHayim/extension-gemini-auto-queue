@@ -5,10 +5,8 @@ import { GeminiMode, QueueStatus } from "@/types";
 import { BulkActionsHandler } from "./BulkActionsHandler";
 import { EmptyQueue } from "./EmptyQueue";
 import { useQueuePanelState } from "./hooks/useQueuePanelState";
-import { ModeSelector } from "./ModeSelector";
 import { PromptInput } from "./PromptInput";
 import { QueueContent } from "./QueueContent";
-import { ToolSelector } from "./ToolSelector";
 
 import type { QueuePanelProps } from "./types";
 
@@ -34,7 +32,6 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
     onModeChange,
     onBulkAttachImages,
     onBulkAIOptimize,
-    onOpenAIOptimization,
     onBulkModify,
     onBulkReset,
     onBulkRemoveText,
@@ -43,6 +40,11 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
     onDownloadChatMedia,
     onClearCompleted,
     onOpenExport,
+    onBulkShuffle,
+    onBulkMoveToTop,
+    onBulkRetryFailed,
+    onBulkChangeTool,
+    onBulkChangeMode,
   } = props;
 
   const state = useQueuePanelState({
@@ -72,7 +74,6 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         failedCount={state.stats.failedCount}
         onBulkAttachImages={onBulkAttachImages}
         onBulkAIOptimize={onBulkAIOptimize}
-        onOpenAIOptimization={onOpenAIOptimization}
         onBulkModify={onBulkModify}
         onBulkReset={onBulkReset}
         onBulkRemoveText={onBulkRemoveText}
@@ -80,6 +81,11 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         onScanChatMedia={onScanChatMedia}
         onDownloadChatMedia={onDownloadChatMedia}
         onClearSelection={state.handleClearSelection}
+        onBulkShuffle={onBulkShuffle}
+        onBulkMoveToTop={onBulkMoveToTop}
+        onBulkRetryFailed={onBulkRetryFailed}
+        onBulkChangeTool={onBulkChangeTool}
+        onBulkChangeMode={onBulkChangeMode}
       />
 
       <PromptInput
@@ -94,18 +100,6 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         onOpenCsvDialog={onOpenCsvDialog}
         isDark={isDark}
         textareaRef={state.textareaRef}
-      />
-
-      <ToolSelector
-        selectedTool={state.selectedTool}
-        onToolChange={state.setSelectedTool}
-        isDark={isDark}
-      />
-
-      <ModeSelector
-        selectedMode={state.localSelectedMode}
-        onModeChange={state.handleModeSelect}
-        isDark={isDark}
       />
 
       <div data-onboarding="queue-list" className="space-y-2 pt-2">

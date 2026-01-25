@@ -1,5 +1,7 @@
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
 
+export type BulkQueueAction = "shuffle" | "moveTop" | "retryFailed" | "changeTool" | "changeMode";
+
 export type BulkActionType =
   | "attach"
   | "ai"
@@ -44,7 +46,6 @@ export interface BulkActionsDialogProps {
   pendingItems: QueueItem[];
   onBulkAttach: (images: string[]) => void;
   onBulkAIOptimize: (instructions: string) => void | Promise<void>;
-  onOpenAIOptimization?: () => void;
   onBulkModify: (text: string, position: "prepend" | "append") => void;
   onBulkReset: (filter: ResetFilter) => void;
   onCopyAllPrompts: () => string;
@@ -55,6 +56,11 @@ export interface BulkActionsDialogProps {
     method: "native" | "direct",
     filterType?: "image" | "video" | "file"
   ) => Promise<void>;
+  onBulkShuffle?: () => void;
+  onBulkMoveToTop?: () => void;
+  onBulkRetryFailed?: () => void;
+  onBulkChangeTool?: (tool: GeminiTool) => void;
+  onBulkChangeMode?: (mode: GeminiMode) => void;
 }
 
 export interface BasePanelProps {

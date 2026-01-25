@@ -50,7 +50,7 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
             onEdit(itemId, prompt);
           }
         }}
-        className={`line-clamp-2 text-sm font-medium leading-snug text-foreground ${isPending && onEdit ? "-mx-1 cursor-text rounded px-1 transition-colors hover:bg-muted" : ""}`}
+        className={`line-clamp-2 text-[13px] font-normal leading-[1.4] text-foreground ${isPending && onEdit ? "-mx-1 cursor-text rounded px-1 transition-colors hover:bg-muted" : ""}`}
       >
         <HighlightedText text={prompt} search={searchText} isDark={isDark} />
       </p>

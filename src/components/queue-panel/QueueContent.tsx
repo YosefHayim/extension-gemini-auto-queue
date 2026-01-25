@@ -1,9 +1,16 @@
-import React from "react";
-import { ChevronDown, Play, Search, Settings2, SquareCheck, Timer } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { Check, ChevronDown, Play, Search, Settings2, SquareCheck, Timer } from "lucide-react";
 
 import { QueueList } from "./QueueList";
 
-import type { ContentType, GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/types";
+import {
+  GEMINI_MODE_INFO,
+  GeminiMode,
+  QueueStatus,
+  type ContentType,
+  type GeminiTool,
+  type QueueItem,
+} from "@/types";
 
 interface QueueContentProps {
   queue: QueueItem[];
@@ -50,20 +57,33 @@ interface QueueContentProps {
   pendingStatus: QueueStatus;
 }
 
+const STATUS_OPTIONS = [
+  { value: QueueStatus.Pending, label: "Pending", color: "amber" },
+  { value: QueueStatus.Processing, label: "Processing", color: "blue" },
+  { value: QueueStatus.Completed, label: "Completed", color: "emerald" },
+  { value: QueueStatus.Failed, label: "Failed", color: "red" },
+];
+
+const MODE_OPTIONS = [
+  { value: GeminiMode.Quick, label: GEMINI_MODE_INFO[GeminiMode.Quick].label, color: "emerald" },
+  { value: GeminiMode.Deep, label: GEMINI_MODE_INFO[GeminiMode.Deep].label, color: "blue" },
+  { value: GeminiMode.Pro, label: GEMINI_MODE_INFO[GeminiMode.Pro].label, color: "purple" },
+];
+
 export const QueueContent: React.FC<QueueContentProps> = ({
   queue,
   filteredQueue,
   isDark,
   searchText,
   selectedToolFilters: _selectedToolFilters,
-  selectedModeFilters: _selectedModeFilters,
+  selectedModeFilters,
   selectedContentFilters: _selectedContentFilters,
-  selectedStatusFilters: _selectedStatusFilters,
+  selectedStatusFilters,
   onSearchChange,
   onToolsChange: _onToolsChange,
-  onModesChange: _onModesChange,
+  onModesChange,
   onContentTypesChange: _onContentTypesChange,
-  onStatusesChange: _onStatusesChange,
+  onStatusesChange,
   selectedCount,
   selectedPendingCount: _selectedPendingCount,
   onSelectAll,
@@ -90,6 +110,60 @@ export const QueueContent: React.FC<QueueContentProps> = ({
   onToggleSelect,
   pendingStatus,
 }) => {
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const modeDropdownRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setStatusDropdownOpen(false);
+      }
+      if (modeDropdownRef.current && !modeDropdownRef.current.contains(event.target as Node)) {
+        setModeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleStatusFilter = (status: QueueStatus) => {
+    const isSelected = selectedStatusFilters.includes(status);
+    if (isSelected) {
+      onStatusesChange(selectedStatusFilters.filter((s) => s !== status));
+    } else {
+      onStatusesChange([...selectedStatusFilters, status]);
+    }
+  };
+
+  const toggleModeFilter = (mode: GeminiMode) => {
+    const isSelected = selectedModeFilters.includes(mode);
+    if (isSelected) {
+      onModesChange(selectedModeFilters.filter((m) => m !== mode));
+    } else {
+      onModesChange([...selectedModeFilters, mode]);
+    }
+  };
+
+  const getStatusLabel = () => {
+    if (selectedStatusFilters.length === 0) return "All Status";
+    if (selectedStatusFilters.length === 1) {
+      return (
+        STATUS_OPTIONS.find((s) => s.value === selectedStatusFilters[0])?.label || "All Status"
+      );
+    }
+    return `${selectedStatusFilters.length} statuses`;
+  };
+
+  const getModeLabel = () => {
+    if (selectedModeFilters.length === 0) return "All Models";
+    if (selectedModeFilters.length === 1) {
+      return MODE_OPTIONS.find((m) => m.value === selectedModeFilters[0])?.label || "All Models";
+    }
+    return `${selectedModeFilters.length} modes`;
+  };
   return (
     <div className="flex h-full w-full flex-col">
       <div className={`flex items-center justify-between border-b border-border px-4 py-3`}>
@@ -141,14 +215,89 @@ export const QueueContent: React.FC<QueueContentProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="flex flex-1 items-center justify-between gap-2 rounded border border-border bg-muted px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80">
-            <span>All Status</span>
-            <ChevronDown size={14} />
-          </button>
-          <button className="flex flex-1 items-center justify-between gap-2 rounded border border-border bg-muted px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80">
-            <span>All Models</span>
-            <ChevronDown size={14} />
-          </button>
+          <div className="relative flex-1" ref={statusDropdownRef}>
+            <button
+              onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+              className={`flex w-full items-center justify-between gap-2 rounded border px-2.5 py-2 text-xs font-medium transition-colors ${
+                selectedStatusFilters.length > 0
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              <span>{getStatusLabel()}</span>
+              <ChevronDown size={14} className={statusDropdownOpen ? "rotate-180" : ""} />
+            </button>
+            {statusDropdownOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg">
+                {STATUS_OPTIONS.map((option) => {
+                  const isSelected = selectedStatusFilters.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => toggleStatusFilter(option.value)}
+                      className="flex w-full items-center justify-between px-3 py-2 text-xs hover:bg-muted"
+                    >
+                      <span className="text-foreground">{option.label}</span>
+                      {isSelected && <Check size={14} className="text-primary" />}
+                    </button>
+                  );
+                })}
+                {selectedStatusFilters.length > 0 && (
+                  <>
+                    <div className="border-t border-border" />
+                    <button
+                      onClick={() => onStatusesChange([])}
+                      className="w-full px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
+                    >
+                      Clear filters
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="relative flex-1" ref={modeDropdownRef}>
+            <button
+              onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
+              className={`flex w-full items-center justify-between gap-2 rounded border px-2.5 py-2 text-xs font-medium transition-colors ${
+                selectedModeFilters.length > 0
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              <span>{getModeLabel()}</span>
+              <ChevronDown size={14} className={modeDropdownOpen ? "rotate-180" : ""} />
+            </button>
+            {modeDropdownOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg">
+                {MODE_OPTIONS.map((option) => {
+                  const isSelected = selectedModeFilters.includes(option.value);
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => toggleModeFilter(option.value)}
+                      className="flex w-full items-center justify-between px-3 py-2 text-xs hover:bg-muted"
+                    >
+                      <span className="text-foreground">{option.label}</span>
+                      {isSelected && <Check size={14} className="text-primary" />}
+                    </button>
+                  );
+                })}
+                {selectedModeFilters.length > 0 && (
+                  <>
+                    <div className="border-t border-border" />
+                    <button
+                      onClick={() => onModesChange([])}
+                      className="w-full px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
+                    >
+                      Clear filters
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

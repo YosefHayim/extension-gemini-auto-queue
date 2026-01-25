@@ -82,7 +82,7 @@ export const NegativePromptsDialog: React.FC<NegativePromptsDialogProps> = ({
           </button>
           <button
             onClick={handleApply}
-            className="rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-600"
+            className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Apply
           </button>

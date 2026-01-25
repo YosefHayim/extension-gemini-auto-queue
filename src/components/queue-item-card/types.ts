@@ -6,6 +6,7 @@ export interface QueueItemCardProps {
   item: QueueItem;
   isDark: boolean;
   searchText?: string;
+  queueNumber: number; // Position in queue (1-indexed)
   onRemove: (id: string) => void;
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;

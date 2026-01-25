@@ -139,7 +139,7 @@ export const TooltipCard: React.FC<TooltipCardProps> = ({
 
           <button
             onClick={onNext}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-emerald-600"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
           >
             {!isLastStep ? (
               <>

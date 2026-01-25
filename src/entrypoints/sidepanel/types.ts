@@ -12,11 +12,8 @@ export interface AppState {
 
 export interface DialogState {
   showCsvDialog: boolean;
-  showApiKeyDialog: boolean;
   showClearAllConfirm: boolean;
   showExportDialog: boolean;
-  showBulkDownloadDialog: boolean;
-  showAIOptimizationDialog: boolean;
 }
 
 export type SendMessageFn = <T>(message: ExtensionMessage) => Promise<ExtensionResponse<T>>;

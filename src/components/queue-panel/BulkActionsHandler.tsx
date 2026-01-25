@@ -1,6 +1,6 @@
 import React from "react";
 
-import { QueueStatus, type QueueItem } from "@/types";
+import { QueueStatus, type GeminiMode, type GeminiTool, type QueueItem } from "@/types";
 
 import { BulkActionsDialog, type ResetFilter } from "../BulkActionsDialog";
 
@@ -19,7 +19,6 @@ interface BulkActionsHandlerProps {
   failedCount: number;
   onBulkAttachImages?: (images: string[], selectedIds?: string[]) => void;
   onBulkAIOptimize?: (instructions: string, selectedIds?: string[]) => Promise<void>;
-  onOpenAIOptimization?: () => void;
   onBulkModify?: (text: string, position: "prepend" | "append", selectedIds?: string[]) => void;
   onBulkReset?: (filter: ResetFilter, selectedIds?: string[]) => void;
   onBulkRemoveText?: (text: string, selectedIds?: string[]) => void;
@@ -35,6 +34,11 @@ interface BulkActionsHandlerProps {
     filterType?: "image" | "video" | "file"
   ) => Promise<void>;
   onClearSelection: () => void;
+  onBulkShuffle?: (selectedIds?: string[]) => void;
+  onBulkMoveToTop?: (selectedIds?: string[]) => void;
+  onBulkRetryFailed?: (selectedIds?: string[]) => void;
+  onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;
+  onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
 }
 
 export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
@@ -52,7 +56,6 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
   failedCount,
   onBulkAttachImages,
   onBulkAIOptimize,
-  onOpenAIOptimization,
   onBulkModify,
   onBulkReset,
   onBulkRemoveText,
@@ -60,6 +63,11 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
   onScanChatMedia,
   onDownloadChatMedia,
   onClearSelection,
+  onBulkShuffle,
+  onBulkMoveToTop,
+  onBulkRetryFailed,
+  onBulkChangeTool,
+  onBulkChangeMode,
 }) => {
   const selectedPendingItems = selectedItems.filter((item) => item.status === QueueStatus.Pending);
   const selectedCount = selectedIds.size;
@@ -95,7 +103,6 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
         onClose();
         onClearSelection();
       }}
-      onOpenAIOptimization={onOpenAIOptimization}
       onBulkModify={(text, position) => {
         onBulkModify?.(text, position, hasSelection ? Array.from(selectedIds) : undefined);
         onClose();
@@ -125,6 +132,31 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
       onDownloadChatMedia={async (method, filterType) => {
         await onDownloadChatMedia?.(method, filterType);
         onClose();
+      }}
+      onBulkShuffle={() => {
+        onBulkShuffle?.(hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkMoveToTop={() => {
+        onBulkMoveToTop?.(hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkRetryFailed={() => {
+        onBulkRetryFailed?.(hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkChangeTool={(tool) => {
+        onBulkChangeTool?.(tool, hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkChangeMode={(mode) => {
+        onBulkChangeMode?.(mode, hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
       }}
     />
   );
