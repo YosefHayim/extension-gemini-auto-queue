@@ -99,7 +99,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
           </div>
         </div>
 
-        <div className="border-t border-white/5 px-5 py-4">
+        <div className={`border-t ${ExportDialogTokens.getFooterDividerClass()} px-5 py-4`}>
           <button
             onClick={handleExport}
             disabled={queue.length === 0}
@@ -108,13 +108,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ isOpen, onClose, que
                 ? "No items to export"
                 : `Export as ${selectedOption?.extension || ""}`
             }
-            className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all ${
-              queue.length === 0
-                ? isDark
-                  ? "cursor-not-allowed bg-white/5 text-white/30"
-                  : "cursor-not-allowed bg-slate-100 text-slate-300"
-                : "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 hover:from-blue-500 hover:to-blue-400 hover:shadow-blue-500/40 active:scale-[0.98]"
-            }`}
+            className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all ${ExportDialogTokens.getExportButtonClass(isDark, queue.length === 0)}`}
           >
             <Download size={18} />
             Export as {selectedOption?.extension || ""}
