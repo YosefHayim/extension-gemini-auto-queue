@@ -119,7 +119,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
       </div>
 
-      <div className={getSectionClasses(isDark)}>
+      <div className={getSectionClasses()}>
         <h3 className={labelClasses}>Generation</h3>
 
         <div className="flex items-center justify-between">
@@ -206,7 +206,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         </div>
       </div>
 
-      <div className={getSectionClasses(isDark)}>
+      <div className={getSectionClasses()}>
         <h3 className={labelClasses}>Account</h3>
 
         <div className="space-y-3 border-t border-border pt-3">
@@ -271,12 +271,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         value={apiKey}
                         onChange={(e) => handleApiKeyChange(providerKey, e.target.value)}
                         placeholder={`Enter your ${info.label} API key...`}
-                        className={`${inputClasses(isDark)} pr-10`}
+                        className={`${inputClasses()} pr-10`}
                       />
                       <button
                         type="button"
                         onClick={() => toggleKeyVisibility(providerKey)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors duration-150 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors duration-150 hover:text-foreground"
                         title={isVisible ? "Hide API key" : "Show API key"}
                       >
                         {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -298,9 +298,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           )}
         </div>
 
-        <div
-          className={`rounded-lg p-4 ${isDark ? "bg-slate-700/50" : "bg-slate-100"} border ${isDark ? "border-slate-600" : "border-slate-200"}`}
-        >
+        <div className={`rounded-lg border border-border bg-secondary p-4`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Crown size={16} className="text-amber-500" />
@@ -309,7 +307,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 <p className={descriptionClasses}>Upgrade for advanced features</p>
               </div>
             </div>
-            <button className="rounded-md bg-slate-900 px-4 py-2 text-xs font-medium text-white transition-colors duration-150 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+            <button className="rounded-md bg-foreground px-4 py-2 text-xs font-medium text-background transition-colors duration-150 hover:bg-foreground/90">
               Upgrade
             </button>
           </div>
@@ -319,7 +317,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       <div className={getSectionClasses(isDark)}>
         <h3 className={labelClasses}>About</h3>
 
-        <div className="space-y-0 border-t border-slate-700/50">
+        <div className="space-y-0 border-t border-border">
           {[
             { label: "Documentation", url: "https://docs.example.com" },
             { label: "Privacy Policy", url: "https://privacy.example.com" },
@@ -330,14 +328,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center justify-between border-b py-3 transition-colors duration-150 ${
-                isDark
-                  ? "border-slate-700 hover:bg-slate-700/30"
-                  : "border-slate-200 hover:bg-slate-100"
-              }`}
+              className={`flex items-center justify-between border-b border-border py-3 transition-colors duration-150 hover:bg-muted`}
             >
               <span className="text-sm font-normal text-foreground">{link.label}</span>
-              <ExternalLink size={14} className="text-slate-400" />
+              <ExternalLink size={14} className="text-muted-foreground" />
             </a>
           ))}
         </div>
