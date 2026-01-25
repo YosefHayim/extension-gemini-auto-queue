@@ -349,6 +349,25 @@ export const STORAGE_KEYS = {
   FOLDERS: "nano_flow_folders",
   ONBOARDING_COMPLETE: "nano_flow_onboarding_complete",
   EXTENSION_ENABLED: "nano_flow_extension_enabled",
+  AUTH_USER: "nano_flow_auth_user",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
+
+// Authentication Types
+export interface AuthUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: number;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: AuthUser | null;
+  isLoading: boolean;
+}
