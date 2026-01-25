@@ -2,6 +2,8 @@ import { defineConfig } from "wxt";
 
 export default defineConfig({
   srcDir: "src",
+  entrypointsDir: "extension/entrypoints",
+  publicDir: "extension/public",
   modules: ["@wxt-dev/module-react"],
   manifest: {
     name: "Gemini Nano Flow",
