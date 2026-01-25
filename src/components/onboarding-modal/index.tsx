@@ -1,102 +1,111 @@
-import { SkipForward } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-
-import { SpotlightOverlay } from "./SpotlightOverlay";
-import { TooltipCard } from "./TooltipCard";
-import { tourSteps } from "./tourSteps";
+import { ArrowRight, Image, Layers, Rocket, Sparkles, Timer, Zap } from "lucide-react";
+import React from "react";
 
 import type { OnboardingModalProps } from "./types";
 
-export const OnboardingModal: React.FC<OnboardingModalProps> = ({
-  onComplete,
-  isDark,
-  onSwitchTab,
-}) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+const STARTER_PROMPT =
+  "A futuristic chrome extension icon with a lightning bolt, minimalist design, gradient purple and blue background, 3D render";
 
-  const step = tourSteps[currentStep];
+const FEATURES = [
+  {
+    icon: Layers,
+    iconColor: "#2563EB",
+    bgColor: "#DBEAFE",
+    title: "Batch Processing",
+    description: "Queue multiple prompts and run them automatically",
+  },
+  {
+    icon: Timer,
+    iconColor: "#059669",
+    bgColor: "#D1FAE5",
+    title: "Save Hours of Time",
+    description: "No more manual copy-paste for each prompt",
+  },
+  {
+    icon: Sparkles,
+    iconColor: "#D97706",
+    bgColor: "#FEF3C7",
+    title: "Smart Automation",
+    description: "Auto-download results, retry on errors, and more",
+  },
+];
 
-  const updateTargetPosition = useCallback(() => {
-    if (!step?.selector) return;
-
-    const element = document.querySelector(step.selector);
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      setTargetRect(rect);
-    } else {
-      setTargetRect(null);
-    }
-  }, [step?.selector]);
-
-  useEffect(() => {
-    setIsTransitioning(true);
-
-    if (step?.tab && onSwitchTab) {
-      onSwitchTab(step.tab);
-    }
-
-    const timer = setTimeout(() => {
-      updateTargetPosition();
-      setIsTransitioning(false);
-    }, 150);
-
-    return () => clearTimeout(timer);
-  }, [currentStep, step?.tab, onSwitchTab, updateTargetPosition]);
-
-  useEffect(() => {
-    const handleUpdate = () => updateTargetPosition();
-    window.addEventListener("resize", handleUpdate);
-    window.addEventListener("scroll", handleUpdate, true);
-
-    return () => {
-      window.removeEventListener("resize", handleUpdate);
-      window.removeEventListener("scroll", handleUpdate, true);
-    };
-  }, [updateTargetPosition]);
-
-  const handleNext = () => {
-    if (currentStep < tourSteps.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
-      onComplete();
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((s) => s - 1);
-    }
-  };
-
-  const handleSkip = () => {
+export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, onUsePrompt }) => {
+  const handleUsePrompt = () => {
+    onUsePrompt?.(STARTER_PROMPT);
     onComplete();
   };
 
   return (
-    <div dir="ltr" className="fixed inset-0 z-[2000]">
-      <SpotlightOverlay targetRect={targetRect} step={step} onSkip={handleSkip} />
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="flex h-[640px] w-[380px] flex-col border border-border bg-background">
+        <div className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex h-20 w-20 items-center justify-center rounded-[20px] bg-primary">
+              <Zap size={40} className="text-primary-foreground" />
+            </div>
+            <h1 className="text-[28px] font-bold text-foreground">Nano Flow</h1>
+            <p className="text-center text-[15px] text-muted-foreground">
+              Supercharge your Gemini workflow
+            </p>
+          </div>
 
-      <button
-        onClick={handleSkip}
-        className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20"
-      >
-        <SkipForward size={16} />
-        Skip Tour
-      </button>
+          <div className="flex w-full flex-col gap-3">
+            {FEATURES.map((feature) => (
+              <div key={feature.title} className="flex items-center gap-3">
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                  style={{ backgroundColor: feature.bgColor }}
+                >
+                  <feature.icon size={18} style={{ color: feature.iconColor }} />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm font-semibold text-foreground">{feature.title}</span>
+                  <span className="text-[13px] text-muted-foreground">{feature.description}</span>
+                </div>
+              </div>
+            ))}
+          </div>
 
-      <TooltipCard
-        step={step}
-        currentStep={currentStep}
-        totalSteps={tourSteps.length}
-        targetRect={targetRect}
-        isDark={isDark}
-        isTransitioning={isTransitioning}
-        onNext={handleNext}
-        onBack={handleBack}
-        onSkip={handleSkip}
-      />
+          <div className="flex w-full flex-col gap-3">
+            <span className="text-[13px] font-semibold text-foreground">Try your first prompt</span>
+            <div className="flex flex-col gap-2.5 rounded-md border border-border bg-muted p-3">
+              <p className="text-[13px] leading-relaxed text-foreground">{STARTER_PROMPT}</p>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1 rounded-full bg-background px-2.5 py-1">
+                  <Image size={12} className="text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">Image</span>
+                </span>
+                <button
+                  onClick={handleUsePrompt}
+                  className="flex items-center gap-1.5 rounded bg-primary px-3 py-1.5"
+                >
+                  <ArrowRight size={14} className="text-primary-foreground" />
+                  <span className="text-xs font-semibold text-primary-foreground">
+                    Use this prompt
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col items-center gap-3">
+            <button
+              onClick={onComplete}
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3.5"
+            >
+              <Rocket size={18} className="text-primary-foreground" />
+              <span className="text-[15px] font-semibold text-primary-foreground">Get Started</span>
+            </button>
+            <button
+              onClick={onComplete}
+              className="text-[13px] text-muted-foreground hover:text-foreground"
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

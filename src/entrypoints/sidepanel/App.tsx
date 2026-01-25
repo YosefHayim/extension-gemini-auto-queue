@@ -296,6 +296,9 @@ export default function App() {
           }}
           isDark={isDark}
           onSwitchTab={handleSwitchTab}
+          onUsePrompt={(prompt) => {
+            handleAddToQueue(prompt).catch(() => {});
+          }}
         />
       )}
 

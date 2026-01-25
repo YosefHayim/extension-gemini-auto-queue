@@ -193,7 +193,9 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           onEdit={handleStartTemplateEdit}
           onDelete={handleDeleteTemplate}
           onUse={onUseTemplate}
-          onCreateNewTemplate={(e) => handleStartTemplateEdit(selectedFolderId!, undefined, e)}
+          onCreateNewTemplate={(e) =>
+            selectedFolderId && handleStartTemplateEdit(selectedFolderId, undefined, e)
+          }
         />
       </div>
 

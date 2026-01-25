@@ -66,8 +66,8 @@ export const FolderCreateDialog: React.FC<FolderCreateDialogProps> = ({
 
   useEffect(() => {
     if (editingFolder) {
-      setSelectedColor(editingFolder.color || FOLDER_COLORS[0]);
-      setSelectedIcon((editingFolder.icon as FolderIcon) ?? null);
+      setSelectedColor(editingFolder.color ?? FOLDER_COLORS[0]);
+      setSelectedIcon((editingFolder.icon as FolderIcon | undefined) ?? null);
     } else {
       setSelectedColor(FOLDER_COLORS[0]);
       setSelectedIcon(null);

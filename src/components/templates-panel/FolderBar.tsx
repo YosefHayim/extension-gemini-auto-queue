@@ -62,8 +62,8 @@ export const FolderBar: React.FC<FolderBarProps> = ({
   onCreateTemplate,
 }) => {
   const getFolderIcon = (folder: Folder) => {
-    const iconName = (folder.icon || "folder") as FolderIconType;
-    const IconComponent = ICON_COMPONENTS[iconName] ?? FolderIcon;
+    const iconName = (folder.icon ?? "folder") as FolderIconType;
+    const IconComponent = ICON_COMPONENTS[iconName];
     const iconColor = folder.color ?? "#F59E0B";
     return <IconComponent size={18} style={{ color: iconColor }} />;
   };
