@@ -7,7 +7,7 @@ interface FolderBarProps {
   folders: Folder[];
   selectedFolderId: string | null;
   totalTemplateCount: number;
-  isDark: boolean;
+  isDark?: boolean;
   onCreateFolderClick: () => void;
   onSelectFolder: (folderId: string | null) => void;
   onToggleFolder: (folderId: string) => void;
@@ -18,7 +18,6 @@ export const FolderBar: React.FC<FolderBarProps> = ({
   folders,
   selectedFolderId,
   totalTemplateCount,
-  isDark,
   onCreateFolderClick,
   onSelectFolder,
   onToggleFolder,
@@ -30,36 +29,22 @@ export const FolderBar: React.FC<FolderBarProps> = ({
         <button
           onClick={onCreateFolderClick}
           title="Create new folder"
-          className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-lg border-2 border-dashed px-4 py-3 transition-all ${
-            isDark
-              ? "border-slate-600 bg-slate-800/50 hover:border-slate-500 hover:bg-slate-800"
-              : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-slate-100"
-          }`}
+          className="flex flex-shrink-0 flex-col items-center gap-1 rounded-lg border-2 border-dashed border-border bg-muted px-4 py-3 transition-all hover:border-muted-foreground hover:bg-secondary"
         >
-          <FolderPlus size={18} className={isDark ? "text-slate-400" : "text-slate-500"} />
-          <span
-            className={`text-[10px] font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
-            New
-          </span>
+          <FolderPlus size={18} className="text-muted-foreground" />
+          <span className="text-[10px] font-medium text-muted-foreground">New</span>
         </button>
 
         <button
           onClick={() => onSelectFolder(null)}
           className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-lg px-4 py-3 transition-all ${
             selectedFolderId === null
-              ? isDark
-                ? "bg-slate-700 shadow-sm"
-                : "bg-white shadow-sm"
-              : isDark
-                ? "bg-slate-800/50 opacity-60 hover:opacity-100"
-                : "bg-slate-100/50 opacity-60 hover:opacity-100"
+              ? "bg-card shadow-sm"
+              : "bg-muted opacity-60 hover:opacity-100"
           }`}
         >
-          <Layers size={18} className={isDark ? "text-blue-400" : "text-blue-500"} />
-          <span
-            className={`max-w-[60px] truncate text-[10px] font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}
-          >
+          <Layers size={18} className="text-info" />
+          <span className="max-w-[60px] truncate text-[10px] font-medium text-muted-foreground">
             All ({totalTemplateCount})
           </span>
         </button>
@@ -73,18 +58,12 @@ export const FolderBar: React.FC<FolderBarProps> = ({
               }}
               className={`flex flex-col items-center gap-1 rounded-lg px-4 py-3 transition-all ${
                 selectedFolderId === folder.id
-                  ? isDark
-                    ? "bg-slate-700 shadow-sm"
-                    : "bg-white shadow-sm"
-                  : isDark
-                    ? "bg-slate-800/50 opacity-60 hover:opacity-100"
-                    : "bg-slate-100/50 opacity-60 hover:opacity-100"
+                  ? "bg-card shadow-sm"
+                  : "bg-muted opacity-60 hover:opacity-100"
               }`}
             >
-              <FolderIcon size={18} className={isDark ? "text-amber-400" : "text-amber-500"} />
-              <span
-                className={`max-w-[60px] truncate text-[10px] font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}
-              >
+              <FolderIcon size={18} className="text-amber-500" />
+              <span className="max-w-[60px] truncate text-[10px] font-medium text-muted-foreground">
                 {folder.name}
               </span>
             </button>

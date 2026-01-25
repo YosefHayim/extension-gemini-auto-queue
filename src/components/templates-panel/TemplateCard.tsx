@@ -5,7 +5,7 @@ import type { DisplayedTemplate } from "./types";
 
 interface TemplateCardProps {
   template: DisplayedTemplate;
-  isDark: boolean;
+  isDark?: boolean;
   hasAIKey: boolean;
   isImproving: boolean;
   showFolderName: boolean;
@@ -17,7 +17,6 @@ interface TemplateCardProps {
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
   template,
-  isDark,
   hasAIKey,
   isImproving,
   showFolderName,
@@ -27,48 +26,30 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   onUse,
 }) => {
   return (
-    <article
-      className={`space-y-3 rounded-lg border p-4 transition-all ${
-        isDark ? "border-slate-700 bg-slate-800/50" : "border-slate-200 bg-white"
-      }`}
-    >
+    <article className="space-y-3 rounded-lg border border-border bg-card p-4 transition-all">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3
-            className={`truncate text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}
-          >
-            {template.name}
-          </h3>
+          <h3 className="truncate text-sm font-semibold text-foreground">{template.name}</h3>
           {showFolderName && (
-            <span className={`text-[10px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-              {template.folderName}
-            </span>
+            <span className="text-[10px] text-muted-foreground">{template.folderName}</span>
           )}
         </div>
         <div className="flex flex-shrink-0 gap-1">
           {template.images && template.images.length > 0 && (
-            <span
-              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
-              }`}
-            >
+            <span className="flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
               <ImageIcon size={10} />
               {template.images.length}
             </span>
           )}
           {template.timesUsed > 0 && (
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                isDark ? "bg-blue-900/50 text-blue-400" : "bg-blue-100 text-blue-600"
-              }`}
-            >
+            <span className="rounded-full bg-info/20 px-2 py-0.5 text-[10px] font-medium text-info">
               x{template.timesUsed}
             </span>
           )}
         </div>
       </div>
 
-      <p className={`line-clamp-2 text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+      <p className="line-clamp-2 text-xs text-muted-foreground">
         {template.text || "No prompt text"}
       </p>
 
@@ -81,10 +62,8 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
             !hasAIKey
               ? "cursor-not-allowed opacity-30"
               : isImproving
-                ? "animate-pulse bg-blue-500 text-white"
-                : isDark
-                  ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
-                  : "bg-blue-100 text-blue-600 hover:bg-blue-200"
+                ? "animate-pulse bg-info text-info-foreground"
+                : "bg-info/20 text-info hover:bg-info/30"
           }`}
         >
           {isImproving ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
@@ -93,11 +72,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         <button
           onClick={(e) => onEdit(template.folderId, template.id, e)}
           title="Edit template"
-          className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${
-            isDark
-              ? "text-slate-400 hover:bg-slate-700 hover:text-white"
-              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-          }`}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
         >
           <Pencil size={14} />
         </button>
@@ -105,11 +80,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         <button
           onClick={(e) => onDelete(template.folderId, template.id, e)}
           title="Delete template"
-          className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${
-            isDark
-              ? "text-slate-400 hover:bg-red-500/20 hover:text-red-400"
-              : "text-slate-500 hover:bg-red-100 hover:text-red-600"
-          }`}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-destructive/20 hover:text-destructive"
         >
           <Trash2 size={14} />
         </button>
@@ -117,11 +88,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         <button
           onClick={() => onUse(template.folderId, template.id)}
           title="Add to queue"
-          className={`flex h-7 w-7 items-center justify-center rounded-md transition-all ${
-            isDark
-              ? "text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400"
-              : "text-slate-500 hover:bg-emerald-100 hover:text-emerald-600"
-          }`}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-all hover:bg-success/20 hover:text-success"
         >
           <Plus size={14} />
         </button>

@@ -63,11 +63,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({
       {selectedFolderId !== null && templates.length > 0 && (
         <button
           onClick={onCreateNewTemplate}
-          className={`w-full rounded-lg border-2 border-dashed p-3 text-xs font-medium transition-all ${
-            isDark
-              ? "border-slate-700 text-slate-500 hover:border-slate-600 hover:text-slate-400"
-              : "border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-500"
-          }`}
+          className="w-full rounded-lg border-2 border-dashed border-border p-3 text-xs font-medium text-muted-foreground transition-all hover:border-muted-foreground hover:text-foreground"
         >
           + New Template
         </button>
