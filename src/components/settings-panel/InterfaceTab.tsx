@@ -3,8 +3,6 @@ import React from "react";
 
 import { type AppSettings, ThemeMode } from "@/types";
 
-import { Tooltip } from "../Tooltip";
-
 import {
   getSectionClasses,
   labelClasses,
@@ -14,27 +12,17 @@ import {
 
 interface InterfaceTabProps {
   settings: AppSettings;
-  isDark: boolean;
+  isDark?: boolean;
   onUpdateSettings: (updates: Partial<AppSettings>) => void;
 }
 
-export const InterfaceTab: React.FC<InterfaceTabProps> = ({
-  settings,
-  isDark,
-  onUpdateSettings,
-}) => {
+export const InterfaceTab: React.FC<InterfaceTabProps> = ({ settings, onUpdateSettings }) => {
   const sectionClasses = getSectionClasses();
 
   return (
     <div className="animate-in fade-in space-y-4 duration-200">
       <div data-onboarding="theme-selector" className={sectionClasses}>
-        <label className={labelClasses}>
-          Interface Theme
-          <Tooltip
-            text="Choose Light, Dark, or System to follow your browser preference"
-            isDark={isDark}
-          />
-        </label>
+        <label className={labelClasses}>Interface Theme</label>
         <div className="flex gap-1.5">
           {[
             { mode: ThemeMode.LIGHT, icon: Sun, label: "Light", color: "text-amber-500" },
@@ -60,13 +48,7 @@ export const InterfaceTab: React.FC<InterfaceTabProps> = ({
 
       <div className={sectionClasses}>
         <div className="flex items-center justify-between px-1">
-          <label className={labelClasses}>
-            Drip Feed Mode
-            <Tooltip
-              text="Adds random delays between prompts to avoid rate limiting"
-              isDark={isDark}
-            />
-          </label>
+          <label className={labelClasses}>Drip Feed Mode</label>
           <button
             onClick={() => onUpdateSettings({ dripFeed: !settings.dripFeed })}
             title={

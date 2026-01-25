@@ -408,6 +408,7 @@ export default function App() {
         onToggleProcessing={() => {
           toggleProcessing().catch(() => {});
         }}
+        activeTab={activeTab}
       />
 
       <Footer isDark={isDark} />

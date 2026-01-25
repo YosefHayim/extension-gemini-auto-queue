@@ -11,6 +11,11 @@ export type BulkActionType =
   | "removeText"
   | "removeFiles"
   | "downloadChat"
+  | "changeTool"
+  | "changeMode"
+  | "variations"
+  | "stylePreset"
+  | "saveTemplates"
   | null;
 
 export interface ResetFilter {
@@ -61,6 +66,7 @@ export interface BulkActionsDialogProps {
   onBulkRetryFailed?: () => void;
   onBulkChangeTool?: (tool: GeminiTool) => void;
   onBulkChangeMode?: (mode: GeminiMode) => void;
+  onBulkDelete?: () => void;
 }
 
 export interface BasePanelProps {

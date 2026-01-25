@@ -1,4 +1,4 @@
-import { ChevronDown, Crown, Eye, EyeOff, ExternalLink, Key } from "lucide-react";
+import { Crown, Eye, EyeOff, ExternalLink, Key } from "lucide-react";
 import React, { useState } from "react";
 
 import { AIProvider, AI_PROVIDER_INFO, GeminiModel, SidebarPosition, ThemeMode } from "@/types";
@@ -83,17 +83,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <label className="text-sm font-normal text-foreground">Panel Position</label>
             <p className={descriptionClasses}>Where to show the sidebar</p>
           </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={settings.position || SidebarPosition.RIGHT}
-              onChange={(e) => onUpdateSettings({ position: e.target.value as SidebarPosition })}
-              className="rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground outline-none"
-            >
-              <option value={SidebarPosition.LEFT}>Left</option>
-              <option value={SidebarPosition.RIGHT}>Right</option>
-            </select>
-            <ChevronDown size={14} className="pointer-events-none -ml-7 text-muted-foreground" />
-          </div>
+          <select
+            value={settings.position || SidebarPosition.RIGHT}
+            onChange={(e) => onUpdateSettings({ position: e.target.value as SidebarPosition })}
+            className="rounded-md border border-border bg-secondary px-3 py-2 pr-8 text-sm text-foreground outline-none"
+          >
+            <option value={SidebarPosition.LEFT}>Left</option>
+            <option value={SidebarPosition.RIGHT}>Right</option>
+          </select>
         </div>
       </div>
 
@@ -210,10 +207,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <p className="text-sm font-medium text-foreground">Free Plan</p>
               <p className={descriptionClasses}>10 prompts/day remaining</p>
             </div>
-            <button className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90">
+            <a
+              href="https://nanoflow.app/pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90"
+            >
               <Crown size={14} />
               Upgrade
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -240,9 +242,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           ))}
         </div>
 
-        <div className="space-y-1 pt-2">
+        <div className="pt-2">
           <p className="text-xs text-muted-foreground">Nano Flow v1.0.0</p>
-          <p className="text-[11px] text-muted-foreground">Made with ♥ for Gemini users</p>
         </div>
       </div>
     </div>

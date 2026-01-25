@@ -8,6 +8,7 @@ interface FooterControlsProps {
   isProcessing: boolean;
   isPaused: boolean;
   onToggleProcessing: () => void;
+  activeTab: string;
 }
 
 export function FooterControls({
@@ -16,8 +17,11 @@ export function FooterControls({
   isProcessing,
   isPaused,
   onToggleProcessing,
+  activeTab,
 }: FooterControlsProps) {
   const completedItems = queue.filter((item) => item.status === QueueStatus.Completed);
+
+  if (activeTab !== "queue") return null;
 
   return (
     <div
@@ -52,7 +56,6 @@ export function FooterControls({
         </button>
       </div>
 
-      {/* Results Preview */}
       {completedItems.length > 0 && (
         <div className="no-scrollbar flex gap-1 overflow-x-auto py-1">
           {completedItems.slice(-5).map((item) => {

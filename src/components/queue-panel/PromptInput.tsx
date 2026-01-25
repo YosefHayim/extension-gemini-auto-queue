@@ -144,23 +144,24 @@ Separate multiple prompts with blank lines. Each paragraph becomes a separate qu
           onRemoveImage={(index) => onImagesChange(selectedImages.filter((_, i) => i !== index))}
         />
 
-        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
-          {promptPreviewCount > 0 && (
+        {promptPreviewCount > 0 && (
+          <div className="absolute bottom-2.5 right-2.5">
             <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
               {promptPreviewCount} prompt{promptPreviewCount !== 1 ? "s" : ""}
             </span>
-          )}
-          <button
-            data-onboarding="add-queue-btn"
-            onClick={onEnqueue}
-            disabled={promptPreviewCount === 0 && selectedImages.length === 0}
-            title="Add prompt to processing queue (Ctrl+Enter)"
-            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Add
-          </button>
-        </div>
+          </div>
+        )}
       </div>
+
+      <button
+        data-onboarding="add-queue-btn"
+        onClick={onEnqueue}
+        disabled={promptPreviewCount === 0 && selectedImages.length === 0}
+        title="Add prompt to processing queue (Ctrl+Enter)"
+        className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Add to Queue
+      </button>
     </>
   );
 };

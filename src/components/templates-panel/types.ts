@@ -4,7 +4,7 @@ export interface TemplatesPanelProps {
   folders: Folder[];
   isDark: boolean;
   hasAIKey: boolean;
-  onCreateFolder: (name: string) => void;
+  onCreateFolder: (name: string, color?: string, icon?: string) => void;
   onDeleteFolder: (id: string) => void;
   onToggleFolder: (id: string) => void;
   onUseTemplate: (folderId: string, templateId: string) => void;

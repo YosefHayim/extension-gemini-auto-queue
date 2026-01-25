@@ -5,7 +5,7 @@ import type { Folder, PromptTemplate } from "@/types";
 
 interface UseTemplatesPanelParams {
   folders: Folder[];
-  onCreateFolder: (name: string) => void;
+  onCreateFolder: (name: string, color?: string, icon?: string) => void;
   onDeleteFolder: (id: string) => void;
   onDeleteTemplate: (folderId: string, templateId: string) => void;
   onSaveTemplate: (folderId: string, template: Partial<PromptTemplate>) => void;
@@ -48,9 +48,9 @@ export function useTemplatesPanel({
     );
   }, [folders, selectedFolderId]);
 
-  const handleCreateFolder = () => {
+  const handleCreateFolder = (color?: string, icon?: string) => {
     if (!newFolderName.trim()) return;
-    onCreateFolder(newFolderName.trim());
+    onCreateFolder(newFolderName.trim(), color, icon);
     setNewFolderName("");
     setIsCreatingFolder(false);
   };

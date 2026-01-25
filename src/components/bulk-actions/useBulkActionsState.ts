@@ -33,6 +33,8 @@ export function useBulkActionsState({
   const [chatMediaCounts, setChatMediaCounts] = useState<ChatMediaCounts | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [downloadMethod, setDownloadMethod] = useState<"native" | "direct">("native");
+  const [selectedTool, setSelectedTool] = useState<GeminiTool | null>(null);
+  const [selectedMode, setSelectedMode] = useState<GeminiMode | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resettableCount = completedCount + failedCount;
@@ -80,6 +82,8 @@ export function useBulkActionsState({
     setSelectedImagesForRemoval([]);
     setChatMediaCounts(null);
     setDownloadMethod("native");
+    setSelectedTool(null);
+    setSelectedMode(null);
   };
 
   return {
@@ -120,5 +124,9 @@ export function useBulkActionsState({
     allUniqueImages,
     textMatchCount,
     resetState,
+    selectedTool,
+    setSelectedTool,
+    selectedMode,
+    setSelectedMode,
   };
 }

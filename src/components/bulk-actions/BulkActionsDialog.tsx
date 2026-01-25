@@ -28,6 +28,7 @@ import { buildResetFilter, readFilesAsBase64 } from "./handlers";
 import { useBulkActionsState } from "./useBulkActionsState";
 
 import type { BulkActionsDialogProps, BulkActionType } from "./types";
+import { GEMINI_TOOL_INFO, GEMINI_MODE_INFO, GeminiTool, GeminiMode } from "@/types";
 
 // Design tokens from .pen file
 const DESIGN = {
@@ -155,6 +156,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   onBulkRetryFailed,
   onBulkChangeTool: _onBulkChangeTool,
   onBulkChangeMode: _onBulkChangeMode,
+  onBulkDelete,
 }) => {
   const state = useBulkActionsState({
     pendingItems,
@@ -204,6 +206,10 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
         onBulkRemoveFiles(state.selectedImagesForRemoval);
       } else if (activeAction === "downloadChat" && onDownloadChatMedia) {
         await onDownloadChatMedia(state.downloadMethod);
+      } else if (activeAction === "changeTool" && state.selectedTool && _onBulkChangeTool) {
+        _onBulkChangeTool(state.selectedTool);
+      } else if (activeAction === "changeMode" && state.selectedMode && _onBulkChangeMode) {
+        _onBulkChangeMode(state.selectedMode);
       }
       handleClose();
     } finally {
@@ -245,6 +251,12 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
       return;
     }
 
+    if (actionId === "delete" && onBulkDelete) {
+      onBulkDelete();
+      handleClose();
+      return;
+    }
+
     const actionMap: Record<string, BulkActionType> = {
       reset: "reset",
       prefix: "modify",
@@ -258,11 +270,10 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
       attach: "attach",
       removeImages: "removeFiles",
       removeFiles: "removeFiles",
-      changeTool: null,
-      changeModel: null,
+      changeTool: "changeTool",
+      changeModel: "changeMode",
       exportCsv: null,
       saveTemplates: null,
-      delete: "reset",
     };
 
     const mappedAction = actionMap[actionId];
@@ -509,6 +520,57 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
                   >
                     Append
                   </button>
+                </div>
+              </div>
+            )}
+            {state.activeAction === "changeTool" && (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">Select Tool</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(GEMINI_TOOL_INFO)
+                    .filter(([key]) => key !== GeminiTool.NONE)
+                    .map(([tool, info]) => {
+                      const Icon = info.icon;
+                      const isSelected = state.selectedTool === tool;
+                      return (
+                        <button
+                          key={tool}
+                          onClick={() => state.setSelectedTool(tool as GeminiTool)}
+                          className={`flex items-center gap-2 rounded-md border p-2 text-sm transition-colors ${
+                            isSelected
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:bg-muted"
+                          }`}
+                        >
+                          <Icon size={16} />
+                          {info.label}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+            {state.activeAction === "changeMode" && (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">Select Mode</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(GEMINI_MODE_INFO).map(([mode, info]) => {
+                    const isSelected = state.selectedMode === mode;
+                    return (
+                      <button
+                        key={mode}
+                        onClick={() => state.setSelectedMode(mode as GeminiMode)}
+                        className={`flex flex-col items-center gap-1 rounded-md border p-3 text-sm transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        <span className="font-medium">{info.label}</span>
+                        <span className="text-xs text-muted-foreground">{info.description}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

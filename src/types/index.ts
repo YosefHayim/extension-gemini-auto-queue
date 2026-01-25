@@ -204,7 +204,36 @@ export interface Folder {
   name: string;
   templates: PromptTemplate[];
   isOpen: boolean;
+  color?: string;
+  icon?: string;
 }
+
+export const FOLDER_COLORS = [
+  "#18181B",
+  "#3B82F6",
+  "#22C55E",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+] as const;
+
+export const FOLDER_ICONS = [
+  "folder",
+  "star",
+  "heart",
+  "zap",
+  "rocket",
+  "sparkles",
+  "briefcase",
+  "palette",
+  "camera",
+  "music",
+  "gamepad-2",
+  "coffee",
+] as const;
+
+export type FolderColor = (typeof FOLDER_COLORS)[number];
+export type FolderIcon = (typeof FOLDER_ICONS)[number];
 
 export enum ThemeMode {
   LIGHT = "LIGHT",

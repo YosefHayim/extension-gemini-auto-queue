@@ -3,8 +3,6 @@ import React from "react";
 
 import { type AppSettings, GEMINI_TOOL_INFO, GeminiModel, GeminiTool } from "@/types";
 
-import { Tooltip } from "../Tooltip";
-
 import {
   getSectionClasses,
   labelClasses,
@@ -28,10 +26,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
   return (
     <div className="animate-in fade-in space-y-4 duration-200">
       <div data-onboarding="model-selector" className={sectionClasses}>
-        <label className={labelClasses}>
-          Active Synthesis Model
-          <Tooltip text="Flash 2.0 is faster, Imagen 3 produces higher quality images" />
-        </label>
+        <label className={labelClasses}>Active Synthesis Model</label>
         <select
           value={settings.primaryModel}
           onChange={(e) => {
@@ -45,10 +40,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
       </div>
 
       <div className={sectionClasses}>
-        <label className={labelClasses}>
-          Default Tool
-          <Tooltip text="The Gemini tool to use for new prompts (Image, Video, Canvas, etc.)" />
-        </label>
+        <label className={labelClasses}>Default Tool</label>
         <select
           value={settings.defaultTool || GeminiTool.IMAGE}
           onChange={(e) => {
@@ -66,10 +58,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
 
       <div className={sectionClasses}>
         <div className="mb-2 flex items-center justify-between px-1">
-          <label className={labelClasses}>
-            Tool Sequence
-            <Tooltip text="Cycle through different tools for each prompt (e.g., Image -> Video -> Canvas -> repeat)" />
-          </label>
+          <label className={labelClasses}>Tool Sequence</label>
           <button
             onClick={() => onUpdateSettings({ useToolSequence: !settings.useToolSequence })}
             title={
@@ -140,10 +129,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
       </div>
 
       <div className={sectionClasses}>
-        <label className={labelClasses}>
-          Global Prefix
-          <Tooltip text="Text automatically added before every prompt (e.g., 'High quality, detailed')" />
-        </label>
+        <label className={labelClasses}>Global Prefix</label>
         <input
           value={settings.prefix}
           onChange={(e) => onUpdateSettings({ prefix: e.target.value })}
@@ -153,10 +139,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
       </div>
 
       <div className={sectionClasses}>
-        <label className={labelClasses}>
-          Global Suffix
-          <Tooltip text="Text automatically added after every prompt (e.g., '4K resolution, cinematic')" />
-        </label>
+        <label className={labelClasses}>Global Suffix</label>
         <input
           value={settings.suffix}
           onChange={(e) => onUpdateSettings({ suffix: e.target.value })}
@@ -167,10 +150,7 @@ export const GenerationTab: React.FC<GenerationTabProps> = ({ settings, onUpdate
 
       <div className={sectionClasses}>
         <div className="mb-2 flex items-center justify-between px-1">
-          <label className={labelClasses}>
-            Negative Prompts
-            <Tooltip text="Elements to avoid in images: blurry, extra fingers, watermarks, etc." />
-          </label>
+          <label className={labelClasses}>Negative Prompts</label>
           <button
             onClick={() =>
               onUpdateSettings({ globalNegativesEnabled: !settings.globalNegativesEnabled })

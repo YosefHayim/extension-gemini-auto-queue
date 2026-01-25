@@ -19,12 +19,14 @@ export function useFolderHandlers({
   setActiveTab,
 }: UseFolderHandlersProps) {
   const handleCreateFolder = useCallback(
-    async (name: string) => {
+    async (name: string, color?: string, icon?: string) => {
       const newFolder: Folder = {
         id: Math.random().toString(36).substring(2, 9),
         name,
         templates: [],
         isOpen: true,
+        color,
+        icon,
       };
       const updatedFolders = [...folders, newFolder];
       setFoldersState(updatedFolders);

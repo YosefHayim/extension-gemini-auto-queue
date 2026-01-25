@@ -1,17 +1,14 @@
 import { Camera, Upload } from "lucide-react";
 import React from "react";
 
-import { Tooltip } from "../Tooltip";
-
 interface PromptHeaderProps {
-  isDark: boolean;
+  isDark?: boolean;
   hasImages: boolean;
   onOpenImagePicker: () => void;
   onOpenCsvDialog: () => void;
 }
 
 export const PromptHeader: React.FC<PromptHeaderProps> = ({
-  isDark,
   hasImages,
   onOpenImagePicker,
   onOpenCsvDialog,
@@ -20,10 +17,6 @@ export const PromptHeader: React.FC<PromptHeaderProps> = ({
     <div className="flex items-center justify-between">
       <span className="flex items-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         New Prompt
-        <Tooltip
-          text="Enter prompts separated by blank lines. Each paragraph (text between blank lines) becomes one prompt. Multi-line paragraphs are joined into a single prompt."
-          isDark={isDark}
-        />
       </span>
       <div className="flex gap-0.5">
         <button

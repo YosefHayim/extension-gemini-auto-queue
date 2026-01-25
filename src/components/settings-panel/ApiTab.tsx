@@ -4,17 +4,15 @@ import React, { useState } from "react";
 import { hasAnyAIKey } from "@/services/storageService";
 import { AIProvider, AI_PROVIDER_INFO, type AppSettings } from "@/types";
 
-import { Tooltip } from "../Tooltip";
-
 import { getSectionClasses, labelClasses, getInputClasses, getSelectClasses } from "./styles";
 
 interface ApiTabProps {
   settings: AppSettings;
-  isDark: boolean;
+  isDark?: boolean;
   onUpdateSettings: (updates: Partial<AppSettings>) => void;
 }
 
-export const ApiTab: React.FC<ApiTabProps> = ({ settings, isDark, onUpdateSettings }) => {
+export const ApiTab: React.FC<ApiTabProps> = ({ settings, onUpdateSettings }) => {
   const [isAIProvidersExpanded, setIsAIProvidersExpanded] = useState(false);
   const [visibleKeys, setVisibleKeys] = useState<Record<AIProvider, boolean>>({
     [AIProvider.GEMINI]: false,
@@ -54,10 +52,6 @@ export const ApiTab: React.FC<ApiTabProps> = ({ settings, isDark, onUpdateSettin
           <label className={`${labelClasses} cursor-pointer`}>
             <Key size={12} className="mr-1.5" />
             AI Providers
-            <Tooltip
-              text="Configure API keys for AI-powered features like prompt optimization"
-              isDark={isDark}
-            />
           </label>
           <div className="flex items-center gap-2">
             <span
