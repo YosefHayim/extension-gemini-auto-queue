@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { User } from "../models/User.js";
-import { FEATURES, FEATURE_CREDIT_COSTS, SUBSCRIPTION_PLANS } from "../constants/index.js";
+import { FEATURES, SUBSCRIPTION_STATUS } from "../constants/index.js";
 import {
   InsufficientCreditsError,
   SubscriptionError,
@@ -32,23 +32,20 @@ export function createFeatureGate(feature: FeatureKey) {
       );
     }
 
-    if (!user.hasActiveSubscription()) {
+    if (user.status !== SUBSCRIPTION_STATUS.ACTIVE) {
       throw new SubscriptionError(ERROR_MESSAGES.SUB_EXPIRED, ERROR_CODES.SUB_EXPIRED);
     }
 
-    const creditCost = FEATURE_CREDIT_COSTS[FEATURES[feature]];
+    await user.checkAndResetDaily();
 
-    if (user.subscription.plan === SUBSCRIPTION_PLANS.FREE && creditCost > 0) {
-      const remaining = user.getRemainingCredits();
-
-      if (remaining < creditCost) {
-        throw new InsufficientCreditsError(creditCost, remaining);
-      }
+    if (!user.canUsePrompt()) {
+      const remaining = user.getRemainingPrompts();
+      throw new InsufficientCreditsError(1, remaining);
     }
 
     trackFeatureUsage(userId, FEATURES[feature], {
-      plan: user.subscription.plan,
-      creditCost,
+      plan: user.plan,
+      promptsRemaining: user.getRemainingPrompts(),
     });
   };
 }
@@ -66,21 +63,18 @@ export async function consumeFeatureCredits(
     );
   }
 
-  if (user.subscription.plan !== SUBSCRIPTION_PLANS.FREE) {
-    return { success: true, remaining: -1 };
-  }
+  await user.checkAndResetDaily();
 
-  const creditCost = FEATURE_CREDIT_COSTS[FEATURES[feature]];
-  const remaining = user.getRemainingCredits();
+  const remaining = user.getRemainingPrompts();
 
-  if (remaining < creditCost) {
+  if (!user.canUsePrompt()) {
     return { success: false, remaining };
   }
 
-  await user.consumeCredits(creditCost);
-  const newRemaining = user.getRemainingCredits();
+  await user.consumePrompt();
+  const newRemaining = user.getRemainingPrompts();
 
-  trackCreditsConsumed(userId, creditCost, FEATURES[feature], newRemaining);
+  trackCreditsConsumed(userId, 1, FEATURES[feature], newRemaining);
 
   return { success: true, remaining: newRemaining };
 }
@@ -98,33 +92,29 @@ export async function checkFeatureAccess(
     };
   }
 
-  if (!user.hasActiveSubscription()) {
+  if (user.status !== SUBSCRIPTION_STATUS.ACTIVE) {
     return {
       allowed: false,
-      reason: "Subscription expired or inactive",
+      reason: "Account expired or inactive",
     };
   }
 
-  const creditCost = FEATURE_CREDIT_COSTS[FEATURES[feature]];
+  await user.checkAndResetDaily();
 
-  if (user.subscription.plan !== SUBSCRIPTION_PLANS.FREE) {
-    return { allowed: true };
-  }
+  const remaining = user.getRemainingPrompts();
 
-  const remaining = user.getRemainingCredits();
-
-  if (remaining < creditCost) {
+  if (!user.canUsePrompt()) {
     return {
       allowed: false,
-      reason: "Insufficient credits",
-      creditsRequired: creditCost,
+      reason: "Daily prompt limit reached",
+      creditsRequired: 1,
       creditsRemaining: remaining,
     };
   }
 
   return {
     allowed: true,
-    creditsRequired: creditCost,
+    creditsRequired: 1,
     creditsRemaining: remaining,
   };
 }

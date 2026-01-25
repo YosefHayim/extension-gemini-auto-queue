@@ -97,15 +97,14 @@ export interface LemonSqueezySubscriptionAttributes {
 }
 
 export interface UserSubscriptionInfo {
-  plan: "free" | "monthly" | "annual";
+  plan: "free" | "lifetime";
   status: string;
-  credits: number;
-  creditsUsed: number;
-  isActive: boolean;
-  expiresAt: Date | null;
-  lemonSqueezySubscriptionId: string | null;
-  customerPortalUrl: string | null;
-  updatePaymentUrl: string | null;
+  dailyLimit: number;
+  promptsUsedToday: number;
+  promptsRemaining: number;
+  isLifetime: boolean;
+  purchasedAt: Date | null;
+  lemonSqueezyOrderId: string | null;
 }
 
 export interface FeatureAccess {

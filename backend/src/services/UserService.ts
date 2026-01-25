@@ -7,7 +7,7 @@ export {
   updateUser,
   updateLoginMetadata,
   verifyUserEmail,
-  consumeUserCredits,
+  consumeUserPrompt,
   deleteUser,
   createAuditLog,
 } from "./user/index.js";

@@ -1,5 +1,4 @@
 import { User, type IUser } from "../../models/User.js";
-import { env } from "../../config/env.js";
 import { SUBSCRIPTION_PLANS, SUBSCRIPTION_STATUS, ERROR_CODES } from "../../constants/index.js";
 import { NotFoundError, ConflictError } from "../../utils/errors.js";
 import { ERROR_MESSAGES } from "../../constants/messages.js";
@@ -38,13 +37,10 @@ export async function createUser(params: CreateUserParams): Promise<IUser> {
     picture: params.picture ?? null,
     googleId: params.googleId ?? null,
     isEmailVerified: params.isEmailVerified ?? false,
-    subscription: {
-      plan: SUBSCRIPTION_PLANS.FREE,
-      status: SUBSCRIPTION_STATUS.ACTIVE,
-    },
-    credits: {
-      total: env.FREE_TRIAL_CREDITS,
-      used: 0,
+    plan: SUBSCRIPTION_PLANS.FREE,
+    status: SUBSCRIPTION_STATUS.ACTIVE,
+    usage: {
+      promptsToday: 0,
       lastResetAt: new Date(),
     },
     metadata: {
@@ -156,30 +152,32 @@ export async function verifyUserEmail(userId: string): Promise<void> {
   });
 }
 
-export async function consumeUserCredits(
-  userId: string,
-  amount: number
+export async function consumeUserPrompt(
+  userId: string
 ): Promise<{ success: boolean; remaining: number }> {
   const user = await User.findById(userId);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.AUTH_USER_NOT_FOUND);
   }
-  if (user.subscription.plan !== SUBSCRIPTION_PLANS.FREE) {
-    return { success: true, remaining: -1 };
-  }
-  const remaining = user.getRemainingCredits();
-  if (remaining < amount) {
+
+  await user.checkAndResetDaily();
+
+  const remaining = user.getRemainingPrompts();
+  if (!user.canUsePrompt()) {
     return { success: false, remaining };
   }
-  await user.consumeCredits(amount);
-  const newRemaining = user.getRemainingCredits();
-  if (newRemaining <= 10 && newRemaining > 0) {
+
+  await user.consumePrompt();
+  const newRemaining = user.getRemainingPrompts();
+
+  if (newRemaining <= 3 && newRemaining > 0) {
     try {
       await sendCreditsLowEmail(user.email, newRemaining);
     } catch (error) {
-      console.error("Failed to send credits low email:", error);
+      console.error("Failed to send prompts low email:", error);
     }
   }
+
   return { success: true, remaining: newRemaining };
 }
 
@@ -192,7 +190,7 @@ export async function deleteUser(userId: string): Promise<void> {
 
   await trackUserEvent(userId, "user_deleted_account", {
     email: user.email,
-    plan: user.subscription.plan,
+    plan: user.plan,
   });
 
   await User.findByIdAndDelete(userId);

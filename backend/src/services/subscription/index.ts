@@ -1,7 +1,2 @@
 export { handleWebhookEvent } from "./webhookHandlers.js";
-export {
-  getSubscriptionInfo,
-  cancelSubscription,
-  getCheckoutUrl,
-  syncSubscriptionFromLemonSqueezy,
-} from "./queries.js";
+export { getSubscriptionInfo, getCheckoutUrl } from "./queries.js";

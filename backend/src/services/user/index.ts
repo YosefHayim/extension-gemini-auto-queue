@@ -5,7 +5,7 @@ export {
   updateUser,
   updateLoginMetadata,
   verifyUserEmail,
-  consumeUserCredits,
+  consumeUserPrompt,
   deleteUser,
 } from "./mutations.js";
 export { createAuditLog } from "./audit.js";

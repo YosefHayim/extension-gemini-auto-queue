@@ -18,18 +18,13 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().transform((val) => val.split(",")),
 
   MONGODB_URI: z.string().url(),
-  MONGODB_DB_NAME: z.string().default("gemini-nano-flow"),
+  MONGODB_DB_NAME: z.string().default("groove"),
 
   REDIS_URL: z.string().url(),
 
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
-  GOOGLE_CALLBACK_URL: z.string().url(),
-
   LEMON_SQUEEZY_API_KEY: z.string(),
   LEMON_SQUEEZY_STORE_ID: z.string(),
-  LEMON_SQUEEZY_MONTHLY_VARIANT_ID: z.string(),
-  LEMON_SQUEEZY_ANNUAL_VARIANT_ID: z.string(),
+  LEMON_SQUEEZY_LIFETIME_VARIANT_ID: z.string(),
 
   RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string().email(),
@@ -39,7 +34,6 @@ const envSchema = z.object({
   POSTHOG_API_KEY: z.string().optional(),
   POSTHOG_HOST: z.string().url().default("https://app.posthog.com"),
 
-  FREE_TRIAL_CREDITS: z.coerce.number().default(100),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
 });

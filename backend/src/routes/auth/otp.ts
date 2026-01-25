@@ -138,9 +138,11 @@ export async function otpRoutes(app: FastifyInstance): Promise<void> {
       identifyUser(user._id.toString(), {
         email: user.email,
         name: user.name,
-        plan: user.subscription.plan,
+        plan: user.plan,
         createdAt: user.createdAt,
       });
+
+      await user.checkAndResetDaily();
 
       return reply.send({
         success: true,
@@ -151,14 +153,12 @@ export async function otpRoutes(app: FastifyInstance): Promise<void> {
             name: user.name,
             picture: user.picture,
             isEmailVerified: user.isEmailVerified,
-            subscription: {
-              plan: user.subscription.plan,
-              status: user.subscription.status,
-            },
-            credits: {
-              total: user.credits.total,
-              used: user.credits.used,
-              remaining: user.getRemainingCredits(),
+            plan: user.plan,
+            status: user.status,
+            usage: {
+              dailyLimit: user.getDailyLimit(),
+              promptsUsedToday: user.usage.promptsToday,
+              promptsRemaining: user.getRemainingPrompts(),
             },
           },
           tokens,

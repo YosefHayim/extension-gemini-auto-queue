@@ -1,6 +1,6 @@
-# Gemini Nano Flow Backend
+# Groove Backend
 
-Production-ready Node.js/TypeScript backend for the Gemini Nano Flow Chrome Extension.
+Production-ready Node.js/TypeScript backend for the Groove Chrome Extension.
 
 ## Architecture
 

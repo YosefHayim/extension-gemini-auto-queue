@@ -1,9 +1,7 @@
-import jwt from "@fastify/jwt";
 import type { FastifyInstance } from "fastify";
 import { getRedisClient } from "../config/redis.js";
 import { env } from "../config/env.js";
-import { JWT_CONFIG, REDIS_KEYS } from "../constants/index.js";
-import { generateSecureToken } from "../utils/crypto.js";
+import { REDIS_KEYS } from "../constants/index.js";
 import type { JWTPayload } from "../types/index.js";
 
 let fastifyInstance: FastifyInstance | null = null;
@@ -90,26 +88,4 @@ export async function validateRefreshToken(userId: string, token: string): Promi
   }
 
   return storedToken === token;
-}
-
-export function generateStateToken(): string {
-  return generateSecureToken(32);
-}
-
-export async function storeOAuthState(state: string, data: Record<string, unknown>): Promise<void> {
-  const redis = getRedisClient();
-  const key = `oauth:state:${state}`;
-
-  await redis.set(key, JSON.stringify(data), "EX", 600);
-}
-
-export async function getOAuthState(state: string): Promise<Record<string, unknown> | null> {
-  const redis = getRedisClient();
-  const key = `oauth:state:${state}`;
-
-  const data = await redis.get(key);
-  if (!data) return null;
-
-  await redis.del(key);
-  return JSON.parse(data);
 }

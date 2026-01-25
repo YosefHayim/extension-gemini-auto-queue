@@ -18,6 +18,8 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
       throw new NotFoundError(ERROR_MESSAGES.AUTH_USER_NOT_FOUND);
     }
 
+    await user.checkAndResetDaily();
+
     return reply.send({
       success: true,
       data: {
@@ -27,16 +29,13 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
           name: user.name,
           picture: user.picture,
           isEmailVerified: user.isEmailVerified,
-          subscription: {
-            plan: user.subscription.plan,
-            status: user.subscription.status,
-            currentPeriodEnd: user.subscription.currentPeriodEnd,
-            cancelAtPeriodEnd: user.subscription.cancelAtPeriodEnd,
-          },
-          credits: {
-            total: user.credits.total,
-            used: user.credits.used,
-            remaining: user.getRemainingCredits(),
+          plan: user.plan,
+          status: user.status,
+          purchasedAt: user.purchasedAt,
+          usage: {
+            dailyLimit: user.getDailyLimit(),
+            promptsUsedToday: user.usage.promptsToday,
+            promptsRemaining: user.getRemainingPrompts(),
           },
           metadata: {
             createdAt: user.createdAt,

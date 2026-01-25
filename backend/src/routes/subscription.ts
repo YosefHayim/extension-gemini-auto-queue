@@ -1,19 +1,17 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { env } from "../config/env.js";
 import {
   getSubscriptionInfo,
-  cancelSubscription,
   getCheckoutUrl,
   handleWebhookEvent,
-  syncSubscriptionFromLemonSqueezy,
 } from "../services/SubscriptionService.js";
 import { createAuditLog } from "../services/UserService.js";
 import { verifyWebhookSignature } from "../utils/crypto.js";
-import { WebhookError, ValidationError } from "../utils/errors.js";
+import { WebhookError } from "../utils/errors.js";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../constants/messages.js";
 import { requireAuth, getAuthenticatedUser } from "../middlewares/auth.js";
 import { getClientIp, sanitizeUserAgent } from "../utils/index.js";
-import { SUBSCRIPTION_PLANS } from "../constants/index.js";
+import { SUBSCRIPTION_PLANS, PLAN_LIMITS } from "../constants/index.js";
+import { env } from "../config/env.js";
 import type { LemonSqueezyWebhookPayload } from "../types/index.js";
 
 export async function subscriptionRoutes(app: FastifyInstance): Promise<void> {
@@ -30,63 +28,20 @@ export async function subscriptionRoutes(app: FastifyInstance): Promise<void> {
     },
   });
 
-  app.post("/sync", {
+  app.get("/checkout", {
     preHandler: [requireAuth],
     handler: async (request: FastifyRequest, reply: FastifyReply) => {
       const { userId } = getAuthenticatedUser(request);
 
-      await syncSubscriptionFromLemonSqueezy(userId);
-      const subscriptionInfo = await getSubscriptionInfo(userId);
-
-      return reply.send({
-        success: true,
-        data: { subscription: subscriptionInfo },
-      });
-    },
-  });
-
-  app.post("/cancel", {
-    preHandler: [requireAuth],
-    handler: async (request: FastifyRequest, reply: FastifyReply) => {
-      const { userId } = getAuthenticatedUser(request);
-
-      await cancelSubscription(userId);
+      const checkoutUrl = await getCheckoutUrl(userId);
 
       await createAuditLog({
         userId,
-        action: "subscription_cancelled",
+        action: "checkout_initiated",
         resource: "subscription",
         ipAddress: getClientIp(request),
         userAgent: sanitizeUserAgent(request.headers["user-agent"]),
       });
-
-      return reply.send({
-        success: true,
-        data: { message: SUCCESS_MESSAGES.SUB_CANCELLED },
-      });
-    },
-  });
-
-  app.get("/checkout/:plan", {
-    preHandler: [requireAuth],
-    handler: async (request: FastifyRequest, reply: FastifyReply) => {
-      const { userId } = getAuthenticatedUser(request);
-      const { plan } = request.params as { plan: string };
-
-      let variantId: string;
-
-      switch (plan) {
-        case SUBSCRIPTION_PLANS.MONTHLY:
-          variantId = env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID;
-          break;
-        case SUBSCRIPTION_PLANS.ANNUAL:
-          variantId = env.LEMON_SQUEEZY_ANNUAL_VARIANT_ID;
-          break;
-        default:
-          throw new ValidationError("Invalid plan. Use 'monthly' or 'annual'");
-      }
-
-      const checkoutUrl = await getCheckoutUrl(userId, variantId);
 
       return reply.send({
         success: true,
@@ -126,31 +81,17 @@ export async function subscriptionRoutes(app: FastifyInstance): Promise<void> {
             name: "Free",
             price: 0,
             currency: "USD",
-            interval: null,
-            features: ["100 credits", "Basic queue processing", "Limited tools"],
+            dailyLimit: PLAN_LIMITS[SUBSCRIPTION_PLANS.FREE].dailyPrompts,
+            features: PLAN_LIMITS[SUBSCRIPTION_PLANS.FREE].features,
           },
           {
-            id: SUBSCRIPTION_PLANS.MONTHLY,
-            name: "Monthly",
-            price: 200,
+            id: SUBSCRIPTION_PLANS.LIFETIME,
+            name: "Lifetime",
+            price: PLAN_LIMITS[SUBSCRIPTION_PLANS.LIFETIME].price,
             currency: "USD",
-            interval: "month",
-            features: ["Unlimited usage", "All tools", "Priority support"],
-          },
-          {
-            id: SUBSCRIPTION_PLANS.ANNUAL,
-            name: "Annual",
-            price: 1600,
-            currency: "USD",
-            interval: "year",
-            originalPrice: 2400,
-            savings: "33%",
-            features: [
-              "Unlimited usage",
-              "All tools",
-              "Priority support",
-              "Early access to new features",
-            ],
+            dailyLimit: PLAN_LIMITS[SUBSCRIPTION_PLANS.LIFETIME].dailyPrompts,
+            features: PLAN_LIMITS[SUBSCRIPTION_PLANS.LIFETIME].features,
+            isOneTime: true,
           },
         ],
       },
