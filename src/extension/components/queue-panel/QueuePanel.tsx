@@ -1,7 +1,6 @@
 import React from "react";
 
 import { GeminiMode, QueueStatus } from "@/backend/types";
-
 import { BulkActionsHandler } from "@/extension/components/queue-panel/BulkActionsHandler";
 import { EmptyQueue } from "@/extension/components/queue-panel/EmptyQueue";
 import { useQueuePanelState } from "@/extension/components/queue-panel/hooks/useQueuePanelState";

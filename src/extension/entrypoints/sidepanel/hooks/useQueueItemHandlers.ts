@@ -3,7 +3,13 @@ import { toast } from "sonner";
 
 import { improvePrompt } from "@/backend/services/geminiService";
 import { hasAnyAIKey, setQueue } from "@/backend/services/storageService";
-import { GeminiTool, MessageType, QueueStatus, type AppSettings, type QueueItem } from "@/backend/types";
+import {
+  GeminiTool,
+  MessageType,
+  QueueStatus,
+  type AppSettings,
+  type QueueItem,
+} from "@/backend/types";
 
 import type { SendMessageFn } from "@/extension/entrypoints/sidepanel/types";
 

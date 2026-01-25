@@ -8,8 +8,11 @@ import {
   GeminiTool,
   QueueStatus,
 } from "@/backend/types";
-
-import { MODE_PILL_STYLES, CONTENT_TYPE_INFO, STATUS_INFO } from "@/extension/components/search-filter/constants";
+import {
+  MODE_PILL_STYLES,
+  CONTENT_TYPE_INFO,
+  STATUS_INFO,
+} from "@/extension/components/search-filter/constants";
 
 interface FilterPanelProps {
   selectedTools: GeminiTool[];

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { validateApiKey } from "@/backend/services/geminiService";
 import { DEFAULT_SETTINGS, getSettings, setSettings } from "@/backend/services/storageService";
 import { type GeminiModel, ThemeMode, type AppSettings } from "@/backend/types";
-
 import {
   ApiKeySection,
   ModelSection,

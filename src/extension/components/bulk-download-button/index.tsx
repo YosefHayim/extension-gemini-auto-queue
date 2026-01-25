@@ -7,11 +7,14 @@ import {
   downloadAllViaNativeButtons,
   type MediaItem,
 } from "@/backend/utils/mediaDownloader";
-
 import { DownloadPanel } from "@/extension/components/bulk-download-button/DownloadPanel";
 import { getMediaCounts } from "@/extension/components/bulk-download-button/types";
 
-import type { BulkDownloadButtonProps, DownloadMethod, DownloadState } from "@/extension/components/bulk-download-button/types";
+import type {
+  BulkDownloadButtonProps,
+  DownloadMethod,
+  DownloadState,
+} from "@/extension/components/bulk-download-button/types";
 
 export const BulkDownloadButton: React.FC<BulkDownloadButtonProps> = ({
   isDark: _isDark,

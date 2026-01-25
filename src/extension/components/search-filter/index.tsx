@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { FilterPanel } from "@/extension/components/search-filter/FilterPanel";
 import { SearchInput } from "@/extension/components/search-filter/SearchInput";
 
-import type { SearchFilterProps } from "@/extension/components/search-filter/types";
 import type { ContentType, GeminiMode, GeminiTool, QueueStatus } from "@/backend/types";
+import type { SearchFilterProps } from "@/extension/components/search-filter/types";
 
 export const SearchFilter: React.FC<SearchFilterProps> = ({
   searchText,

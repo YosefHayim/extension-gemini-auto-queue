@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 import type {
   BulkActionType,
   ChatMediaCounts,
   ResetFilter,
   SelectedFile,
 } from "@/extension/components/bulk-actions/types";
-import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 
 interface UseBulkActionsStateProps {
   pendingItems: QueueItem[];

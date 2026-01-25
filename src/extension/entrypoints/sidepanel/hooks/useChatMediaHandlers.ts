@@ -3,8 +3,8 @@ import { toast } from "sonner";
 
 import { MessageType } from "@/backend/types";
 
-import type { SendMessageFn } from "@/extension/entrypoints/sidepanel/types";
 import type { ChatMediaCounts } from "@/extension/components/BulkActionsDialog";
+import type { SendMessageFn } from "@/extension/entrypoints/sidepanel/types";
 
 interface UseChatMediaHandlersProps {
   sendMessage: SendMessageFn;

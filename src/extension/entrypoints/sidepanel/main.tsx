@@ -3,7 +3,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import { initSentry, Sentry } from "@/backend/utils/sentry";
-
 import App from "@/extension/entrypoints/sidepanel/App";
 import { queryClient } from "@/extension/hooks";
 import "@/extension/assets/styles.css";

@@ -1,5 +1,5 @@
-import type { ExportFormat } from "@/extension/components/export-dialog/types";
 import type { QueueItem } from "@/backend/types";
+import type { ExportFormat } from "@/extension/components/export-dialog/types";
 
 export const escapeCSV = (value: string): string => {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {

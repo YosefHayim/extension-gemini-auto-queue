@@ -1,8 +1,8 @@
 import { LogOut } from "lucide-react";
 import React, { useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/extension/components/ui/avatar";
 import { getUserInitials, signOut } from "@/backend/services/authService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/extension/components/ui/avatar";
 
 import type { AuthUser } from "@/backend/types";
 

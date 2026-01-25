@@ -64,7 +64,7 @@ export async function tryHiddenFileSelector(dataTransfer: DataTransfer): Promise
     return false;
   }
 
-  const fileInput = parent.querySelector('input[type="file"]') as HTMLInputElement | null;
+  const fileInput = parent.querySelector('input[type="file"]');
   if (!fileInput) {
     log.debug("tryHiddenSelector", "No file input in parent");
     return false;
@@ -72,7 +72,7 @@ export async function tryHiddenFileSelector(dataTransfer: DataTransfer): Promise
 
   log.debug("tryHiddenSelector", "Setting files via hidden input");
   fileInput.files = dataTransfer.files;
-  dispatchFileInputEvents(fileInput as HTMLInputElement);
+  dispatchFileInputEvents(fileInput);
   await sleep(1000);
 
   return true;

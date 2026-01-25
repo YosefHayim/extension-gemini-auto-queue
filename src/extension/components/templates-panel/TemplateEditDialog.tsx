@@ -3,8 +3,8 @@ import React, { useRef, useState } from "react";
 
 import { GeminiTool, GEMINI_TOOL_INFO } from "@/backend/types";
 
-import type { EditingTemplateState } from "@/extension/components/templates-panel/types";
 import type { Folder as FolderType } from "@/backend/types";
+import type { EditingTemplateState } from "@/extension/components/templates-panel/types";
 
 interface TemplateEditDialogProps {
   editingTemplate: EditingTemplateState | null;

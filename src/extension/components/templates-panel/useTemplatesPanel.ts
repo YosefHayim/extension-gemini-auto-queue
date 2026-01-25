@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 
-import type { DisplayedTemplate, EditingTemplateState } from "@/extension/components/templates-panel/types";
 import type { Folder, PromptTemplate } from "@/backend/types";
+import type {
+  DisplayedTemplate,
+  EditingTemplateState,
+} from "@/extension/components/templates-panel/types";
 
 interface UseTemplatesPanelParams {
   folders: Folder[];

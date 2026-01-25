@@ -9,7 +9,6 @@ import {
   type GeminiTool,
   type QueueItem,
 } from "@/backend/types";
-
 import { QueueList } from "@/extension/components/queue-panel/QueueList";
 
 interface QueueContentProps {

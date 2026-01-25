@@ -1,3 +1,7 @@
+import { CheckCircle } from "lucide-react";
+import React, { useEffect } from "react";
+
+import { Button } from "@/extension/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -5,11 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/extension/components/ui/dialog";
-import React, { useEffect } from "react";
 
 import type { AuthUser } from "@/backend/types";
-import { Button } from "@/extension/components/ui/button";
-import { CheckCircle } from "lucide-react";
 
 interface AuthSuccessDialogProps {
   isOpen: boolean;

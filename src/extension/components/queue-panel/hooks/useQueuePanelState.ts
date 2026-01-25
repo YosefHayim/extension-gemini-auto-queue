@@ -7,8 +7,10 @@ import {
   QueueStatus,
   type QueueItem,
 } from "@/backend/types";
-
-import { useFilteredQueue, usePromptPreviewCount } from "@/extension/components/queue-panel/hooks/useQueueFilters";
+import {
+  useFilteredQueue,
+  usePromptPreviewCount,
+} from "@/extension/components/queue-panel/hooks/useQueueFilters";
 import { useQueueStats } from "@/extension/components/queue-panel/hooks/useQueueStats";
 
 import type { TextSelection } from "@/extension/components/queue-panel/types";

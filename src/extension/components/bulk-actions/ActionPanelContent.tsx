@@ -1,7 +1,6 @@
 import React from "react";
 
 import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiTool } from "@/backend/types";
-
 import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
 import type { GeminiMode } from "@/backend/types";

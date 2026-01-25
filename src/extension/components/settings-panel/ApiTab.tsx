@@ -3,8 +3,12 @@ import React, { useState } from "react";
 
 import { hasAnyAIKey } from "@/backend/services/storageService";
 import { AIProvider, AI_PROVIDER_INFO, type AppSettings } from "@/backend/types";
-
-import { getSectionClasses, labelClasses, getInputClasses, getSelectClasses } from "@/extension/components/settings-panel/styles";
+import {
+  getSectionClasses,
+  labelClasses,
+  getInputClasses,
+  getSelectClasses,
+} from "@/extension/components/settings-panel/styles";
 
 interface ApiTabProps {
   settings: AppSettings;

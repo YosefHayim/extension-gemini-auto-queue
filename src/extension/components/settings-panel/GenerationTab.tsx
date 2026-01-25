@@ -2,7 +2,6 @@ import { X } from "lucide-react";
 import React from "react";
 
 import { type AppSettings, GEMINI_TOOL_INFO, GeminiModel, GeminiTool } from "@/backend/types";
-
 import {
   getSectionClasses,
   labelClasses,

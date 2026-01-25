@@ -1,5 +1,11 @@
-import { findElement, findByAriaLabel, sleep, base64ToFile, SELECTORS, logger } from "@/backend/utils";
-
+import {
+  findElement,
+  findByAriaLabel,
+  sleep,
+  base64ToFile,
+  SELECTORS,
+  logger,
+} from "@/backend/utils";
 import {
   tryFileInputApproach,
   tryHiddenFileSelector,

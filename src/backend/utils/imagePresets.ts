@@ -1,4 +1,9 @@
-import type { AspectRatio, FormatInfo, ImageFormat, SizePreset } from "@/backend/types/imageProcessing";
+import type {
+  AspectRatio,
+  FormatInfo,
+  ImageFormat,
+  SizePreset,
+} from "@/backend/types/imageProcessing";
 
 export const SIZE_PRESETS: SizePreset[] = [
   { id: "original", name: "Original", width: 0, height: 0, category: "default" },

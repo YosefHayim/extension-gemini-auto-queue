@@ -2,7 +2,6 @@ import { Calendar } from "lucide-react";
 import React, { useState } from "react";
 
 import { MessageType } from "@/backend/types";
-
 import { ActiveSchedulePopover } from "@/extension/components/schedule-button/ActiveSchedulePopover";
 import { ScheduleFormPopover } from "@/extension/components/schedule-button/ScheduleFormPopover";
 import { useCountdown } from "@/extension/components/schedule-button/useCountdown";

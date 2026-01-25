@@ -2,7 +2,6 @@ import { Laptop, Moon, Sun } from "lucide-react";
 import React from "react";
 
 import { type AppSettings, ThemeMode } from "@/backend/types";
-
 import {
   getSectionClasses,
   labelClasses,

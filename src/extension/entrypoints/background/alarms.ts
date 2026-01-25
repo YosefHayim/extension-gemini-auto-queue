@@ -1,6 +1,5 @@
 import { getQueue, getSettings, setSettings } from "@/backend/services/storageService";
 import { QueueStatus } from "@/backend/types";
-
 import { getProcessingState } from "@/extension/entrypoints/background/state";
 import { SCHEDULE_ALARM_NAME } from "@/extension/entrypoints/background/types";
 

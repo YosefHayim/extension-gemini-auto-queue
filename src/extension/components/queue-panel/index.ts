@@ -17,9 +17,16 @@ export { WeightingToolbar } from "@/extension/components/queue-panel/WeightingTo
 
 export { MODE_ICONS, MODE_SELECTOR_STYLES } from "@/extension/components/queue-panel/constants";
 
-export type { QueuePanelProps, SortableQueueItemProps, TextSelection } from "@/extension/components/queue-panel/types";
+export type {
+  QueuePanelProps,
+  SortableQueueItemProps,
+  TextSelection,
+} from "@/extension/components/queue-panel/types";
 
-export { useFilteredQueue, usePromptPreviewCount } from "@/extension/components/queue-panel/hooks/useQueueFilters";
+export {
+  useFilteredQueue,
+  usePromptPreviewCount,
+} from "@/extension/components/queue-panel/hooks/useQueueFilters";
 export type { QueueFiltersState } from "@/extension/components/queue-panel/hooks/useQueueFilters";
 export { useQueuePanelState } from "@/extension/components/queue-panel/hooks/useQueuePanelState";
 export { useQueueStats } from "@/extension/components/queue-panel/hooks/useQueueStats";

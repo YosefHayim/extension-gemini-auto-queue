@@ -1,7 +1,11 @@
 import { AlertCircle, CheckCircle, Download, FileText, Image, Video, X } from "lucide-react";
 import React from "react";
 
-import type { DownloadMethod, DownloadState, MediaCounts } from "@/extension/components/bulk-download-button/types";
+import type {
+  DownloadMethod,
+  DownloadState,
+  MediaCounts,
+} from "@/extension/components/bulk-download-button/types";
 
 interface DownloadPanelProps {
   isDark: boolean;

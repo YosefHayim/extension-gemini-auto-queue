@@ -1,8 +1,8 @@
-import type { ExtensionMessage, ExtensionResponse } from "@/backend/types";
-import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
-
 import { MessageType } from "@/backend/types";
 import { logger } from "@/backend/utils/logger";
+import { getProcessingState, setProcessingState } from "@/extension/entrypoints/background/state";
+
+import type { ExtensionMessage, ExtensionResponse } from "@/backend/types";
 
 const log = logger.module("TabManagement");
 

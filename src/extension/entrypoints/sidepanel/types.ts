@@ -1,4 +1,10 @@
-import type { AppSettings, ExtensionMessage, ExtensionResponse, Folder, QueueItem } from "@/backend/types";
+import type {
+  AppSettings,
+  ExtensionMessage,
+  ExtensionResponse,
+  Folder,
+  QueueItem,
+} from "@/backend/types";
 
 export type TabType = "queue" | "templates" | "settings";
 

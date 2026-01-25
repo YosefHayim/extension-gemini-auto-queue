@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-import { AIProvider } from "@/backend/types";
-
 import { getAIApiKey } from "@/backend/services/storageService";
+import { AIProvider } from "@/backend/types";
 
 import type { GeminiModel } from "@/backend/types";
 

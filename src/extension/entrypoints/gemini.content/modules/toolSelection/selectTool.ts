@@ -1,7 +1,9 @@
 import { GeminiTool } from "@/backend/types";
 import { sleep, TOOL_SELECTORS, logger } from "@/backend/utils";
-
-import { openToolbox, isToolCurrentlyActive } from "@/extension/entrypoints/gemini.content/modules/toolSelection/toolHelpers";
+import {
+  openToolbox,
+  isToolCurrentlyActive,
+} from "@/extension/entrypoints/gemini.content/modules/toolSelection/toolHelpers";
 
 const log = logger.module("ToolSelection");
 

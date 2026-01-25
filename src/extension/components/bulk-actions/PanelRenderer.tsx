@@ -11,8 +11,13 @@ import {
   ResetPanel,
 } from "@/extension/components/bulk-actions/panels";
 
-import type { BulkActionType, ChatMediaCounts, ResetFilter, SelectedFile } from "@/extension/components/bulk-actions/types";
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
+import type {
+  BulkActionType,
+  ChatMediaCounts,
+  ResetFilter,
+  SelectedFile,
+} from "@/extension/components/bulk-actions/types";
 
 interface PanelRendererProps {
   activeAction: BulkActionType;

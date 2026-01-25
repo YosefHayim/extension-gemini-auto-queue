@@ -7,4 +7,8 @@ export { TemplateEditDialog } from "@/extension/components/templates-panel/Templ
 export { TemplateList } from "@/extension/components/templates-panel/TemplateList";
 export { TemplatesPanel } from "@/extension/components/templates-panel/TemplatesPanel";
 export { useTemplatesPanel } from "@/extension/components/templates-panel/useTemplatesPanel";
-export type { DisplayedTemplate, EditingTemplateState, TemplatesPanelProps } from "@/extension/components/templates-panel/types";
+export type {
+  DisplayedTemplate,
+  EditingTemplateState,
+  TemplatesPanelProps,
+} from "@/extension/components/templates-panel/types";

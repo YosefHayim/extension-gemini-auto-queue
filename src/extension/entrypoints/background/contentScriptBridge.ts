@@ -1,6 +1,9 @@
 import { logger } from "@/backend/utils/logger";
-
-import { findGeminiTab, ensureContentScriptReady, sendMessageWithTimeout } from "@/extension/entrypoints/background/tabManagement";
+import {
+  findGeminiTab,
+  ensureContentScriptReady,
+  sendMessageWithTimeout,
+} from "@/extension/entrypoints/background/tabManagement";
 
 import type { ExtensionMessage, ExtensionResponse } from "@/backend/types";
 

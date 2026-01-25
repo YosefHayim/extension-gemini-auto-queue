@@ -2,8 +2,8 @@ import { Loader2, Zap } from "lucide-react";
 import React, { useState } from "react";
 import { SiGoogle } from "react-icons/si";
 
-import { Button } from "@/extension/components/ui/button";
 import { signIn } from "@/backend/services/authService";
+import { Button } from "@/extension/components/ui/button";
 
 import type { AuthUser } from "@/backend/types";
 

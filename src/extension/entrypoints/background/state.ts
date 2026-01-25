@@ -1,5 +1,4 @@
 import { logger } from "@/backend/utils/logger";
-
 import { DEFAULT_PROCESSING_STATE } from "@/extension/entrypoints/background/types";
 
 import type { ProcessingState } from "@/extension/entrypoints/background/types";

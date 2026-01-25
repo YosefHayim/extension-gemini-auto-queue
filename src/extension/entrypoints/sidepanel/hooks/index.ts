@@ -1,4 +1,7 @@
-export { useBulkModifyActions, type ResetFilter } from "@/extension/entrypoints/sidepanel/hooks/useBulkModifyActions";
+export {
+  useBulkModifyActions,
+  type ResetFilter,
+} from "@/extension/entrypoints/sidepanel/hooks/useBulkModifyActions";
 export { useBulkResetActions } from "@/extension/entrypoints/sidepanel/hooks/useBulkResetActions";
 export { useChatMediaHandlers } from "@/extension/entrypoints/sidepanel/hooks/useChatMediaHandlers";
 export { useFolderHandlers } from "@/extension/entrypoints/sidepanel/hooks/useFolderHandlers";

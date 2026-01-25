@@ -1,9 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { clearAuthUser, getAuthUser, setAuthUser, signIn, signOut } from "@/backend/services/authService";
-import type { AuthUser } from "@/backend/types";
-
+import {
+  clearAuthUser,
+  getAuthUser,
+  setAuthUser,
+  signIn,
+  signOut,
+} from "@/backend/services/authService";
 import { queryKeys } from "@/extension/hooks/queryClient";
+
+import type { AuthUser } from "@/backend/types";
 
 export function useAuthUser() {
   return useQuery({

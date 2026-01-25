@@ -1,8 +1,8 @@
 import { Image as ImageIcon } from "lucide-react";
 import React from "react";
 
-import { MODE_ICONS } from "@/extension/components/queue-panel/constants";
 import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/backend/types";
+import { MODE_ICONS } from "@/extension/components/queue-panel/constants";
 
 import type { QueueItem } from "@/backend/types";
 

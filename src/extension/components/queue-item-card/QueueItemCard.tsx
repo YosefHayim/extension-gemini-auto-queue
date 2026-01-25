@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import { QueueStatus } from "@/backend/types";
-
 import { ActionButtons } from "@/extension/components/queue-item-card/ActionButtons";
 import { CardFooter } from "@/extension/components/queue-item-card/CardFooter";
 import { DragHandle } from "@/extension/components/queue-item-card/DragHandle";

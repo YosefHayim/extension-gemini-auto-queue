@@ -11,10 +11,8 @@ import {
   downloadAllMedia,
   downloadAllViaNativeButtons,
 } from "@/backend/utils/mediaDownloader";
-
-import { selectTool, submitPrompt } from "@/extension/entrypoints/gemini.content/modules";
-
 import { processPromptThroughUI } from "@/extension/entrypoints/gemini.content/automation/processPrompt";
+import { selectTool, submitPrompt } from "@/extension/entrypoints/gemini.content/modules";
 
 const log = logger.module("Automation");
 

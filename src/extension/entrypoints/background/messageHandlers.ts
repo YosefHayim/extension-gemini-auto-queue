@@ -18,9 +18,8 @@ import {
   type ExtensionResponse,
   type Folder,
   type QueueItem,
-  GeminiModel,
+  type GeminiModel,
 } from "@/backend/types";
-
 import { sendToContentScript } from "@/extension/entrypoints/background/contentScriptBridge";
 import {
   startProcessing,

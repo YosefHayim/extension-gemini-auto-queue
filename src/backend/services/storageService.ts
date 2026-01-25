@@ -1,4 +1,12 @@
 import {
+  getAllQueueItems,
+  setAllQueueItems,
+  updateQueueItemInDb,
+  onQueueChange as onQueueChangeDb,
+  migrateFromChromeStorage,
+  requestPersistentStorage,
+} from "@/backend/services/queueDb";
+import {
   AIProvider,
   type AIApiKeys,
   type AppSettings,
@@ -10,15 +18,6 @@ import {
   STORAGE_KEYS,
   ThemeMode,
 } from "@/backend/types";
-
-import {
-  getAllQueueItems,
-  setAllQueueItems,
-  updateQueueItemInDb,
-  onQueueChange as onQueueChangeDb,
-  migrateFromChromeStorage,
-  requestPersistentStorage,
-} from "@/backend/services/queueDb";
 
 /**
  * Default application settings

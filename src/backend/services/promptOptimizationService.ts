@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-import { AIProvider } from "@/backend/types";
-
 import { getPreferredAIKey, hasAnyAIKey } from "@/backend/services/storageService";
+import { AIProvider } from "@/backend/types";
 
 import type { AppSettings } from "@/backend/types";
 

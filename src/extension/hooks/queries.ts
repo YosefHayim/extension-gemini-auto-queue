@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { clearAuthUser, getAuthUser, setAuthUser, signIn, signOut } from "@/backend/services/authService";
+import {
+  clearAuthUser,
+  getAuthUser,
+  setAuthUser,
+  signIn,
+  signOut,
+} from "@/backend/services/authService";
 import {
   getFolders,
   getQueue,
@@ -13,9 +19,9 @@ import {
   setSettings,
   updateQueueItem,
 } from "@/backend/services/storageService";
-import type { AppSettings, AuthUser, Folder, QueueItem } from "@/backend/types";
-
 import { queryKeys } from "@/extension/hooks/queryClient";
+
+import type { AppSettings, AuthUser, Folder, QueueItem } from "@/backend/types";
 
 export function useAuthQuery() {
   return useQuery({

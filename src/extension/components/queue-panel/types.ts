@@ -1,5 +1,5 @@
-import type { ResetFilter } from "@/extension/components/BulkActionsDialog";
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
+import type { ResetFilter } from "@/extension/components/BulkActionsDialog";
 
 export interface SortableQueueItemProps {
   item: QueueItem;

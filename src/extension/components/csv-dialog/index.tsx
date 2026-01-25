@@ -1,7 +1,11 @@
 import { Download, Upload, X } from "lucide-react";
 import React, { useRef, useState } from "react";
 
-import { parseCSV, downloadTemplate, getUnmatchedFiles } from "@/extension/components/csv-dialog/utils";
+import {
+  parseCSV,
+  downloadTemplate,
+  getUnmatchedFiles,
+} from "@/extension/components/csv-dialog/utils";
 
 import type { CsvDialogProps, CsvStep, ParsedRow } from "@/extension/components/csv-dialog/types";
 
