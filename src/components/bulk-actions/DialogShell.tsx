@@ -7,7 +7,12 @@ interface DialogShellProps {
   children: React.ReactNode;
 }
 
-export const DialogShell: React.FC<DialogShellProps> = ({ isOpen, isDark, onClose, children }) => {
+export const DialogShell: React.FC<DialogShellProps> = ({
+  isOpen,
+  isDark: _isDark,
+  onClose,
+  children,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -17,11 +22,7 @@ export const DialogShell: React.FC<DialogShellProps> = ({ isOpen, isDark, onClos
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div
-        className={`mx-4 w-full max-w-sm overflow-hidden rounded-lg border shadow-2xl ${
-          isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
-        }`}
-      >
+      <div className="mx-4 w-full max-w-sm overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
         {children}
       </div>
     </div>

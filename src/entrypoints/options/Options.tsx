@@ -19,6 +19,14 @@ export default function Options() {
   const isDark = settings.theme === ThemeMode.DARK;
 
   useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
+
+  useEffect(() => {
     const loadSettings = async () => {
       const savedSettings = await getSettings();
       setSettingsState(savedSettings);
@@ -68,9 +76,7 @@ export default function Options() {
   };
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"}`}
-    >
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
       <div className="mx-auto max-w-2xl p-8">
         <div className="mb-8 flex items-center gap-3">
           <div className="rounded-lg bg-blue-600 p-2 shadow-lg shadow-blue-600/20">
@@ -82,7 +88,7 @@ export default function Options() {
           </div>
           <button
             onClick={handleThemeToggle}
-            className={`ml-auto rounded-lg p-2 transition-all ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200"}`}
+            className="ml-auto rounded-lg bg-secondary p-2 transition-all hover:bg-secondary/80"
           >
             {isDark ? (
               <Sun size={20} className="text-amber-400" />
@@ -141,10 +147,10 @@ export default function Options() {
             handleSave().catch(() => {});
           }}
           disabled={isSaving}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl p-4 font-black text-white transition-all ${
+          className={`flex w-full items-center justify-center gap-2 rounded-xl p-4 font-black transition-all ${
             saveSuccess
-              ? "bg-emerald-600"
-              : "bg-blue-600 shadow-lg shadow-blue-600/20 hover:bg-blue-500"
+              ? "bg-emerald-600 text-white"
+              : "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
           }`}
         >
           {saveSuccess ? (

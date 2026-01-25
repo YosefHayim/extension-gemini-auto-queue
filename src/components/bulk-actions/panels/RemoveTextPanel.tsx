@@ -31,9 +31,7 @@ export const RemoveTextPanel: React.FC<RemoveTextPanelProps> = ({
       <BackButton isDark={isDark} onClick={onBack} />
 
       <div>
-        <label
-          className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-        >
+        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Text to Remove
         </label>
         <input
@@ -41,17 +39,13 @@ export const RemoveTextPanel: React.FC<RemoveTextPanelProps> = ({
           value={textToRemove}
           onChange={(e) => setTextToRemove(e.target.value)}
           placeholder="Enter text to remove from all prompts..."
-          className={`w-full rounded-lg border p-3 text-sm outline-none transition-colors ${
-            isDark
-              ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-rose-500"
-              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-rose-500"
-          }`}
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-rose-500"
         />
       </div>
 
       {textToRemove.trim() && (
         <>
-          <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+          <p className="text-[11px] text-muted-foreground">
             Found in {textMatchCount} of {pendingCount} pending prompt
             {pendingCount !== 1 ? "s" : ""}
           </p>
@@ -60,22 +54,12 @@ export const RemoveTextPanel: React.FC<RemoveTextPanelProps> = ({
               {matchingTextPrompts.map(({ item, position }) => (
                 <div
                   key={item.id}
-                  className={`flex items-start gap-2 rounded-lg border p-2 ${
-                    isDark ? "border-rose-500/30 bg-rose-500/10" : "border-rose-200 bg-rose-50"
-                  }`}
+                  className="flex items-start gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 p-2"
                 >
-                  <span
-                    className={`flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${
-                      isDark ? "bg-rose-500/20 text-rose-400" : "bg-rose-100 text-rose-600"
-                    }`}
-                  >
+                  <span className="flex-shrink-0 rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-500">
                     #{position}
                   </span>
-                  <p
-                    className={`line-clamp-2 text-[11px] leading-tight ${
-                      isDark ? "text-slate-300" : "text-slate-600"
-                    }`}
-                  >
+                  <p className="line-clamp-2 text-[11px] leading-tight text-muted-foreground">
                     {item.finalPrompt}
                   </p>
                 </div>

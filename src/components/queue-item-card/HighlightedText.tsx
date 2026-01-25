@@ -6,7 +6,11 @@ interface HighlightedTextProps {
   isDark: boolean;
 }
 
-export const HighlightedText: React.FC<HighlightedTextProps> = ({ text, search, isDark }) => {
+export const HighlightedText: React.FC<HighlightedTextProps> = ({
+  text,
+  search,
+  isDark: _isDark,
+}) => {
   if (!search.trim()) return <>{text}</>;
 
   const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
@@ -18,7 +22,7 @@ export const HighlightedText: React.FC<HighlightedTextProps> = ({ text, search, 
         regex.test(part) ? (
           <mark
             key={i}
-            className={`rounded px-0.5 ${isDark ? "bg-yellow-500/40 text-yellow-200" : "bg-yellow-300 text-yellow-900"}`}
+            className="rounded bg-yellow-500/40 px-0.5 text-yellow-200 dark:bg-yellow-500/40 dark:text-yellow-200"
           >
             {part}
           </mark>

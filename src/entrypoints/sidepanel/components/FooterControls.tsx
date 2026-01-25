@@ -12,7 +12,7 @@ interface FooterControlsProps {
 }
 
 export function FooterControls({
-  isDark,
+  isDark: _isDark,
   queue,
   isProcessing,
   isPaused,
@@ -24,9 +24,7 @@ export function FooterControls({
   if (activeTab !== "queue") return null;
 
   return (
-    <div
-      className={`space-y-3 border-t p-3 ${isDark ? "border-white/10 bg-black/80 backdrop-blur-xl" : "border-slate-200 bg-slate-50"}`}
-    >
+    <div className="space-y-3 border-t border-border bg-background/80 p-3 backdrop-blur-xl">
       <div className="flex gap-3">
         <button
           data-onboarding="start-button"

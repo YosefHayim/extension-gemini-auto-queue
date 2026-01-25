@@ -12,7 +12,7 @@ interface ApiKeySectionProps {
 }
 
 export function ApiKeySection({
-  isDark,
+  isDark: _isDark,
   apiKey,
   showApiKey,
   isValidating,
@@ -22,15 +22,13 @@ export function ApiKeySection({
   onValidate,
 }: ApiKeySectionProps) {
   return (
-    <div
-      className={`mb-6 rounded-xl border p-6 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white shadow-sm"}`}
-    >
+    <div className="mb-6 rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
         <Key size={20} className="text-blue-500" />
         <h2 className="text-lg font-bold">API Key Configuration</h2>
       </div>
 
-      <p className={`mb-4 text-sm ${isDark ? "opacity-60" : "text-slate-600"}`}>
+      <p className="mb-4 text-sm text-muted-foreground">
         Your Gemini API key is required for image generation. Get your key from Google AI Studio.
         The key is stored securely in your browser and never shared.
       </p>
@@ -53,11 +51,7 @@ export function ApiKeySection({
               onApiKeyChange(e.target.value);
             }}
             placeholder="AIzaSy..."
-            className={`w-full rounded-lg border p-3 pr-24 font-mono text-sm outline-none transition-all ${
-              isDark
-                ? "border-white/10 bg-black/40 focus:border-blue-500/50"
-                : "border-slate-200 bg-slate-50 focus:border-blue-500"
-            }`}
+            className="w-full rounded-lg border border-border bg-background p-3 pr-24 font-mono text-sm text-foreground outline-none transition-all focus:border-blue-500"
           />
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 gap-1">
             <button

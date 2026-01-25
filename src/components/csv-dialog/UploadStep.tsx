@@ -9,18 +9,14 @@ interface UploadStepProps {
 }
 
 export const UploadStep: React.FC<UploadStepProps> = ({
-  isDark,
+  isDark: _isDark,
   csvInputRef,
   onDownloadTemplate,
   onCsvUpload,
 }) => {
   return (
     <div className="space-y-2 p-2">
-      <div
-        className={`rounded-md border border-border p-3 text-[10px] leading-relaxed ${
-          isDark ? "bg-muted" : "bg-muted"
-        }`}
-      >
+      <div className="rounded-md border border-border bg-muted p-3 text-[10px] leading-relaxed">
         <div className="mb-2 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
           <Info size={10} /> CSV Format Guide
         </div>

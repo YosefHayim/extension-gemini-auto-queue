@@ -17,27 +17,19 @@ export const ModifyPanel: React.FC<ModifyPanelProps> = ({
       <BackButton isDark={isDark} onClick={onBack} />
 
       <div>
-        <label
-          className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-        >
+        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Text to Add
         </label>
         <textarea
           value={modifyText}
           onChange={(e) => setModifyText(e.target.value)}
           placeholder="e.g., 4K, cinematic, dramatic lighting..."
-          className={`min-h-[80px] w-full rounded-lg border p-3 text-sm outline-none transition-colors ${
-            isDark
-              ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-zinc-500"
-              : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-zinc-400"
-          }`}
+          className="min-h-[80px] w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-zinc-500"
         />
       </div>
 
       <div>
-        <label
-          className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-        >
+        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Position
         </label>
         <div className="flex gap-2">
@@ -48,9 +40,7 @@ export const ModifyPanel: React.FC<ModifyPanelProps> = ({
               className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
                 modifyPosition === pos
                   ? "border-zinc-500 bg-zinc-500/20 text-zinc-700 dark:text-zinc-300"
-                  : isDark
-                    ? "border-slate-700 text-slate-400 hover:border-slate-600"
-                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                  : "border-border text-muted-foreground hover:border-muted-foreground/50"
               }`}
             >
               {pos === "prepend" ? "Before" : "After"}

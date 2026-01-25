@@ -1,7 +1,8 @@
 import { ExternalLink, Linkedin, Mail, PanelRight, Settings, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { isExtensionEnabled } from "@/services/storageService";
+import { getSettings, isExtensionEnabled } from "@/services/storageService";
+import { ThemeMode } from "@/types";
 
 function isGeminiSite(url: string | undefined): boolean {
   if (!url) return false;
@@ -16,11 +17,23 @@ export default function Popup() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        const [tab, settings] = await Promise.all([
+          chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => tabs[0]),
+          getSettings(),
+        ]);
         setIsOnGemini(isGeminiSite(tab?.url));
 
         const isEnabled = await isExtensionEnabled();
         setEnabled(isEnabled);
+
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark =
+          settings.theme === ThemeMode.SYSTEM ? prefersDark : settings.theme === ThemeMode.DARK;
+        if (isDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
       } finally {
         setLoading(false);
       }

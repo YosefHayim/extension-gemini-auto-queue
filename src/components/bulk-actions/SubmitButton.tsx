@@ -24,7 +24,7 @@ interface SubmitButtonProps {
 }
 
 export const SubmitButton: React.FC<SubmitButtonProps> = ({
-  isDark,
+  isDark: _isDark,
   activeAction,
   isProcessing,
   selectedFiles,
@@ -80,7 +80,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   };
 
   return (
-    <div className={`border-t p-4 ${isDark ? "border-slate-700" : "border-slate-200"}`}>
+    <div className="border-t border-border p-4">
       <button
         onClick={onSubmit}
         disabled={isDisabled}

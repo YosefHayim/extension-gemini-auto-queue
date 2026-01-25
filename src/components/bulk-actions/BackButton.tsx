@@ -5,10 +5,10 @@ interface BackButtonProps {
   onClick: () => void;
 }
 
-export const BackButton: React.FC<BackButtonProps> = ({ isDark, onClick }) => (
+export const BackButton: React.FC<BackButtonProps> = ({ isDark: _isDark, onClick }) => (
   <button
     onClick={onClick}
-    className={`text-xs font-medium ${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-500 hover:text-slate-700"}`}
+    className="text-xs font-medium text-muted-foreground hover:text-foreground"
   >
     &larr; Back
   </button>

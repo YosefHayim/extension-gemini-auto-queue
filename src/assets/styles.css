@@ -6,10 +6,10 @@
 
 @layer base {
   :root {
-    /* Colors */
+    /* Light mode colors */
     --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
-    --primary: 158 64% 52%;
+    --foreground: 240 10% 4%;
+    --primary: 240 6% 10%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
@@ -27,15 +27,62 @@
     --accent-foreground: 240 6% 10%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 158 64% 52%;
+    --ring: 240 6% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    --card-foreground: 240 10% 4%;
+
+    /* Status colors - light mode */
+    --status-pending: 38 92% 50%;
+    --status-pending-bg: 38 92% 95%;
+    --status-processing: 221 83% 53%;
+    --status-processing-bg: 221 83% 95%;
+    --status-completed: 158 64% 52%;
+    --status-completed-bg: 158 64% 95%;
+    --status-failed: 0 84% 60%;
+    --status-failed-bg: 0 84% 95%;
 
     /* Border Radius */
     --radius-sm: 4px;
     --radius-md: 6px;
     --radius-lg: 8px;
     --radius-xl: 12px;
+  }
+
+  .dark {
+    /* Dark mode colors */
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 6% 10%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 221 83% 53%;
+    --info-foreground: 0 0% 100%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 0 0% 98%;
+    --card: 240 4% 10%;
+    --card-foreground: 0 0% 98%;
+
+    /* Status colors - dark mode */
+    --status-pending: 38 92% 50%;
+    --status-pending-bg: 38 92% 15%;
+    --status-processing: 221 83% 53%;
+    --status-processing-bg: 221 83% 15%;
+    --status-completed: 158 64% 52%;
+    --status-completed-bg: 158 64% 15%;
+    --status-failed: 0 62% 50%;
+    --status-failed-bg: 0 62% 15%;
   }
 
   html {

@@ -14,7 +14,7 @@ interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = ({
   text,
-  isDark = false,
+  isDark: _isDark,
   position = "top",
   delay = 300,
   size = 10,
@@ -101,7 +101,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const getArrowStyles = (): string => {
     const baseArrow = "absolute border-4 border-transparent";
-    const arrowColorClass = isDark ? "border-slate-800" : "border-slate-900";
+    const arrowColorClass = "border-popover";
 
     const arrowMap: Record<TooltipPosition, string> = {
       top: `${baseArrow} left-1/2 top-full -translate-x-1/2 ${arrowColorClass.replace("border-", "border-t-")}`,
@@ -126,11 +126,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         <div
           ref={tooltipRef}
           role="tooltip"
-          className={`pointer-events-none absolute z-[2147483647] max-h-[200px] w-[200px] overflow-auto whitespace-normal rounded-lg px-3 py-2 text-[11px] leading-relaxed shadow-xl transition-opacity duration-150 ${getPositionStyles()} ${
-            isDark
-              ? "border border-slate-700 bg-slate-800 text-slate-200"
-              : "bg-slate-900 text-slate-100"
-          }`}
+          className={`bg-popover text-popover-foreground pointer-events-none absolute z-[2147483647] max-h-[200px] w-[200px] overflow-auto whitespace-normal rounded-lg border border-border px-3 py-2 text-[11px] leading-relaxed shadow-xl transition-opacity duration-150 ${getPositionStyles()}`}
         >
           <div className="break-words">{text}</div>
           <div className={getArrowStyles()} />

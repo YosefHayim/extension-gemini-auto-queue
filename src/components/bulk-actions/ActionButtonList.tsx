@@ -38,7 +38,7 @@ interface ActionButtonListProps {
 }
 
 export const ActionButtonList: React.FC<ActionButtonListProps> = ({
-  isDark,
+  isDark: _isDark,
   hasApiKey,
   pendingCount,
   totalCount,
@@ -154,9 +154,7 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
             action.type === "copy" && copySuccess
               ? "border-zinc-400 bg-zinc-200/50 dark:border-zinc-600 dark:bg-zinc-700/50"
               : action.available
-                ? isDark
-                  ? "border-slate-700 bg-slate-800 hover:border-slate-600 hover:bg-slate-700"
-                  : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
+                ? "border-border bg-muted hover:border-muted-foreground/30 hover:bg-muted/80"
                 : "cursor-not-allowed opacity-50"
           }`}
         >
@@ -172,14 +170,12 @@ export const ActionButtonList: React.FC<ActionButtonListProps> = ({
               className={`text-sm font-semibold ${
                 action.type === "copy" && copySuccess
                   ? "text-zinc-700 dark:text-zinc-200"
-                  : isDark
-                    ? "text-white"
-                    : "text-slate-900"
+                  : "text-foreground"
               }`}
             >
               {action.type === "copy" && copySuccess ? "Copied!" : action.label}
             </div>
-            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <div className="text-xs text-muted-foreground">
               {action.type === "copy" && copySuccess
                 ? "Prompts copied to clipboard"
                 : action.description}

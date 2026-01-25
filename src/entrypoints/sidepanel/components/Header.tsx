@@ -17,7 +17,7 @@ function formatTime(ms: number): string {
 }
 
 export function Header({
-  isDark,
+  isDark: _isDark,
   isProcessing,
   activeTimer,
   completedCount,
@@ -26,7 +26,7 @@ export function Header({
   return (
     <div
       data-onboarding="sidebar-header"
-      className={`flex items-center justify-between border-b p-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}
+      className="flex items-center justify-between border-b border-border bg-muted/50 p-2"
     >
       <div className="flex items-center gap-2">
         <img src="/icons/icon-32.png" alt="Gemini" className="h-6 w-6" />

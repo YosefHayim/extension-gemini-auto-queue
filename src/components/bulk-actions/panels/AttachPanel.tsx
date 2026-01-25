@@ -19,14 +19,10 @@ export const AttachPanel: React.FC<AttachPanelProps> = ({
 
       <div
         onClick={() => fileInputRef.current?.click()}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-all ${
-          isDark
-            ? "border-slate-700 hover:border-indigo-500/50 hover:bg-slate-800"
-            : "border-slate-300 hover:border-indigo-500/50 hover:bg-slate-50"
-        }`}
+        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 transition-all hover:border-indigo-500/50 hover:bg-muted"
       >
-        <Paperclip size={24} className={isDark ? "text-slate-500" : "text-slate-400"} />
-        <span className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+        <Paperclip size={24} className="text-muted-foreground" />
+        <span className="text-xs font-medium text-muted-foreground">
           Click to select files (images, videos, etc.)
         </span>
       </div>
@@ -51,16 +47,12 @@ export const AttachPanel: React.FC<AttachPanelProps> = ({
                   alt={file.name}
                 />
               ) : file.type.startsWith("video/") ? (
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
-                >
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
                   <span className="text-[10px] font-bold text-blue-500">VID</span>
                 </div>
               ) : (
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
-                >
-                  <File size={16} className={isDark ? "text-slate-400" : "text-slate-500"} />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                  <File size={16} className="text-muted-foreground" />
                 </div>
               )}
               <button

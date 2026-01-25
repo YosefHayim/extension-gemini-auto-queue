@@ -26,9 +26,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
       <BackButton isDark={isDark} onClick={onBack} />
 
       <div>
-        <label
-          className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-        >
+        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Reset Filter
         </label>
         <div className="flex flex-wrap gap-2">
@@ -48,9 +46,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
               className={`rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
                 resetFilterType === option.type
                   ? "border-amber-500 bg-amber-500/20 text-amber-500"
-                  : isDark
-                    ? "border-slate-700 text-slate-400 hover:border-slate-600"
-                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                  : "border-border text-muted-foreground hover:border-muted-foreground/50"
               }`}
             >
               {option.label}
@@ -61,9 +57,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
 
       {resetFilterType === "text" && (
         <div>
-          <label
-            className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Text to Match
           </label>
           <input
@@ -71,20 +65,14 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
             value={resetTextMatch}
             onChange={(e) => setResetTextMatch(e.target.value)}
             placeholder="e.g., landscape, portrait..."
-            className={`w-full rounded-lg border p-3 text-sm outline-none transition-colors ${
-              isDark
-                ? "border-slate-700 bg-slate-800 text-white placeholder:text-slate-500 focus:border-amber-500"
-                : "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:border-amber-500"
-            }`}
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-amber-500"
           />
         </div>
       )}
 
       {resetFilterType === "status" && (
         <div>
-          <label
-            className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Select Status
           </label>
           <div className="flex flex-wrap gap-2">
@@ -95,9 +83,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
                 className={`rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
                   resetStatus === status
                     ? "border-amber-500 bg-amber-500/20 text-amber-500"
-                    : isDark
-                      ? "border-slate-700 text-slate-400 hover:border-slate-600"
-                      : "border-slate-200 text-slate-500 hover:border-slate-300"
+                    : "border-border text-muted-foreground hover:border-muted-foreground/50"
                 }`}
               >
                 {status}
@@ -109,9 +95,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
 
       {resetFilterType === "tool" && (
         <div>
-          <label
-            className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Select Tool
           </label>
           <div className="flex flex-wrap gap-2">
@@ -126,9 +110,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
                     className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
                       resetTool === tool
                         ? "border-amber-500 bg-amber-500/20 text-amber-500"
-                        : isDark
-                          ? "border-slate-700 text-slate-400 hover:border-slate-600"
-                          : "border-slate-200 text-slate-500 hover:border-slate-300"
+                        : "border-border text-muted-foreground hover:border-muted-foreground/50"
                     }`}
                   >
                     {React.createElement(toolInfo.icon, { size: 12 })}
@@ -142,9 +124,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
 
       {resetFilterType === "mode" && (
         <div>
-          <label
-            className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Select Mode
           </label>
           <div className="flex flex-wrap gap-2">
@@ -157,9 +137,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
                   className={`rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
                     resetMode === mode
                       ? "border-amber-500 bg-amber-500/20 text-amber-500"
-                      : isDark
-                        ? "border-slate-700 text-slate-400 hover:border-slate-600"
-                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                      : "border-border text-muted-foreground hover:border-muted-foreground/50"
                   }`}
                 >
                   {modeInfo.label}
@@ -170,7 +148,7 @@ export const ResetPanel: React.FC<ResetPanelProps> = ({
         </div>
       )}
 
-      <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+      <p className="text-[11px] text-muted-foreground">
         {resetFilterType === "all" &&
           `Reset all ${resettableCount} completed/failed prompts to pending`}
         {resetFilterType === "status" && "Reset prompts with the selected status"}

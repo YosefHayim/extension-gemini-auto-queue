@@ -77,6 +77,14 @@ export default function App() {
     settings.theme === ThemeMode.SYSTEM ? systemPrefersDark : settings.theme === ThemeMode.DARK;
 
   useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
+
+  useEffect(() => {
     const loadData = async () => {
       await initializeQueueStorage();
       const [queueData, settingsData, foldersData, onboardingDone] = await Promise.all([
@@ -271,11 +279,7 @@ export default function App() {
   }
 
   return (
-    <div
-      className={`flex h-screen w-full flex-col overflow-hidden transition-colors duration-500 ${
-        isDark ? "bg-[#0a0a0a] text-white" : "bg-[#f8fafc] text-[#1e293b]"
-      }`}
-    >
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground transition-colors duration-500">
       <Toaster
         position="top-center"
         theme={isDark ? "dark" : "light"}

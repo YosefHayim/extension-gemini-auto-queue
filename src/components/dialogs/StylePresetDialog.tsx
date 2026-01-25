@@ -11,7 +11,7 @@ interface StylePresetDialogProps {
 
 export const StylePresetDialog: React.FC<StylePresetDialogProps> = ({
   isOpen,
-  isDark,
+  isDark: _isDark,
   onClose,
   onApply,
   presets = ["Photorealistic", "Anime", "Oil Painting", "Watercolor", "Sketch", "3D Render"],
@@ -36,22 +36,12 @@ export const StylePresetDialog: React.FC<StylePresetDialogProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div
-        className={`mx-4 w-full max-w-sm rounded-lg border shadow-2xl ${
-          isDark ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white"
-        }`}
-      >
-        <div
-          className={`flex items-center justify-between border-b p-4 ${isDark ? "border-slate-700" : "border-slate-200"}`}
-        >
-          <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            Select Style Preset
-          </h3>
+      <div className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card shadow-2xl">
+        <div className="flex items-center justify-between border-b border-border p-4">
+          <h3 className="text-sm font-bold text-card-foreground">Select Style Preset</h3>
           <button
             onClick={onClose}
-            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
-              isDark ? "text-slate-400 hover:bg-slate-800" : "text-slate-500 hover:bg-slate-100"
-            }`}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted"
           >
             <X size={18} />
           </button>
@@ -59,19 +49,11 @@ export const StylePresetDialog: React.FC<StylePresetDialogProps> = ({
 
         <div className="space-y-4 p-4">
           <div>
-            <label
-              className={`block text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-700"}`}
-            >
-              Style Preset
-            </label>
+            <label className="block text-sm font-medium text-muted-foreground">Style Preset</label>
             <select
               value={selectedPreset}
               onChange={(e) => setSelectedPreset(e.target.value)}
-              className={`mt-1 w-full rounded-md border p-2.5 text-sm ${
-                isDark
-                  ? "border-slate-600 bg-slate-800 text-white"
-                  : "border-slate-300 bg-white text-slate-900"
-              }`}
+              className="mt-1 w-full rounded-md border border-border bg-background p-2.5 text-sm text-foreground"
             >
               {presets.map((preset) => (
                 <option key={preset} value={preset}>
@@ -82,16 +64,10 @@ export const StylePresetDialog: React.FC<StylePresetDialogProps> = ({
           </div>
         </div>
 
-        <div
-          className={`flex justify-end gap-2 border-t p-4 ${isDark ? "border-slate-700" : "border-slate-200"}`}
-        >
+        <div className="flex justify-end gap-2 border-t border-border p-4">
           <button
             onClick={onClose}
-            className={`rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-              isDark
-                ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
+            className="rounded-md bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
           >
             Cancel
           </button>

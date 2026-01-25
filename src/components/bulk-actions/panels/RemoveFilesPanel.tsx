@@ -26,9 +26,7 @@ export const RemoveFilesPanel: React.FC<RemoveFilesPanelProps> = ({
       <BackButton isDark={isDark} onClick={onBack} />
 
       <div>
-        <label
-          className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-        >
+        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Select Images to Remove
         </label>
         <div className="grid grid-cols-4 gap-2">
@@ -38,9 +36,7 @@ export const RemoveFilesPanel: React.FC<RemoveFilesPanelProps> = ({
               className={`relative cursor-pointer rounded-lg border-2 p-0.5 transition-all ${
                 selectedImagesForRemoval.includes(idx)
                   ? "border-rose-500 bg-rose-500/10"
-                  : isDark
-                    ? "border-slate-700 hover:border-slate-600"
-                    : "border-slate-200 hover:border-slate-300"
+                  : "border-border hover:border-muted-foreground/50"
               }`}
             >
               <input
@@ -71,58 +67,38 @@ export const RemoveFilesPanel: React.FC<RemoveFilesPanelProps> = ({
       <div className="flex gap-2">
         <button
           onClick={() => setSelectedImagesForRemoval(allUniqueImages.map((_, i) => i))}
-          className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
-            isDark
-              ? "border-slate-700 text-slate-400 hover:border-rose-500 hover:text-rose-400"
-              : "border-slate-200 text-slate-500 hover:border-rose-500 hover:text-rose-500"
-          }`}
+          className="flex-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold uppercase text-muted-foreground transition-all hover:border-rose-500 hover:text-rose-500"
         >
           Select All
         </button>
         <button
           onClick={() => setSelectedImagesForRemoval([])}
-          className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold uppercase transition-all ${
-            isDark
-              ? "border-slate-700 text-slate-400 hover:border-slate-600"
-              : "border-slate-200 text-slate-500 hover:border-slate-300"
-          }`}
+          className="flex-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold uppercase text-muted-foreground transition-all hover:border-muted-foreground/50"
         >
           Clear
         </button>
       </div>
 
-      <p className={`text-[11px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+      <p className="text-[11px] text-muted-foreground">
         {selectedImagesForRemoval.length} of {allUniqueImages.length} image
         {allUniqueImages.length !== 1 ? "s" : ""} selected for removal
       </p>
 
       {matchingFilePrompts.length > 0 && (
         <div>
-          <label
-            className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-500"}`}
-          >
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Affected Prompts ({matchingFilePrompts.length})
           </label>
           <div className="max-h-[100px] space-y-1.5 overflow-y-auto">
             {matchingFilePrompts.map(({ item, position }) => (
               <div
                 key={item.id}
-                className={`flex items-start gap-2 rounded-lg border p-2 ${
-                  isDark ? "border-rose-500/30 bg-rose-500/10" : "border-rose-200 bg-rose-50"
-                }`}
+                className="flex items-start gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 p-2"
               >
-                <span
-                  className={`flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${
-                    isDark ? "bg-rose-500/20 text-rose-400" : "bg-rose-100 text-rose-600"
-                  }`}
-                >
+                <span className="flex-shrink-0 rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-500">
                   #{position}
                 </span>
-                <p
-                  className={`line-clamp-2 text-[11px] leading-tight ${
-                    isDark ? "text-slate-300" : "text-slate-600"
-                  }`}
-                >
+                <p className="line-clamp-2 text-[11px] leading-tight text-muted-foreground">
                   {item.finalPrompt}
                 </p>
               </div>
