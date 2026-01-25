@@ -30,7 +30,7 @@ export const StatusSection: React.FC<StatusSectionProps> = ({ item, isDark }) =>
 
       <span
         title={toolInfo.description}
-        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"}`}
+        className="flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
       >
         {React.createElement(toolInfo.icon, { size: 10 })}
         <span>{toolInfo.label}</span>

@@ -45,21 +45,17 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = ({
         return (
           <div
             key={idx}
-            className={`group/img relative overflow-hidden rounded transition-transform hover:scale-105 ${isDark ? "ring-1 ring-slate-600" : "ring-1 ring-slate-200"}`}
+            className="group/img relative overflow-hidden rounded ring-1 ring-border transition-transform hover:scale-105"
           >
             {isImage ? (
               <img src={img} alt={`Reference ${idx + 1}`} className="h-7 w-7 object-cover" />
             ) : isVideo ? (
-              <div
-                className={`flex h-7 w-7 items-center justify-center ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
-              >
+              <div className="flex h-7 w-7 items-center justify-center bg-secondary">
                 <span className="text-[8px] font-bold text-blue-500">VID</span>
               </div>
             ) : (
-              <div
-                className={`flex h-7 w-7 items-center justify-center ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
-              >
-                <File size={12} className={isDark ? "text-slate-400" : "text-slate-500"} />
+              <div className="flex h-7 w-7 items-center justify-center bg-secondary">
+                <File size={12} className="text-muted-foreground" />
               </div>
             )}
             {isPending && onUpdateImages && (
@@ -77,9 +73,7 @@ export const ImageThumbnails: React.FC<ImageThumbnailsProps> = ({
         );
       })}
       {remainingImagesCount > 0 && (
-        <div
-          className={`flex h-7 w-7 items-center justify-center rounded text-[9px] font-bold ${isDark ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500"}`}
-        >
+        <div className="flex h-7 w-7 items-center justify-center rounded bg-secondary text-[9px] font-bold text-muted-foreground">
           +{remainingImagesCount}
         </div>
       )}

@@ -52,13 +52,7 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   const isFailed = item.status === QueueStatus.Failed;
 
   return (
-    <div
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-150 ${
-        isDark
-          ? "border-slate-700 bg-slate-800/50 hover:bg-slate-800/70"
-          : "border-slate-200 bg-white hover:border-slate-300"
-      }`}
-    >
+    <div className="group relative overflow-hidden rounded-lg border border-border bg-background transition-all duration-150 hover:border-border/80">
       <div className="relative flex items-start gap-2 p-3">
         {(showCheckbox || isSelected) && (
           <SelectionCheckbox

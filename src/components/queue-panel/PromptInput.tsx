@@ -130,11 +130,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           placeholder="Enter your prompts here...
 
 Separate multiple prompts with blank lines. Each paragraph becomes a separate queue item."
-          className={`max-h-[280px] min-h-[120px] w-full overflow-y-auto rounded-md border p-3 pb-14 text-[13px] leading-relaxed outline-none transition-all ${
-            isDark
-              ? "border-slate-700 bg-slate-900 placeholder:text-slate-500 focus:border-slate-500"
-              : "border-slate-200 bg-white placeholder:text-slate-400 focus:border-slate-400"
-          }`}
+          className="max-h-[280px] min-h-[120px] w-full overflow-y-auto rounded-md border border-border bg-background p-3 pb-14 text-[13px] leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-ring"
         />
 
         <WeightingToolbar
@@ -150,11 +146,7 @@ Separate multiple prompts with blank lines. Each paragraph becomes a separate qu
 
         <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
           {promptPreviewCount > 0 && (
-            <span
-              className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
-                isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-600"
-              }`}
-            >
+            <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
               {promptPreviewCount} prompt{promptPreviewCount !== 1 ? "s" : ""}
             </span>
           )}
@@ -163,7 +155,7 @@ Separate multiple prompts with blank lines. Each paragraph becomes a separate qu
             onClick={onEnqueue}
             disabled={promptPreviewCount === 0 && selectedImages.length === 0}
             title="Add prompt to processing queue (Ctrl+Enter)"
-            className="flex items-center gap-2 rounded-md bg-emerald-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Add
           </button>

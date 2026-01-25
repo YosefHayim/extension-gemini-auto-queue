@@ -50,7 +50,7 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
             onEdit(itemId, prompt);
           }
         }}
-        className={`line-clamp-2 text-sm font-medium leading-snug ${isDark ? "text-slate-200" : "text-slate-700"} ${isPending && onEdit ? "-mx-1 cursor-text rounded px-1 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-700/50" : ""}`}
+        className={`line-clamp-2 text-sm font-medium leading-snug text-foreground ${isPending && onEdit ? "-mx-1 cursor-text rounded px-1 transition-colors hover:bg-muted" : ""}`}
       >
         <HighlightedText text={prompt} search={searchText} isDark={isDark} />
       </p>
@@ -62,7 +62,7 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
             left: tooltipPos.left,
             transform: "translateY(-100%)",
           }}
-          className={`pointer-events-none fixed z-[2147483647] max-h-48 w-72 overflow-auto rounded-md px-3 py-2 text-xs shadow-lg ${isDark ? "border border-slate-700 bg-slate-900 text-slate-200" : "border border-slate-200 bg-white text-slate-700 shadow-slate-200/50"}`}
+          className="pointer-events-none fixed z-[2147483647] max-h-48 w-72 overflow-auto rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground shadow-lg"
         >
           <p className="whitespace-pre-wrap break-words leading-relaxed">
             <HighlightedText text={prompt} search={searchText} isDark={isDark} />

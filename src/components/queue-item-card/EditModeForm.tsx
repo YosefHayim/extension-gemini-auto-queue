@@ -5,7 +5,7 @@ interface EditModeFormProps {
   onChange: (value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
 export const EditModeForm: React.FC<EditModeFormProps> = ({
@@ -13,7 +13,6 @@ export const EditModeForm: React.FC<EditModeFormProps> = ({
   onChange,
   onSubmit,
   onCancel,
-  isDark,
 }) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -41,11 +40,7 @@ export const EditModeForm: React.FC<EditModeFormProps> = ({
       onChange={(e) => onChange(e.target.value)}
       onBlur={onSubmit}
       onKeyDown={handleKeyDown}
-      className={`w-full resize-none rounded-md border p-2.5 text-sm leading-relaxed outline-none transition-colors ${
-        isDark
-          ? "border-indigo-500/50 bg-slate-900 text-slate-200 focus:border-indigo-400"
-          : "border-indigo-300 bg-white text-slate-700 focus:border-indigo-500"
-      }`}
+      className="w-full resize-none rounded-md border border-primary/50 bg-background p-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors focus:border-primary"
       rows={3}
     />
   );

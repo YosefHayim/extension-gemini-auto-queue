@@ -3,15 +3,11 @@ import React from "react";
 
 interface SelectionCheckboxProps {
   isSelected: boolean;
-  isDark: boolean;
+  isDark?: boolean;
   onToggle: () => void;
 }
 
-export const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
-  isSelected,
-  isDark,
-  onToggle,
-}) => {
+export const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({ isSelected, onToggle }) => {
   return (
     <button
       onClick={(e) => {
@@ -20,10 +16,8 @@ export const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({
       }}
       className={`mt-0.5 flex min-h-[28px] min-w-[28px] items-center justify-center rounded-md border-2 transition-all ${
         isSelected
-          ? "border-indigo-500 bg-indigo-500 text-white"
-          : isDark
-            ? "border-slate-600 hover:border-slate-500"
-            : "border-slate-300 hover:border-slate-400"
+          ? "border-primary bg-primary text-white"
+          : "border-border hover:border-muted-foreground"
       }`}
     >
       {isSelected && <Check size={14} strokeWidth={3} />}

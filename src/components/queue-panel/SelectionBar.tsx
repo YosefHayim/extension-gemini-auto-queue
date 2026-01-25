@@ -5,7 +5,7 @@ interface SelectionBarProps {
   selectedPendingCount: number;
   onSelectAll: () => void;
   onClearSelection: () => void;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
 export const SelectionBar: React.FC<SelectionBarProps> = ({
@@ -13,17 +13,12 @@ export const SelectionBar: React.FC<SelectionBarProps> = ({
   selectedPendingCount,
   onSelectAll,
   onClearSelection,
-  isDark,
 }) => {
   if (selectedCount === 0) return null;
 
   return (
-    <div
-      className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 ${
-        isDark ? "border-indigo-500/30 bg-indigo-500/10" : "border-indigo-300 bg-indigo-50"
-      }`}
-    >
-      <span className={`text-xs font-semibold ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>
+    <div className="flex items-center justify-between gap-2 rounded-lg border border-info/30 bg-info/10 px-3 py-2">
+      <span className="text-xs font-semibold text-info">
         {selectedCount} selected
         {selectedPendingCount > 0 &&
           selectedPendingCount !== selectedCount &&
@@ -32,20 +27,14 @@ export const SelectionBar: React.FC<SelectionBarProps> = ({
       <div className="flex gap-2">
         <button
           onClick={onSelectAll}
-          className={`text-xs font-medium transition-colors ${
-            isDark
-              ? "text-indigo-400 hover:text-indigo-300"
-              : "text-indigo-600 hover:text-indigo-700"
-          }`}
+          className="text-xs font-medium text-info transition-colors hover:text-info/80"
         >
           Select All Pending
         </button>
-        <span className={isDark ? "text-slate-600" : "text-slate-300"}>|</span>
+        <span className="text-border">|</span>
         <button
           onClick={onClearSelection}
-          className={`text-xs font-medium transition-colors ${
-            isDark ? "text-slate-400 hover:text-slate-300" : "text-slate-500 hover:text-slate-600"
-          }`}
+          className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           Clear
         </button>
