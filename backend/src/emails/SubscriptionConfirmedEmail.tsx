@@ -19,11 +19,11 @@ export function SubscriptionConfirmedEmail({ planName }: SubscriptionConfirmedEm
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Groove {planName}! Your upgrade is complete.</Preview>
+      <Preview>Welcome to Gqmini {planName}! Your upgrade is complete.</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Groove</Text>
+            <Text style={logoText}>Gqmini</Text>
           </Section>
 
           <Section style={celebrationSection}>
@@ -71,21 +71,21 @@ export function SubscriptionConfirmedEmail({ planName }: SubscriptionConfirmedEm
           <Text style={footerText}>Questions about your purchase? Just reply to this email.</Text>
 
           <Text style={footerSignature}>
-            Thanks for supporting Groove!
+            Thanks for supporting Gqmini!
             <br />
-            The Groove Team
+            The Gqmini Team
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://groove.example.com" style={footerLink}>
+            <Link href="https://gqmini.example.com" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://groove.example.com/privacy" style={footerLink}>
+            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
               Privacy
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://groove.example.com/terms" style={footerLink}>
+            <Link href="https://gqmini.example.com/terms" style={footerLink}>
               Terms
             </Link>
           </Section>

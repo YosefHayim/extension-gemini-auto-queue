@@ -62,8 +62,8 @@ export const SUCCESS_MESSAGES = {
 } as const;
 
 export const EMAIL_SUBJECTS = {
-  OTP_VERIFICATION: "Your Groove Verification Code",
-  WELCOME: "Welcome to Groove!",
+  OTP_VERIFICATION: "Your Gqmini Verification Code",
+  WELCOME: "Welcome to Gqmini!",
   SUBSCRIPTION_CONFIRMED: "Your Subscription is Active",
   SUBSCRIPTION_CANCELLED: "Subscription Cancellation Confirmed",
   SUBSCRIPTION_EXPIRING: "Your Subscription is Expiring Soon",

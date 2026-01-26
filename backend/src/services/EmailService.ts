@@ -31,7 +31,7 @@ async function sendEmail(params: EmailParams): Promise<void> {
 
 export async function sendOTPEmail(email: string, otp: string): Promise<void> {
   const html = await render(OTPEmail({ otp }));
-  const text = `Your Groove verification code is: ${otp}. This code expires in 10 minutes.`;
+  const text = `Your Gqmini verification code is: ${otp}. This code expires in 10 minutes.`;
 
   await sendEmail({
     to: email,

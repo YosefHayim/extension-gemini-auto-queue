@@ -89,7 +89,7 @@ export default function Options() {
             <Sparkles size={24} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight">Groove</h1>
+            <h1 className="text-2xl font-black tracking-tight">Gqmini</h1>
             <p className="text-sm opacity-60">Extension Settings</p>
           </div>
           <button
@@ -174,7 +174,7 @@ export default function Options() {
           )}
         </button>
 
-        <p className="mt-8 text-center text-sm opacity-40">Groove v2.1.0 - Built with WXT</p>
+        <p className="mt-8 text-center text-sm opacity-40">Gqmini v2.1.0 - Built with WXT</p>
       </div>
     </div>
   );

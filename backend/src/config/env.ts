@@ -18,7 +18,7 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().transform((val) => val.split(",")),
 
   MONGODB_URI: z.string().url(),
-  MONGODB_DB_NAME: z.string().default("groove"),
+  MONGODB_DB_NAME: z.string().default("gqmini"),
 
   REDIS_URL: z.string().url(),
 
@@ -28,7 +28,7 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string().email(),
-  EMAIL_FROM_NAME: z.string().default("Groove"),
+  EMAIL_FROM_NAME: z.string().default("Gqmini"),
 
   SENTRY_DSN: z.string().optional(),
   POSTHOG_API_KEY: z.string().optional(),

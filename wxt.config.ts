@@ -17,7 +17,7 @@ export default defineConfig({
   publicDir: "extension/public",
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "Groove",
+    name: "Gqmini",
     description: "A bulk image generation and automation tool for Gemini",
     version: "2.1.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms", "identity"],
@@ -30,7 +30,7 @@ export default defineConfig({
       default_path: "sidepanel.html",
     },
     action: {
-      default_title: "Groove",
+      default_title: "Gqmini",
       default_popup: "popup.html",
       default_icon: {
         "16": "icons/icon-16.png",

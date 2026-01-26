@@ -33,7 +33,7 @@ export const mockChrome = {
       disconnect: vi.fn(),
     }),
     getManifest: vi.fn().mockReturnValue({
-      name: "Groove",
+      name: "Gqmini",
       version: "2.1.0",
       manifest_version: 3,
     }),

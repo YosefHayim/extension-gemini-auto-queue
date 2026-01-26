@@ -53,7 +53,7 @@ export function initSentry(options: SentryInitOptions): void {
 
   Sentry.init({
     dsn: SENTRY_DSN,
-    release: `groove@${APP_VERSION}`,
+    release: `gqmini@${APP_VERSION}`,
     environment: IS_PRODUCTION ? "production" : "development",
     skipBrowserExtensionCheck: true,
     integrations: buildIntegrations(context, enableTracing, enableReplay),

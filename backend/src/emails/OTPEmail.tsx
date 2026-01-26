@@ -22,12 +22,12 @@ export function OTPEmail({ otp }: OTPEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Groove</Text>
+            <Text style={logoText}>Gqmini</Text>
           </Section>
 
           <Heading style={heading}>Verify your email</Heading>
 
-          <Text style={paragraph}>Enter this code to sign in to Groove:</Text>
+          <Text style={paragraph}>Enter this code to sign in to Gqmini:</Text>
 
           <Section style={codeContainer}>
             <Text style={code}>{otp}</Text>
@@ -40,11 +40,11 @@ export function OTPEmail({ otp }: OTPEmailProps) {
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://groove.example.com" style={footerLink}>
+            <Link href="https://gqmini.example.com" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://groove.example.com/privacy" style={footerLink}>
+            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
               Privacy
             </Link>
           </Section>

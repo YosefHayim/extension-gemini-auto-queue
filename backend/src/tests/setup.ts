@@ -15,14 +15,14 @@ vi.stubEnv("JWT_REFRESH_EXPIRY", "7d");
 vi.stubEnv("LEMON_SQUEEZY_WEBHOOK_SECRET", "test-webhook-secret");
 vi.stubEnv("CORS_ORIGINS", "http://localhost:3000,chrome-extension://test");
 vi.stubEnv("MONGODB_URI", "mongodb://127.0.0.1:27017");
-vi.stubEnv("MONGODB_DB_NAME", "groove-test");
+vi.stubEnv("MONGODB_DB_NAME", "gqmini-test");
 vi.stubEnv("REDIS_URL", "redis://127.0.0.1:6379");
 vi.stubEnv("LEMON_SQUEEZY_API_KEY", "test-lemon-squeezy-api-key");
 vi.stubEnv("LEMON_SQUEEZY_STORE_ID", "test-store-id");
 vi.stubEnv("LEMON_SQUEEZY_LIFETIME_VARIANT_ID", "test-variant-id");
 vi.stubEnv("RESEND_API_KEY", "re_test_api_key");
-vi.stubEnv("EMAIL_FROM", "test@groove.app");
-vi.stubEnv("EMAIL_FROM_NAME", "Groove Test");
+vi.stubEnv("EMAIL_FROM", "test@gqmini.app");
+vi.stubEnv("EMAIL_FROM_NAME", "Gqmini Test");
 vi.stubEnv("RATE_LIMIT_MAX", "1000");
 vi.stubEnv("RATE_LIMIT_WINDOW_MS", "60000");
 
@@ -108,7 +108,7 @@ beforeAll(async () => {
   vi.stubEnv("MONGODB_URI", mongoUri);
 
   await mongoose.connect(mongoUri, {
-    dbName: "groove-test",
+    dbName: "gqmini-test",
   });
 });
 

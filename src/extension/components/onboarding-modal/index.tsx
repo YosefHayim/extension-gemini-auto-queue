@@ -41,8 +41,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, on
       <div className="flex h-[640px] w-[380px] flex-col border border-border bg-background">
         <div className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
           <div className="flex flex-col items-center gap-4">
-            <img src="/icons/icon-128.png" alt="Groove" className="h-20 w-20 rounded-[20px]" />
-            <h1 className="text-[28px] font-bold text-foreground">Groove</h1>
+            <img src="/icons/icon-128.png" alt="Gqmini" className="h-20 w-20 rounded-[20px]" />
+            <h1 className="text-[28px] font-bold text-foreground">Gqmini</h1>
             <p className="text-center text-[15px] text-muted-foreground">
               Supercharge your Gemini workflow
             </p>

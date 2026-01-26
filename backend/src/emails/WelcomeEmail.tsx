@@ -23,11 +23,11 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Groove - Automate your Gemini workflow</Preview>
+      <Preview>Welcome to Gqmini - Automate your Gemini workflow</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Groove</Text>
+            <Text style={logoText}>Gqmini</Text>
           </Section>
 
           <Heading style={heading}>Welcome aboard, {displayName}!</Heading>
@@ -81,7 +81,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
               </Text>
             </Section>
 
-            <Button style={ctaButton} href="https://groove.example.com/upgrade">
+            <Button style={ctaButton} href="https://gqmini.example.com/upgrade">
               Upgrade to Lifetime - $5
             </Button>
           </Section>
@@ -95,19 +95,19 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
           <Text style={footerSignature}>
             Happy prompting!
             <br />
-            The Groove Team
+            The Gqmini Team
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://groove.example.com" style={footerLink}>
+            <Link href="https://gqmini.example.com" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://groove.example.com/privacy" style={footerLink}>
+            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
               Privacy
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://groove.example.com/terms" style={footerLink}>
+            <Link href="https://gqmini.example.com/terms" style={footerLink}>
               Terms
             </Link>
           </Section>
