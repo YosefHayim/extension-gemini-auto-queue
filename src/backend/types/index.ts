@@ -356,6 +356,12 @@ export const STORAGE_KEYS = {
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
+// Subscription Plans
+export enum SubscriptionPlan {
+  FREE = "free",
+  PRO = "pro",
+}
+
 // Authentication Types
 export interface AuthUser {
   id: string;
@@ -366,6 +372,7 @@ export interface AuthUser {
   accessToken: string;
   refreshToken?: string;
   expiresAt: number;
+  plan?: SubscriptionPlan;
 }
 
 export interface AuthState {

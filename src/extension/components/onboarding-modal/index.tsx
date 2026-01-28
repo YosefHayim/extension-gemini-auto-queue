@@ -1,4 +1,4 @@
-import { ArrowRight, Image, Layers, Rocket, Sparkles, Timer } from "lucide-react";
+import { ArrowRight, Check, Image, Rocket } from "lucide-react";
 import React from "react";
 
 import type { OnboardingModalProps } from "@/extension/components/onboarding-modal/types";
@@ -7,27 +7,12 @@ const STARTER_PROMPT =
   "A futuristic chrome extension icon with a lightning bolt, minimalist design, gradient purple and blue background, 3D render";
 
 const FEATURES = [
-  {
-    icon: Layers,
-    iconColor: "#2563EB",
-    bgColor: "#DBEAFE",
-    title: "Batch Processing",
-    description: "Queue multiple prompts and run them automatically",
-  },
-  {
-    icon: Timer,
-    iconColor: "#059669",
-    bgColor: "#D1FAE5",
-    title: "Save Hours of Time",
-    description: "No more manual copy-paste for each prompt",
-  },
-  {
-    icon: Sparkles,
-    iconColor: "#D97706",
-    bgColor: "#FEF3C7",
-    title: "Smart Automation",
-    description: "Auto-download results, retry on errors, and more",
-  },
+  "Queue unlimited prompts at once",
+  "Auto-download all generated images",
+  "Smart retry on errors",
+  "Pause, edit & reorder anytime",
+  "Bulk translate prompts instantly",
+  "Save hours of manual work",
 ];
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, onUsePrompt }) => {
@@ -48,19 +33,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ onComplete, on
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full flex-col gap-2">
             {FEATURES.map((feature) => (
-              <div key={feature.title} className="flex items-center gap-3">
-                <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: feature.bgColor }}
-                >
-                  <feature.icon size={18} style={{ color: feature.iconColor }} />
+              <div key={feature} className="flex items-center gap-2.5">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                  <Check size={12} className="text-emerald-500" strokeWidth={3} />
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-semibold text-foreground">{feature.title}</span>
-                  <span className="text-[13px] text-muted-foreground">{feature.description}</span>
-                </div>
+                <span className="text-sm text-foreground">{feature}</span>
               </div>
             ))}
           </div>

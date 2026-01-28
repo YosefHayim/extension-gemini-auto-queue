@@ -17,9 +17,9 @@ export default defineConfig({
   publicDir: "extension/public",
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "Gqmini",
-    description: "A bulk image generation and automation tool for Gemini",
-    version: "2.1.0",
+    name: "Gqmini - Gemini Queue & Automation",
+    description: "Queue unlimited prompts, bulk generate images, auto-download results, translate prompts, and automate your Gemini AI workflow with smart retry and batch processing.",
+    version: "2.2.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms", "identity"],
     host_permissions: ["*://gemini.google.com/*"],
     oauth2: {
@@ -30,7 +30,7 @@ export default defineConfig({
       default_path: "sidepanel.html",
     },
     action: {
-      default_title: "Gqmini",
+      default_title: "Gqmini - Gemini Queue & Automation",
       default_popup: "popup.html",
       default_icon: {
         "16": "icons/icon-16.png",

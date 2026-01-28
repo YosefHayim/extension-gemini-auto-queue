@@ -2,7 +2,7 @@ import { Crown, Eye, EyeOff, ExternalLink, Key } from "lucide-react";
 import React, { useState } from "react";
 import { SiGoogle, SiOpenai, SiAnthropic } from "react-icons/si";
 
-import { AIProvider, AI_PROVIDER_INFO, GeminiModel, ThemeMode } from "@/backend/types";
+import { AIProvider, AI_PROVIDER_INFO, GeminiModel, SubscriptionPlan, ThemeMode } from "@/backend/types";
 
 import type { SettingsPanelProps } from "@/extension/components/settings-panel/types";
 
@@ -34,6 +34,7 @@ const getToggleKnobClasses = (isActive: boolean) =>
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   settings,
   isDark,
+  user,
   onUpdateSettings,
 }) => {
   const [visibleKeys, setVisibleKeys] = useState<Record<AIProvider, boolean>>({
@@ -41,6 +42,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     [AIProvider.OPENAI]: false,
     [AIProvider.ANTHROPIC]: false,
   });
+
+  const isPro = user?.plan === SubscriptionPlan.PRO;
 
   const toggleKeyVisibility = (provider: AIProvider) => {
     setVisibleKeys((prev) => ({ ...prev, [provider]: !prev[provider] }));
@@ -204,18 +207,32 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         <div className="rounded-lg border border-border bg-secondary p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-foreground">Free Plan</p>
-              <p className={descriptionClasses}>10 prompts/day remaining</p>
+              {isPro ? (
+                <>
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <Crown size={14} className="text-amber-500" />
+                    Pro Plan
+                  </p>
+                  <p className={descriptionClasses}>Unlimited prompts</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-foreground">Free Plan</p>
+                  <p className={descriptionClasses}>Limited prompts/day</p>
+                </>
+              )}
             </div>
-            <a
-              href="https://nanoflow.app/pricing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90"
-            >
-              <Crown size={14} />
-              Upgrade
-            </a>
+            {!isPro && (
+              <a
+                href="https://gqmini.yosefhayimsabag.com/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90"
+              >
+                <Crown size={14} />
+                Upgrade
+              </a>
+            )}
           </div>
         </div>
       </div>

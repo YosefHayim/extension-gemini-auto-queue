@@ -446,6 +446,7 @@ export default function App() {
             <SettingsPanel
               settings={settings}
               isDark={isDark}
+              user={authUser}
               onUpdateSettings={handleUpdateSettings}
             />
           </div>

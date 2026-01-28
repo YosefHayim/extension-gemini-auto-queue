@@ -30,7 +30,7 @@ export const AuthSuccessDialog: React.FC<AuthSuccessDialogProps> = ({ isOpen, us
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[calc(100%-2rem)]">
+      <DialogContent>
         <DialogHeader className="items-center text-center sm:text-center">
           <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <CheckCircle size={32} className="text-emerald-600 dark:text-emerald-400" />
