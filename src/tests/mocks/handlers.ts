@@ -297,7 +297,7 @@ export const handlers = [
           {
             id: "lifetime",
             name: "Lifetime",
-            price: 5,
+            price: 0.99,
             dailyPrompts: 100,
             features: ["100 prompts per day", "All tools", "Priority support"],
           },
