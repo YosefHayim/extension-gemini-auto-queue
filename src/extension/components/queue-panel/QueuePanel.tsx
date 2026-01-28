@@ -46,6 +46,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
     onBulkChangeMode,
     onBulkDelete,
     onBulkDeleteByPattern,
+    onBulkTranslate,
   } = props;
 
   const state = useQueuePanelState({
@@ -89,6 +90,7 @@ export const QueuePanel: React.FC<QueuePanelProps> = (props) => {
         onBulkChangeMode={onBulkChangeMode}
         onBulkDelete={onBulkDelete}
         onBulkDeleteByPattern={onBulkDeleteByPattern}
+        onBulkTranslate={onBulkTranslate}
       />
 
       <PromptInput

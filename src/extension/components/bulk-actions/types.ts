@@ -69,6 +69,7 @@ export interface BulkActionsDialogProps {
   onBulkChangeMode?: (mode: GeminiMode) => void;
   onBulkDelete?: () => void;
   onBulkDeleteByPattern?: (pattern: string) => void;
+  onBulkTranslate?: (targetLanguage: string) => Promise<void>;
 }
 
 export interface BasePanelProps {

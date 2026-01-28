@@ -49,7 +49,7 @@ export const TranslatePromptsDialog: React.FC<TranslatePromptsDialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[1300] flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
       <div className="mx-4 w-full max-w-sm rounded-lg border border-border bg-card shadow-2xl">

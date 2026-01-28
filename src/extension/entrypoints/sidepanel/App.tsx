@@ -235,6 +235,7 @@ export default function App() {
     handleBulkChangeMode,
     handleBulkDelete,
     handleBulkDeleteByPattern,
+    handleBulkTranslate,
   } = useBulkModifyActions({
     queue,
     setQueueState,
@@ -416,6 +417,7 @@ export default function App() {
               onBulkChangeMode={handleBulkChangeMode}
               onBulkDelete={handleBulkDelete}
               onBulkDeleteByPattern={handleBulkDeleteByPattern}
+              onBulkTranslate={handleBulkTranslate}
             />
           </div>
         )}

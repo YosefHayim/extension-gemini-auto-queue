@@ -40,6 +40,7 @@ interface BulkActionsHandlerProps {
   onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
   onBulkDelete?: (selectedIds?: string[]) => void;
   onBulkDeleteByPattern?: (pattern: string, selectedIds?: string[]) => void;
+  onBulkTranslate?: (targetLanguage: string, selectedIds?: string[]) => Promise<void>;
 }
 
 export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
@@ -71,6 +72,7 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
   onBulkChangeMode,
   onBulkDelete,
   onBulkDeleteByPattern,
+  onBulkTranslate,
 }) => {
   const selectedPendingItems = selectedItems.filter((item) => item.status === QueueStatus.Pending);
   const selectedCount = selectedIds.size;
@@ -168,6 +170,11 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
       }}
       onBulkDeleteByPattern={(pattern) => {
         onBulkDeleteByPattern?.(pattern, hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkTranslate={async (targetLanguage) => {
+        await onBulkTranslate?.(targetLanguage, hasSelection ? Array.from(selectedIds) : undefined);
         onClose();
         onClearSelection();
       }}

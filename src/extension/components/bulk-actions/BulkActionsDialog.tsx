@@ -8,6 +8,7 @@ import { DialogHeader } from "@/extension/components/bulk-actions/DialogHeader";
 import { DialogShell } from "@/extension/components/bulk-actions/DialogShell";
 import { buildResetFilter, readFilesAsBase64 } from "@/extension/components/bulk-actions/handlers";
 import { ModelSelectDialog } from "@/extension/components/bulk-actions/ModelSelectDialog";
+import { TranslatePromptsDialog } from "@/extension/components/dialogs/TranslatePromptsDialog";
 import { useBulkActionsState } from "@/extension/hooks/useBulkActionsState";
 
 import type { GeminiMode } from "@/backend/types";
@@ -60,8 +61,10 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   onBulkChangeMode,
   onBulkDelete,
   onBulkDeleteByPattern,
+  onBulkTranslate,
 }) => {
   const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
+  const [isTranslateDialogOpen, setIsTranslateDialogOpen] = useState(false);
 
   const state = useBulkActionsState({
     pendingItems,
@@ -75,6 +78,14 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   const handleModeApply = (mode: GeminiMode) => {
     if (onBulkChangeMode) {
       onBulkChangeMode(mode);
+    }
+    handleClose();
+  };
+
+  const handleTranslateApply = async (targetLanguage: string) => {
+    if (onBulkTranslate) {
+      setIsTranslateDialogOpen(false);
+      await onBulkTranslate(targetLanguage);
     }
     handleClose();
   };
@@ -184,6 +195,12 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
       return;
     }
 
+    // Open separate dialog for translation
+    if (actionId === "translate") {
+      setIsTranslateDialogOpen(true);
+      return;
+    }
+
     const mappedAction = ACTION_ID_TO_TYPE[actionId];
     if (mappedAction) {
       state.setActiveAction(mappedAction);
@@ -242,6 +259,13 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
         onClose={() => setIsModelDialogOpen(false)}
         onApply={handleModeApply}
         selectedCount={pendingCount}
+      />
+
+      <TranslatePromptsDialog
+        isOpen={isTranslateDialogOpen}
+        isDark={isDark}
+        onClose={() => setIsTranslateDialogOpen(false)}
+        onApply={handleTranslateApply}
       />
     </DialogShell>
   );

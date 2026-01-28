@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { improvePrompt } from "@/backend/services/geminiService";
+import { improvePrompt, translateText } from "@/backend/services/geminiService";
 import { hasAnyAIKey, setQueue } from "@/backend/services/storageService";
 import {
   type GeminiMode,
@@ -386,6 +386,58 @@ export function useBulkModifyActions({
     [queue, setQueueState]
   );
 
+  const handleBulkTranslate = useCallback(
+    async (targetLanguage: string, selectedIds?: string[]) => {
+      if (!hasAnyAIKey(settings)) {
+        toast.error("No API key configured. Add one in Settings > API.");
+        return;
+      }
+
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+      const targetItems = targetIds
+        ? queue.filter((item) => targetIds.has(item.id))
+        : queue.filter((item) => item.status === QueueStatus.Pending);
+
+      if (targetItems.length === 0) {
+        toast.error("No prompts to translate");
+        return;
+      }
+
+      toast.info(`Translating ${targetItems.length} prompts to ${targetLanguage}...`);
+
+      try {
+        const translatedPromises = targetItems.map(async (item) => {
+          const translatedPrompt = await translateText(item.originalPrompt, targetLanguage);
+          return {
+            id: item.id,
+            originalPrompt: translatedPrompt,
+            finalPrompt: constructFinalPrompt(translatedPrompt),
+          };
+        });
+
+        const translatedResults = await Promise.all(translatedPromises);
+
+        const updatedQueue = queue.map((item) => {
+          const translated = translatedResults.find((r) => r.id === item.id);
+          return translated
+            ? {
+                ...item,
+                originalPrompt: translated.originalPrompt,
+                finalPrompt: translated.finalPrompt,
+              }
+            : item;
+        });
+
+        setQueueState(updatedQueue);
+        await setQueue(updatedQueue);
+        toast.success(`Translated ${targetItems.length} prompts to ${targetLanguage}`);
+      } catch {
+        toast.error("Failed to translate prompts. Check your API key.");
+      }
+    },
+    [queue, constructFinalPrompt, settings, setQueueState]
+  );
+
   return {
     handleBulkAttachImages,
     handleBulkAIOptimize,
@@ -399,6 +451,7 @@ export function useBulkModifyActions({
     handleBulkChangeMode,
     handleBulkDelete,
     handleBulkDeleteByPattern,
+    handleBulkTranslate,
   };
 }
 

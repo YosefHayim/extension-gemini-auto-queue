@@ -73,6 +73,7 @@ export interface QueuePanelProps {
   onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
   onBulkDelete?: (selectedIds?: string[]) => void;
   onBulkDeleteByPattern?: (pattern: string, selectedIds?: string[]) => void;
+  onBulkTranslate?: (targetLanguage: string, selectedIds?: string[]) => Promise<void>;
 }
 
 export interface TextSelection {

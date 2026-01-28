@@ -117,6 +117,63 @@ export async function improvePrompt(text: string): Promise<string> {
 }
 
 /**
+ * Translate text to a target language using AI
+ * @param text - Text to translate
+ * @param targetLanguage - Target language name (e.g., "Spanish", "French")
+ * @returns Translated text
+ */
+export async function translateText(text: string, targetLanguage: string): Promise<string> {
+  const apiKey = await getAIApiKey(AIProvider.GEMINI);
+  if (!apiKey) {
+    throw new Error("API Key not configured. Please set your Gemini API key in settings.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `You are a professional translator. Translate the following text to ${targetLanguage}.
+Keep the same style and tone. If the text is already in ${targetLanguage}, return it unchanged.
+Return ONLY the translated text, nothing else. No explanations, no quotes, no formatting.
+
+Text to translate: "${text}"`,
+    });
+
+    const translated = response.text?.trim();
+    return translated || text;
+  } catch (error) {
+    console.error("Translation error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Translate multiple texts to a target language in batch
+ * @param texts - Array of texts to translate
+ * @param targetLanguage - Target language name
+ * @param onProgress - Optional callback for progress updates
+ * @returns Array of translated texts
+ */
+export async function translateTexts(
+  texts: string[],
+  targetLanguage: string,
+  onProgress?: (current: number, total: number) => void
+): Promise<string[]> {
+  const results: string[] = [];
+
+  for (let i = 0; i < texts.length; i++) {
+    if (onProgress) {
+      onProgress(i + 1, texts.length);
+    }
+    const translated = await translateText(texts[i], targetLanguage);
+    results.push(translated);
+  }
+
+  return results;
+}
+
+/**
  * Check if API key is valid by making a simple test request
  * @returns boolean indicating if the API key works
  */

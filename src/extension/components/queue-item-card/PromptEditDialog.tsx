@@ -1,7 +1,6 @@
 import { ChevronDown, Pencil, X } from "lucide-react";
-import React, { useRef, useEffect, useState } from "react";
-
 import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiMode, GeminiTool } from "@/backend/types";
+import React, { useEffect, useRef, useState } from "react";
 
 export interface PromptEditData {
   prompt: string;
@@ -145,7 +144,7 @@ export const PromptEditDialog: React.FC<PromptEditDialogProps> = ({
               <ChevronDown size={16} className="text-muted-foreground" />
             </button>
             {showModeDropdown && (
-              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg">
+              <div className="absolute left-0 top-full z-[1300] mt-1 w-full rounded-md border border-border bg-card shadow-lg ring-1 ring-border">
                 {Object.entries(GEMINI_MODE_INFO).map(([mode, info]) => (
                   <button
                     key={mode}
@@ -154,8 +153,8 @@ export const PromptEditDialog: React.FC<PromptEditDialogProps> = ({
                       setSelectedMode(mode as GeminiMode);
                       setShowModeDropdown(false);
                     }}
-                    className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm text-popover-foreground transition-colors hover:bg-muted ${
-                      mode === selectedMode ? "bg-muted" : ""
+                    className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm text-card-foreground transition-colors hover:bg-muted ${
+                      (mode as GeminiMode) === selectedMode ? "bg-muted" : ""
                     }`}
                   >
                     <span className="font-medium">{info.label}</span>
@@ -188,7 +187,7 @@ export const PromptEditDialog: React.FC<PromptEditDialogProps> = ({
               <ChevronDown size={16} className="text-muted-foreground" />
             </button>
             {showToolDropdown && (
-              <div className="absolute left-0 top-full z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg">
+              <div className="absolute left-0 top-full z-[1300] mt-1 w-full rounded-md border border-border bg-card shadow-lg ring-1 ring-border">
                 {Object.entries(GEMINI_TOOL_INFO).map(([tool, info]) => (
                   <button
                     key={tool}
@@ -197,8 +196,8 @@ export const PromptEditDialog: React.FC<PromptEditDialogProps> = ({
                       setSelectedTool(tool as GeminiTool);
                       setShowToolDropdown(false);
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm text-popover-foreground transition-colors hover:bg-muted ${
-                      tool === selectedTool ? "bg-muted" : ""
+                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground transition-colors hover:bg-muted ${
+                      (tool as GeminiTool) === selectedTool ? "bg-muted" : ""
                     }`}
                   >
                     {React.createElement(info.icon, {
