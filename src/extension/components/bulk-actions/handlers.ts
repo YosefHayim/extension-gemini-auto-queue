@@ -9,12 +9,12 @@ export async function readFilesAsBase64(files: File[]): Promise<SelectedFile[]> 
         if (typeof data === "string" && data.length > 0) {
           resolve({ data, name: file.name, type: file.type });
         } else {
-          console.warn(`[Gqmini] Failed to read file: ${file.name}`);
+          console.warn(`[PromptQueue] Failed to read file: ${file.name}`);
           resolve(null);
         }
       };
       reader.onerror = () => {
-        console.warn(`[Gqmini] Error reading file: ${file.name}`);
+        console.warn(`[PromptQueue] Error reading file: ${file.name}`);
         resolve(null);
       };
       reader.readAsDataURL(file);

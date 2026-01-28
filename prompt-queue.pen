@@ -16192,6 +16192,7 @@
               "type": "text",
               "id": "LKm5g",
               "name": "largeDesc",
+              "width": 500,
               "fill": "#6B7280",
               "content": "Queue your prompts, set it and forget it. PromptQueue handles your daily Gemini image generation automatically.",
               "lineHeight": 1.6,

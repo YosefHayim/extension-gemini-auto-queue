@@ -17,7 +17,7 @@ export default defineConfig({
   publicDir: "extension/public",
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "Gqmini - Gemini Queue & Automation",
+    name: "PromptQueue - Gemini Queue & Automation",
     description: "Queue unlimited prompts, bulk generate images, auto-download results, translate prompts, and automate your Gemini AI workflow with smart retry and batch processing.",
     version: "2.2.0",
     permissions: ["storage", "sidePanel", "activeTab", "tabs", "scripting", "alarms", "identity"],
@@ -30,7 +30,7 @@ export default defineConfig({
       default_path: "sidepanel.html",
     },
     action: {
-      default_title: "Gqmini - Gemini Queue & Automation",
+      default_title: "PromptQueue - Gemini Queue & Automation",
       default_popup: "popup.html",
       default_icon: {
         "16": "icons/icon-16.png",

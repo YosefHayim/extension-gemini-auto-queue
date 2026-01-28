@@ -37,7 +37,7 @@ export const AuthSuccessDialog: React.FC<AuthSuccessDialogProps> = ({ isOpen, us
           </div>
           <DialogTitle>Welcome, {user.firstName}!</DialogTitle>
           <DialogDescription>
-            You&apos;ve successfully signed in to Gqmini. You can now start using all features.
+            You&apos;ve successfully signed in to PromptQueue. You can now start using all features.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center pt-2">

@@ -33,8 +33,8 @@ export const mockChrome = {
       disconnect: vi.fn(),
     }),
     getManifest: vi.fn().mockReturnValue({
-      name: "Gqmini",
-      version: "2.1.0",
+      name: "PromptQueue",
+      version: "2.2.0",
       manifest_version: 3,
     }),
   },

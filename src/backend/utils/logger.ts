@@ -114,7 +114,7 @@ class DevLogger {
     };
 
     if (this.config.consoleOutput) {
-      const prefix = `[Gqmini ${entry.levelName}]`;
+      const prefix = `[PromptQueue ${entry.levelName}]`;
       const moduleAction = `[${module}/${action}]`;
       const durationStr = duration !== undefined ? ` (${duration}ms)` : "";
       const color = LEVEL_COLORS[level];
@@ -264,7 +264,7 @@ class DevLogger {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `gqmini-logs-${timestamp}.json`;
+    a.download = `promptqueue-logs-${timestamp}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

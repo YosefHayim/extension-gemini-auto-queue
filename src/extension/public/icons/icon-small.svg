@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1A1D"/>
+      <stop offset="100%" style="stop-color:#2D2D32"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" ry="6" fill="url(#bgGrad)"/>
+  <!-- Inner white rounded square -->
+  <rect x="6" y="6" width="20" height="20" rx="4" ry="4" fill="#FFFFFF"/>
+  <!-- PQ Text -->
+  <text x="16" y="18" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="700" fill="#1A1A1D" text-anchor="middle" dominant-baseline="middle">PQ</text>
+</svg>

@@ -43,8 +43,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     <div className="flex h-full flex-col items-center justify-center bg-background p-6">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-3">
-          <img src="/icons/icon-128.png" alt="Gqmini" className="h-16 w-16 rounded-[16px]" />
-          <h1 className="text-2xl font-bold text-foreground">Gqmini</h1>
+          <img src="/icons/icon-128.png" alt="PromptQueue" className="h-16 w-16 rounded-[16px]" />
+          <h1 className="text-2xl font-bold text-foreground">PromptQueue</h1>
           <p className="text-center text-sm text-muted-foreground">
             Supercharge your Gemini workflow
           </p>
