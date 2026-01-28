@@ -1,5 +1,7 @@
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 
+export type ShuffleOption = "regular" | "flashFirst" | "proFirst";
+
 export type BulkQueueAction = "shuffle" | "moveTop" | "retryFailed" | "changeTool" | "changeMode";
 
 export type BulkActionType =
@@ -62,7 +64,7 @@ export interface BulkActionsDialogProps {
     method: "native" | "direct",
     filterType?: "image" | "video" | "file"
   ) => Promise<void>;
-  onBulkShuffle?: () => void;
+  onBulkShuffle?: (option: ShuffleOption) => void;
   onBulkMoveToTop?: () => void;
   onBulkRetryFailed?: () => void;
   onBulkChangeTool?: (tool: GeminiTool) => void;

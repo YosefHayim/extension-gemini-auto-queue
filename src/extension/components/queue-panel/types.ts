@@ -1,5 +1,6 @@
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 import type { ResetFilter } from "@/extension/components/BulkActionsDialog";
+import type { ShuffleOption } from "@/extension/components/bulk-actions/types";
 import type { QueueItemEditData } from "@/extension/components/queue-item-card/types";
 
 export interface SortableQueueItemProps {
@@ -66,7 +67,7 @@ export interface QueuePanelProps {
   ) => Promise<void>;
   onClearCompleted?: () => void;
   onOpenExport?: () => void;
-  onBulkShuffle?: (selectedIds?: string[]) => void;
+  onBulkShuffle?: (option: ShuffleOption, selectedIds?: string[]) => void;
   onBulkMoveToTop?: (selectedIds?: string[]) => void;
   onBulkRetryFailed?: (selectedIds?: string[]) => void;
   onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;

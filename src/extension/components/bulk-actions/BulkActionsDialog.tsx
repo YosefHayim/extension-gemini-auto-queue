@@ -8,6 +8,7 @@ import { DialogHeader } from "@/extension/components/bulk-actions/DialogHeader";
 import { DialogShell } from "@/extension/components/bulk-actions/DialogShell";
 import { buildResetFilter, readFilesAsBase64 } from "@/extension/components/bulk-actions/handlers";
 import { ModelSelectDialog } from "@/extension/components/bulk-actions/ModelSelectDialog";
+import { ShuffleOptionsDialog } from "@/extension/components/bulk-actions/ShuffleOptionsDialog";
 import { TranslatePromptsDialog } from "@/extension/components/dialogs/TranslatePromptsDialog";
 import { useBulkActionsState } from "@/extension/hooks/useBulkActionsState";
 
@@ -15,6 +16,7 @@ import type { GeminiMode } from "@/backend/types";
 import type {
   BulkActionsDialogProps,
   BulkActionType,
+  ShuffleOption,
 } from "@/extension/components/bulk-actions/types";
 
 const ACTION_ID_TO_TYPE: Record<string, BulkActionType> = {
@@ -65,6 +67,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
 }) => {
   const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
   const [isTranslateDialogOpen, setIsTranslateDialogOpen] = useState(false);
+  const [isShuffleDialogOpen, setIsShuffleDialogOpen] = useState(false);
 
   const state = useBulkActionsState({
     pendingItems,
@@ -88,6 +91,13 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
       await onBulkTranslate(targetLanguage);
     }
     handleClose();
+  };
+
+  const handleShuffleApply = (option: ShuffleOption) => {
+    if (onBulkShuffle) {
+      onBulkShuffle(option);
+    }
+    setIsShuffleDialogOpen(false);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,7 +179,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
     }
 
     if (actionId === "shuffle" && onBulkShuffle) {
-      onBulkShuffle();
+      setIsShuffleDialogOpen(true);
       return;
     }
 
@@ -266,6 +276,13 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
         isDark={isDark}
         onClose={() => setIsTranslateDialogOpen(false)}
         onApply={handleTranslateApply}
+      />
+
+      <ShuffleOptionsDialog
+        isOpen={isShuffleDialogOpen}
+        onClose={() => setIsShuffleDialogOpen(false)}
+        onApply={handleShuffleApply}
+        selectedCount={pendingCount}
       />
     </DialogShell>
   );

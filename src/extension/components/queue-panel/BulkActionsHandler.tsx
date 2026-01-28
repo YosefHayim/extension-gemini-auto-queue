@@ -2,6 +2,7 @@ import React from "react";
 
 import { QueueStatus, type GeminiMode, type GeminiTool, type QueueItem } from "@/backend/types";
 import { BulkActionsDialog, type ResetFilter } from "@/extension/components/BulkActionsDialog";
+import type { ShuffleOption } from "@/extension/components/bulk-actions/types";
 
 interface BulkActionsHandlerProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ interface BulkActionsHandlerProps {
     filterType?: "image" | "video" | "file"
   ) => Promise<void>;
   onClearSelection: () => void;
-  onBulkShuffle?: (selectedIds?: string[]) => void;
+  onBulkShuffle?: (option: ShuffleOption, selectedIds?: string[]) => void;
   onBulkMoveToTop?: (selectedIds?: string[]) => void;
   onBulkRetryFailed?: (selectedIds?: string[]) => void;
   onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;
@@ -138,8 +139,8 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
         await onDownloadChatMedia?.(method, filterType);
         onClose();
       }}
-      onBulkShuffle={() => {
-        onBulkShuffle?.(hasSelection ? Array.from(selectedIds) : undefined);
+      onBulkShuffle={(option) => {
+        onBulkShuffle?.(option, hasSelection ? Array.from(selectedIds) : undefined);
         onClose();
         onClearSelection();
       }}

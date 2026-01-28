@@ -11,7 +11,7 @@ import {
   type QueueItem,
 } from "@/backend/types";
 
-import type { ResetFilter } from "@/extension/components/BulkActionsDialog";
+import type { ResetFilter, ShuffleOption } from "@/extension/components/bulk-actions/types";
 
 interface UseBulkModifyActionsProps {
   queue: QueueItem[];
@@ -194,7 +194,7 @@ export function useBulkModifyActions({
   );
 
   const handleBulkShuffle = useCallback(
-    async (selectedIds?: string[]) => {
+    async (option: ShuffleOption = "regular", selectedIds?: string[]) => {
       const targetIds = selectedIds ? new Set(selectedIds) : null;
 
       const shuffleArray = <T>(arr: T[]): T[] => {
@@ -206,28 +206,70 @@ export function useBulkModifyActions({
         return shuffled;
       };
 
+      const shuffleByModel = (
+        items: QueueItem[],
+        priorityModel: "flash" | "pro"
+      ): QueueItem[] => {
+        const priorityItems: QueueItem[] = [];
+        const otherModelItems: QueueItem[] = [];
+        const noModelItems: QueueItem[] = [];
+
+        items.forEach((item) => {
+          const hasFlash = !!item.results?.flash;
+          const hasPro = !!item.results?.pro;
+
+          if (!hasFlash && !hasPro) {
+            noModelItems.push(item);
+          } else if (priorityModel === "flash" && hasFlash) {
+            priorityItems.push(item);
+          } else if (priorityModel === "pro" && hasPro) {
+            priorityItems.push(item);
+          } else {
+            otherModelItems.push(item);
+          }
+        });
+
+        return [
+          ...shuffleArray(priorityItems),
+          ...shuffleArray(otherModelItems),
+          ...shuffleArray(noModelItems),
+        ];
+      };
+
+      let itemsToShuffle: QueueItem[];
+      if (targetIds) {
+        itemsToShuffle = queue.filter((item) => targetIds.has(item.id));
+      } else {
+        itemsToShuffle = queue.filter((i) => i.status === QueueStatus.Pending);
+      }
+
+      let shuffledItems: QueueItem[];
+      switch (option) {
+        case "flashFirst":
+          shuffledItems = shuffleByModel(itemsToShuffle, "flash");
+          break;
+        case "proFirst":
+          shuffledItems = shuffleByModel(itemsToShuffle, "pro");
+          break;
+        case "regular":
+        default:
+          shuffledItems = shuffleArray(itemsToShuffle);
+      }
+
       let updatedQueue: QueueItem[];
       if (targetIds) {
-        const selectedItems = queue.filter((item) => targetIds.has(item.id));
-        const otherItems = queue.filter((item) => !targetIds.has(item.id));
-        const shuffledSelected = shuffleArray(selectedItems);
-
         updatedQueue = [];
-        let selectedIndex = 0;
+        let shuffledIndex = 0;
         for (const item of queue) {
           if (targetIds.has(item.id)) {
-            updatedQueue.push(shuffledSelected[selectedIndex++]);
+            updatedQueue.push(shuffledItems[shuffledIndex++]);
           } else {
-            const otherItem = otherItems.find((o) => o.id === item.id);
-            if (otherItem) {
-              updatedQueue.push(otherItem);
-            }
+            updatedQueue.push(item);
           }
         }
       } else {
-        const pendingItems = queue.filter((i) => i.status === QueueStatus.Pending);
         const nonPendingItems = queue.filter((i) => i.status !== QueueStatus.Pending);
-        updatedQueue = [...shuffleArray(pendingItems), ...nonPendingItems];
+        updatedQueue = [...shuffledItems, ...nonPendingItems];
       }
 
       setQueueState(updatedQueue);
@@ -235,7 +277,13 @@ export function useBulkModifyActions({
       const count = targetIds
         ? targetIds.size
         : queue.filter((i) => i.status === QueueStatus.Pending).length;
-      toast.success(`Shuffled ${count} prompts`);
+      const methodLabel =
+        option === "flashFirst"
+          ? " (Flash first)"
+          : option === "proFirst"
+            ? " (Pro first)"
+            : "";
+      toast.success(`Shuffled ${count} prompts${methodLabel}`);
     },
     [queue, setQueueState]
   );
@@ -455,4 +503,4 @@ export function useBulkModifyActions({
   };
 }
 
-export type { ResetFilter };
+export type { ResetFilter, ShuffleOption };
