@@ -66,7 +66,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
             <Text style={upgradeTitle}>Need more power?</Text>
             <Text style={upgradeText}>
               Upgrade to <strong>Lifetime</strong> for a one-time payment of{" "}
-              <strong style={priceHighlight}>$5</strong> and get:
+              <strong style={priceHighlight}>1$</strong> and get:
             </Text>
 
             <Section style={upgradeFeatures}>
@@ -82,7 +82,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
             </Section>
 
             <Button style={ctaButton} href="https://gqmini.example.com/upgrade">
-              Upgrade to Lifetime - $5
+              Upgrade to Lifetime - 1$
             </Button>
           </Section>
 

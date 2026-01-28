@@ -417,7 +417,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 │ ✓ Advanced features          │
 │ ✓ Priority support           │
 │                              │
-│ $5 lifetime access           │
+│ 1$ lifetime access           │
 └──────────────────────────────┘
 ```
 
@@ -491,7 +491,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 
 - **12x faster** than manual generation
 - **Unlimited prompts** with Pro plan
-- **$5 lifetime** access to all features
+- **1$ lifetime** access to all features
 - **99.5% success rate** with auto-retry
 - **Supports 8+ languages** for translation
 - **Works with 3 AI providers** for optimization

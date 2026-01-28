@@ -55,7 +55,7 @@ export function CreditsLowEmail({ creditsRemaining }: CreditsLowEmailProps) {
             </Text>
 
             <Button style={ctaButton} href="https://gqmini.example.com/upgrade">
-              Get Lifetime for $5
+              Get Lifetime for 1$
             </Button>
           </Section>
 

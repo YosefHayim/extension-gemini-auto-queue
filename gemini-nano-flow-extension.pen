@@ -2611,7 +2611,7 @@
                               "id": "jXRqR",
                               "name": "proPlanPriceVal",
                               "fill": "$--primary-foreground",
-                              "content": "$5",
+                              "content": "1$",
                               "fontFamily": "Inter",
                               "fontSize": 24,
                               "fontWeight": "700"

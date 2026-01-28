@@ -235,6 +235,6 @@ Test Account:
 | Plan | Price | Features |
 |------|-------|----------|
 | Free | $0 | Limited daily prompts, basic features |
-| Pro Lifetime | $5 | Unlimited prompts, all features, lifetime access |
+| Pro Lifetime | 1$ | Unlimited prompts, all features, lifetime access |
 
 Payment processing: Handled via secure checkout at gqmini.yosefhayimsabag.com
