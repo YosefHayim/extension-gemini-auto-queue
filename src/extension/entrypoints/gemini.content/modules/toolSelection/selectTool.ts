@@ -34,7 +34,33 @@ export async function selectTool(tool: GeminiTool): Promise<boolean> {
   const toolConfig = TOOL_SELECTORS[tool];
   let toolBtn: HTMLElement | null = null;
 
-  if (toolConfig.fontIcons.length > 0) {
+  // For IMAGE tool, prioritize img-based selector since it uses img tag instead of mat-icon
+  if (tool === GeminiTool.IMAGE) {
+    const imgSelectors = [
+      'img[src*="boq-bard"]',
+      "img.menu-icon.img-icon",
+      'img[alt=""][class*="menu-icon"]',
+    ];
+    for (const selector of imgSelectors) {
+      const imgs = document.querySelectorAll(selector);
+      for (const img of imgs) {
+        const btn = img.closest("button");
+        if (btn && !btn.disabled && btn.offsetParent !== null) {
+          const isInDrawer =
+            btn.classList.contains("toolbox-drawer-item-list-button") ||
+            btn.closest("toolbox-drawer-item") !== null ||
+            btn.closest("mat-action-list") !== null;
+          if (isInDrawer) {
+            toolBtn = btn as HTMLElement;
+            break;
+          }
+        }
+      }
+      if (toolBtn) break;
+    }
+  }
+
+  if (!toolBtn && toolConfig.fontIcons.length > 0) {
     for (const iconName of toolConfig.fontIcons) {
       const iconSelectors = [
         `mat-icon[fonticon="${iconName}"]`,

@@ -13,11 +13,12 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import React, { useState } from "react";
+import React from "react";
 
 import { SortableQueueItem } from "@/extension/components/queue-panel/SortableQueueItem";
 
 import type { QueueItem, QueueStatus } from "@/backend/types";
+import type { QueueItemEditData } from "@/extension/components/queue-item-card/types";
 
 interface QueueListProps {
   queue: QueueItem[];
@@ -30,7 +31,7 @@ interface QueueListProps {
   onRetryQueueItem: (id: string) => void;
   onDuplicateItem: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEditItem?: (id: string, newPrompt: string) => void;
+  onEditItem?: (id: string, data: QueueItemEditData) => void;
   onRunSingleItem?: (id: string) => void;
   onUpdateItemImages?: (id: string, images: string[]) => void;
   onReorderQueue: (newQueue: QueueItem[]) => void;
@@ -56,8 +57,6 @@ export const QueueList: React.FC<QueueListProps> = ({
   onToggleSelect,
   pendingStatus,
 }) => {
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -95,24 +94,9 @@ export const QueueList: React.FC<QueueListProps> = ({
                 onRetry={onRetryQueueItem}
                 onDuplicate={onDuplicateItem}
                 onDuplicateWithAI={onDuplicateWithAI}
-                onEdit={
-                  onEditItem
-                    ? (id, prompt) => {
-                        const queueItem = queue.find((i) => i.id === id);
-                        if (prompt === queueItem?.originalPrompt && editingItemId !== id) {
-                          setEditingItemId(id);
-                        } else {
-                          if (queueItem && prompt !== queueItem.originalPrompt) {
-                            onEditItem(id, prompt);
-                          }
-                          setEditingItemId(null);
-                        }
-                      }
-                    : undefined
-                }
+                onEdit={onEditItem}
                 onRunSingle={onRunSingleItem}
                 onUpdateImages={onUpdateItemImages}
-                isEditing={editingItemId === item.id}
                 isSelected={selectedIds.has(item.id)}
                 onToggleSelect={onToggleSelect}
                 showCheckbox={hasSelection || item.status === pendingStatus}

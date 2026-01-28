@@ -1,9 +1,8 @@
 import React from "react";
 
-import { GEMINI_MODE_INFO, GEMINI_TOOL_INFO, GeminiTool } from "@/backend/types";
+import { GEMINI_TOOL_INFO, GeminiTool } from "@/backend/types";
 import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 
-import type { GeminiMode } from "@/backend/types";
 import type { BulkActionType, SelectedFile } from "@/extension/components/bulk-actions/types";
 
 interface ActionPanelContentProps {
@@ -14,7 +13,6 @@ interface ActionPanelContentProps {
   modifyText: string;
   modifyPosition: "prepend" | "append";
   selectedTool: GeminiTool | null;
-  selectedMode: GeminiMode | null;
   deletePatternText: string;
   deletePatternMatchCount: number;
   isProcessing: boolean;
@@ -24,7 +22,6 @@ interface ActionPanelContentProps {
   setModifyText: (value: string) => void;
   setModifyPosition: (value: "prepend" | "append") => void;
   setSelectedTool: (value: GeminiTool) => void;
-  setSelectedMode: (value: GeminiMode) => void;
   setDeletePatternText: (value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
@@ -137,34 +134,6 @@ const ChangeToolPanel: React.FC<{
   </div>
 );
 
-const ChangeModePanel: React.FC<{
-  selectedMode: GeminiMode | null;
-  onSelect: (mode: GeminiMode) => void;
-}> = ({ selectedMode, onSelect }) => (
-  <div className="space-y-3">
-    <p className="text-sm font-medium text-foreground">Select Mode</p>
-    <div className="grid grid-cols-3 gap-2">
-      {Object.entries(GEMINI_MODE_INFO).map(([mode, info]) => {
-        const isSelected = (selectedMode as string) === mode;
-        return (
-          <button
-            key={mode}
-            onClick={() => onSelect(mode as GeminiMode)}
-            className={`flex flex-col items-center gap-1 rounded-md border p-3 text-sm transition-colors ${
-              isSelected
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border hover:bg-muted"
-            }`}
-          >
-            <span className="font-medium">{info.label}</span>
-            <span className="text-xs text-muted-foreground">{info.description}</span>
-          </button>
-        );
-      })}
-    </div>
-  </div>
-);
-
 const DeleteByPatternPanel: React.FC<{
   value: string;
   matchCount: number;
@@ -199,7 +168,6 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
   modifyText,
   modifyPosition,
   selectedTool,
-  selectedMode,
   deletePatternText,
   deletePatternMatchCount,
   isProcessing,
@@ -209,7 +177,6 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
   setModifyText,
   setModifyPosition,
   setSelectedTool,
-  setSelectedMode,
   setDeletePatternText,
   onSubmit,
   onCancel,
@@ -242,9 +209,6 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
       )}
       {activeAction === "changeTool" && (
         <ChangeToolPanel selectedTool={selectedTool} onSelect={setSelectedTool} />
-      )}
-      {activeAction === "changeMode" && (
-        <ChangeModePanel selectedMode={selectedMode} onSelect={setSelectedMode} />
       )}
       {activeAction === "deleteByPattern" && (
         <DeleteByPatternPanel

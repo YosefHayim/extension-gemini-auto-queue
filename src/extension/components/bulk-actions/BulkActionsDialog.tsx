@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { ActionPanelContent } from "@/extension/components/bulk-actions/ActionPanelContent";
 import { getActionSections } from "@/extension/components/bulk-actions/actionSectionConfigs";
@@ -7,8 +7,10 @@ import { DESIGN } from "@/extension/components/bulk-actions/bulkActionsDesign";
 import { DialogHeader } from "@/extension/components/bulk-actions/DialogHeader";
 import { DialogShell } from "@/extension/components/bulk-actions/DialogShell";
 import { buildResetFilter, readFilesAsBase64 } from "@/extension/components/bulk-actions/handlers";
+import { ModelSelectDialog } from "@/extension/components/bulk-actions/ModelSelectDialog";
 import { useBulkActionsState } from "@/extension/hooks/useBulkActionsState";
 
+import type { GeminiMode } from "@/backend/types";
 import type {
   BulkActionsDialogProps,
   BulkActionType,
@@ -59,6 +61,8 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   onBulkDelete,
   onBulkDeleteByPattern,
 }) => {
+  const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
+
   const state = useBulkActionsState({
     pendingItems,
     completedCount,
@@ -67,6 +71,13 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   });
 
   const sections = getActionSections();
+
+  const handleModeApply = (mode: GeminiMode) => {
+    if (onBulkChangeMode) {
+      onBulkChangeMode(mode);
+    }
+    handleClose();
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -167,6 +178,12 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
       return;
     }
 
+    // Open separate dialog for model selection
+    if (actionId === "changeModel") {
+      setIsModelDialogOpen(true);
+      return;
+    }
+
     const mappedAction = ACTION_ID_TO_TYPE[actionId];
     if (mappedAction) {
       state.setActiveAction(mappedAction);
@@ -205,7 +222,6 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           modifyText={state.modifyText}
           modifyPosition={state.modifyPosition}
           selectedTool={state.selectedTool}
-          selectedMode={state.selectedMode}
           deletePatternText={state.deletePatternText}
           deletePatternMatchCount={state.deletePatternMatchCount}
           isProcessing={state.isProcessing}
@@ -215,12 +231,18 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           setModifyText={state.setModifyText}
           setModifyPosition={state.setModifyPosition}
           setSelectedTool={state.setSelectedTool}
-          setSelectedMode={state.setSelectedMode}
           setDeletePatternText={state.setDeletePatternText}
           onSubmit={handleSubmit}
           onCancel={() => state.setActiveAction(null)}
         />
       </div>
+
+      <ModelSelectDialog
+        isOpen={isModelDialogOpen}
+        onClose={() => setIsModelDialogOpen(false)}
+        onApply={handleModeApply}
+        selectedCount={pendingCount}
+      />
     </DialogShell>
   );
 };

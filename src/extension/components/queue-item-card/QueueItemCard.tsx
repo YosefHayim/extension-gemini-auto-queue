@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import { QueueStatus } from "@/backend/types";
 import { ActionButtons } from "@/extension/components/queue-item-card/ActionButtons";
 import { CardFooter } from "@/extension/components/queue-item-card/CardFooter";
 import { DragHandle } from "@/extension/components/queue-item-card/DragHandle";
-import { EditModeForm } from "@/extension/components/queue-item-card/EditModeForm";
 import { ImageThumbnails } from "@/extension/components/queue-item-card/ImageThumbnails";
 import { PromptDisplay } from "@/extension/components/queue-item-card/PromptDisplay";
+import { PromptEditDialog } from "@/extension/components/queue-item-card/PromptEditDialog";
 import { SelectionCheckbox } from "@/extension/components/queue-item-card/SelectionCheckbox";
 import { StatusSection } from "@/extension/components/queue-item-card/StatusSection";
 
+import type { PromptEditData } from "@/extension/components/queue-item-card/PromptEditDialog";
 import type { QueueItemCardProps } from "@/extension/components/queue-item-card/types";
 
 export const QueueItemCard: React.FC<QueueItemCardProps> = ({
@@ -24,33 +25,31 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
   onEdit,
   onRunSingle,
   onUpdateImages,
-  isEditing = false,
   dragHandleProps,
   isSelected = false,
   onToggleSelect,
   showCheckbox = false,
 }) => {
-  const [editValue, setEditValue] = useState(item.originalPrompt);
-
-  useEffect(() => {
-    setEditValue(item.originalPrompt);
-  }, [item.originalPrompt]);
-
-  const handleEditSubmit = () => {
-    if (onEdit) {
-      onEdit(item.id, editValue.trim());
-    }
-  };
-
-  const handleEditCancel = () => {
-    setEditValue(item.originalPrompt);
-    if (onEdit) {
-      onEdit(item.id, item.originalPrompt);
-    }
-  };
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const isPending = item.status === QueueStatus.Pending;
   const isFailed = item.status === QueueStatus.Failed;
+
+  const handleOpenEditDialog = () => {
+    if (isPending && onEdit) {
+      setIsEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEdit = (data: PromptEditData) => {
+    if (onEdit) {
+      onEdit(item.id, {
+        prompt: data.prompt,
+        mode: data.mode,
+        tool: data.tool,
+      });
+    }
+  };
 
   return (
     <div className="group relative overflow-hidden rounded-md border border-border bg-background">
@@ -73,35 +72,23 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
             isDark={isDark}
             isPending={isPending}
             isFailed={isFailed}
-            isEditing={isEditing}
+            isEditing={isEditDialogOpen}
             onRemove={onRemove}
             onRetry={onRetry}
             onDuplicate={onDuplicate}
             onDuplicateWithAI={onDuplicateWithAI}
-            onEdit={onEdit}
+            onEdit={onEdit ? handleOpenEditDialog : undefined}
             onRunSingle={onRunSingle}
-            originalPrompt={item.originalPrompt}
           />
         </div>
 
-        {isEditing && isPending ? (
-          <EditModeForm
-            value={editValue}
-            onChange={setEditValue}
-            onSubmit={handleEditSubmit}
-            onCancel={handleEditCancel}
-            isDark={isDark}
-          />
-        ) : (
-          <PromptDisplay
-            prompt={item.originalPrompt}
-            searchText={searchText}
-            isDark={isDark}
-            isPending={isPending}
-            onEdit={onEdit}
-            itemId={item.id}
-          />
-        )}
+        <PromptDisplay
+          prompt={item.originalPrompt}
+          searchText={searchText}
+          isDark={isDark}
+          isPending={isPending}
+          onEdit={onEdit ? handleOpenEditDialog : undefined}
+        />
 
         <ImageThumbnails
           images={item.images}
@@ -113,6 +100,15 @@ export const QueueItemCard: React.FC<QueueItemCardProps> = ({
 
         <CardFooter item={item} />
       </div>
+
+      <PromptEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleSaveEdit}
+        initialPrompt={item.originalPrompt}
+        initialMode={item.mode}
+        initialTool={item.tool}
+      />
     </div>
   );
 };

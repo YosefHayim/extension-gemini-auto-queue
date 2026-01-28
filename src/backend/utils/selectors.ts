@@ -37,6 +37,27 @@ export const SELECTORS = {
   loadingDots: ".loading-dots",
   streamingIndicator: ".streaming-indicator",
   typingIndicator: ".typing-indicator",
+
+  // Model/Mode selection dropdown
+  modelSwitchButton: "button.input-area-switch",
+  modelSwitchButtonAlt: ".input-area-switch",
+  modelSwitchLabel: '[data-test-id="logo-pill-label-container"]',
+  modelDropdownIcon: 'mat-icon[fonticon="keyboard_arrow_down"]',
+  modelMenuContainer: ".menu-inner-container",
+  modelMenuItem: ".bard-mode-list-button",
+
+  // Toolbox icon
+  toolboxIcon: 'mat-icon[fonticon="page_info"]',
+
+  // Tool menu (after clicking toolbox)
+  toolMenuList: "mat-action-list",
+  toolMenuItem: ".toolbox-drawer-item-list-button",
+  toolMenuItemIcon: "mat-icon.mat-mdc-list-item-icon",
+  toolDrawerItem: "toolbox-drawer-item",
+
+  // Image creation specific (uses img tag instead of mat-icon)
+  imageCreationIcon: 'img[src*="boq-bard"]',
+  imageCreationIconAlt: "img.menu-icon.img-icon",
 } as const;
 
 export type SelectorKey = keyof typeof SELECTORS;

@@ -89,6 +89,8 @@ export function isModeCurrentlyActive(mode: GeminiMode): boolean {
 
 export async function openModeMenu(): Promise<boolean> {
   const modeMenuTriggers = [
+    "button.input-area-switch",
+    ".input-area-switch",
     '[data-test-id="bard-mode-menu-trigger"]',
     '[data-test-id="mobile-nested-mode-menu-trigger"]',
     'button[aria-haspopup="menu"][aria-expanded]',

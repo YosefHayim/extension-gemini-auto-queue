@@ -7,8 +7,7 @@ interface PromptDisplayProps {
   searchText: string;
   isDark: boolean;
   isPending: boolean;
-  onEdit?: (id: string, newPrompt: string) => void;
-  itemId: string;
+  onEdit?: () => void;
 }
 
 export const PromptDisplay: React.FC<PromptDisplayProps> = ({
@@ -17,7 +16,6 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
   isDark,
   isPending,
   onEdit,
-  itemId,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
@@ -47,7 +45,7 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
         ref={textRef}
         onClick={() => {
           if (isPending && onEdit) {
-            onEdit(itemId, prompt);
+            onEdit();
           }
         }}
         className={`line-clamp-2 text-[13px] font-normal leading-[1.4] text-foreground ${isPending && onEdit ? "-mx-1 cursor-text rounded px-1 transition-colors hover:bg-muted" : ""}`}

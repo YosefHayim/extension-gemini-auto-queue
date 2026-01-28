@@ -1,6 +1,12 @@
-import type { QueueItem, GeminiMode } from "@/backend/types";
+import type { QueueItem, GeminiMode, GeminiTool } from "@/backend/types";
 
 export const MAX_IMAGES_PER_CARD = 10;
+
+export interface QueueItemEditData {
+  prompt: string;
+  mode?: GeminiMode;
+  tool?: GeminiTool;
+}
 
 export interface QueueItemCardProps {
   item: QueueItem;
@@ -11,10 +17,9 @@ export interface QueueItemCardProps {
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEdit?: (id: string, newPrompt: string) => void;
+  onEdit?: (id: string, data: QueueItemEditData) => void;
   onRunSingle?: (id: string) => void;
   onUpdateImages?: (id: string, images: string[]) => void;
-  isEditing?: boolean;
   dragHandleProps?: Record<string, unknown>;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;

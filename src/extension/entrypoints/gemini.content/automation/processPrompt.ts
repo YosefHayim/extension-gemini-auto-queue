@@ -2,7 +2,9 @@ import { type GeminiMode, GeminiTool } from "@/backend/types";
 import { sleep, logger } from "@/backend/utils";
 import {
   selectTool,
+  resetToolState,
   selectMode,
+  resetModeState,
   uploadImages,
   pastePromptToInput,
   submitPrompt,
@@ -20,6 +22,10 @@ export async function processPromptThroughUI(
   const actionKey = log.startAction("processPrompt");
 
   try {
+    // Reset cached state to force UI verification before each prompt
+    resetToolState();
+    resetModeState();
+
     log.info("processPrompt", "Starting prompt processing", {
       tool,
       mode,

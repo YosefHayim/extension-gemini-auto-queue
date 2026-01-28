@@ -124,52 +124,68 @@ describe("QueueItemCard", () => {
   });
 
   describe("Edit Mode", () => {
-    it("shows edit form when isEditing is true and item is pending", () => {
+    it("shows edit button for pending items with onEdit prop", () => {
       const onEdit = vi.fn();
-      render(<QueueItemCard {...defaultProps} isEditing onEdit={onEdit} />);
+      render(<QueueItemCard {...defaultProps} onEdit={onEdit} />);
 
-      expect(screen.getByRole("textbox")).toBeInTheDocument();
+      expect(screen.getByTitle("Edit prompt")).toBeInTheDocument();
     });
 
-    it("does not show edit form for non-pending items even when isEditing is true", () => {
+    it("does not show edit button for non-pending items", () => {
       const item = createMockQueueItem({ status: QueueStatus.Completed });
       const onEdit = vi.fn();
-      render(<QueueItemCard {...defaultProps} item={item} isEditing onEdit={onEdit} />);
+      render(<QueueItemCard {...defaultProps} item={item} onEdit={onEdit} />);
 
-      expect(screen.getByText("Test prompt for the queue item")).toBeInTheDocument();
+      expect(screen.queryByTitle("Edit prompt")).not.toBeInTheDocument();
     });
 
-    it("calls onEdit when textarea loses focus (blur)", () => {
+    it("opens edit dialog when edit button is clicked", () => {
       const onEdit = vi.fn();
-      render(<QueueItemCard {...defaultProps} isEditing onEdit={onEdit} />);
+      render(<QueueItemCard {...defaultProps} onEdit={onEdit} />);
 
+      const editButton = screen.getByTitle("Edit prompt");
+      fireEvent.click(editButton);
+
+      // Dialog should open with textarea
+      expect(screen.getByRole("textbox")).toBeInTheDocument();
+      expect(screen.getByText("Edit Prompt")).toBeInTheDocument();
+    });
+
+    it("calls onEdit with updated prompt when saved from dialog", () => {
+      const onEdit = vi.fn();
+      render(<QueueItemCard {...defaultProps} onEdit={onEdit} />);
+
+      // Open dialog
+      const editButton = screen.getByTitle("Edit prompt");
+      fireEvent.click(editButton);
+
+      // Edit and save
       const textarea = screen.getByRole("textbox");
       fireEvent.change(textarea, { target: { value: "Updated prompt" } });
-      fireEvent.blur(textarea);
+      const saveButton = screen.getByText("Save");
+      fireEvent.click(saveButton);
 
-      expect(onEdit).toHaveBeenCalledWith("test-item-1", "Updated prompt");
+      expect(onEdit).toHaveBeenCalledWith("test-item-1", {
+        prompt: "Updated prompt",
+        mode: GeminiMode.Quick,
+        tool: GeminiTool.IMAGE,
+      });
     });
 
-    it("calls onEdit when Enter is pressed", () => {
+    it("closes dialog without saving when Cancel is clicked", () => {
       const onEdit = vi.fn();
-      render(<QueueItemCard {...defaultProps} isEditing onEdit={onEdit} />);
+      render(<QueueItemCard {...defaultProps} onEdit={onEdit} />);
 
-      const textarea = screen.getByRole("textbox");
-      fireEvent.change(textarea, { target: { value: "Updated prompt" } });
-      fireEvent.keyDown(textarea, { key: "Enter" });
+      // Open dialog
+      const editButton = screen.getByTitle("Edit prompt");
+      fireEvent.click(editButton);
 
-      expect(onEdit).toHaveBeenCalledWith("test-item-1", "Updated prompt");
-    });
+      // Click cancel
+      const cancelButton = screen.getByText("Cancel");
+      fireEvent.click(cancelButton);
 
-    it("restores original value when Escape is pressed", () => {
-      const onEdit = vi.fn();
-      render(<QueueItemCard {...defaultProps} isEditing onEdit={onEdit} />);
-
-      const textarea = screen.getByRole("textbox");
-      fireEvent.change(textarea, { target: { value: "Changed but not saved" } });
-      fireEvent.keyDown(textarea, { key: "Escape" });
-
-      expect(onEdit).toHaveBeenCalledWith("test-item-1", "Test prompt for the queue item");
+      expect(onEdit).not.toHaveBeenCalled();
+      expect(screen.queryByText("Edit Prompt")).not.toBeInTheDocument();
     });
   });
 

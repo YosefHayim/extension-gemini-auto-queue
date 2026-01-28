@@ -11,9 +11,8 @@ interface ActionButtonsProps {
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEdit?: (id: string, newPrompt: string) => void;
+  onEdit?: () => void;
   onRunSingle?: (id: string) => void;
-  originalPrompt: string;
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -27,7 +26,6 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onDuplicateWithAI,
   onEdit,
   onRunSingle,
-  originalPrompt,
 }) => {
   return (
     <div className={`flex shrink-0 items-center gap-1 ${isEditing ? "hidden" : ""}`}>
@@ -48,7 +46,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onEdit(itemId, originalPrompt);
+            onEdit();
           }}
           title="Edit prompt"
           className="flex items-center justify-center rounded p-1 text-muted-foreground transition-colors hover:bg-muted"

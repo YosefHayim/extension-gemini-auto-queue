@@ -18,7 +18,6 @@ export const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
   onEdit,
   onRunSingle,
   onUpdateImages,
-  isEditing,
   isSelected,
   onToggleSelect,
   showCheckbox,
@@ -43,7 +42,6 @@ export const SortableQueueItem: React.FC<SortableQueueItemProps> = ({
         onEdit={onEdit}
         onRunSingle={onRunSingle}
         onUpdateImages={onUpdateImages}
-        isEditing={isEditing}
         dragHandleProps={{ ...attributes, ...listeners }}
         isSelected={isSelected}
         onToggleSelect={onToggleSelect}

@@ -1,5 +1,6 @@
 import type { GeminiMode, GeminiTool, QueueItem, QueueStatus } from "@/backend/types";
 import type { ResetFilter } from "@/extension/components/BulkActionsDialog";
+import type { QueueItemEditData } from "@/extension/components/queue-item-card/types";
 
 export interface SortableQueueItemProps {
   item: QueueItem;
@@ -10,10 +11,9 @@ export interface SortableQueueItemProps {
   onRetry: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEdit?: (id: string, newPrompt: string) => void;
+  onEdit?: (id: string, data: QueueItemEditData) => void;
   onRunSingle?: (id: string) => void;
   onUpdateImages?: (id: string, images: string[]) => void;
-  isEditing: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
   showCheckbox?: boolean;
@@ -43,7 +43,7 @@ export interface QueuePanelProps {
   onReorderQueue: (newQueue: QueueItem[]) => void;
   onDuplicateItem: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEditItem?: (id: string, newPrompt: string) => void;
+  onEditItem?: (id: string, data: QueueItemEditData) => void;
   onRunSingleItem?: (id: string) => void;
   onUpdateItemImages?: (id: string, images: string[]) => void;
   selectedMode?: GeminiMode;

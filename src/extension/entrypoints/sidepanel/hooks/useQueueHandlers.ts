@@ -9,6 +9,8 @@ import {
 import { setQueue, StorageQuotaError } from "@/backend/services/storageService";
 import { type GeminiMode, type GeminiTool, QueueStatus, type QueueItem } from "@/backend/types";
 
+import type { QueueItemEditData } from "@/extension/components/queue-item-card/types";
+
 interface UseQueueHandlersProps {
   queue: QueueItem[];
   setQueueState: React.Dispatch<React.SetStateAction<QueueItem[]>>;
@@ -144,10 +146,16 @@ export function useQueueHandlers({
   );
 
   const handleEditItem = useCallback(
-    async (id: string, newPrompt: string) => {
+    async (id: string, data: QueueItemEditData) => {
       const updatedQueue = queue.map((item) =>
         item.id === id
-          ? { ...item, originalPrompt: newPrompt, finalPrompt: constructFinalPrompt(newPrompt) }
+          ? {
+              ...item,
+              originalPrompt: data.prompt,
+              finalPrompt: constructFinalPrompt(data.prompt),
+              mode: data.mode ?? item.mode,
+              tool: data.tool ?? item.tool,
+            }
           : item
       );
       setQueueState(updatedQueue);

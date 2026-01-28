@@ -95,6 +95,27 @@ export function isToolCurrentlyActive(tool: GeminiTool): boolean {
         return true;
       }
     }
+
+    // Check for img-based icons (used by Image Creation tool)
+    if (tool === GeminiTool.IMAGE) {
+      const imgIcon = inputArea.querySelector('img[src*="boq-bard"], img.menu-icon.img-icon');
+      if (imgIcon) {
+        return true;
+      }
+    }
+  }
+
+  // Additional check for chip-based tool indicators in input area
+  const inputAreaChips = document.querySelectorAll(
+    ".input-area chip-button-input, .prompt-area chip-button-input"
+  );
+  for (const chip of inputAreaChips) {
+    const text = chip.textContent?.toLowerCase() ?? "";
+    for (const pattern of toolConfig.textPatterns) {
+      if (text.includes(pattern.toLowerCase())) {
+        return true;
+      }
+    }
   }
 
   return false;

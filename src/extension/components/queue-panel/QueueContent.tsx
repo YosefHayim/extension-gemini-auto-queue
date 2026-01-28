@@ -11,6 +11,8 @@ import {
 } from "@/backend/types";
 import { QueueList } from "@/extension/components/queue-panel/QueueList";
 
+import type { QueueItemEditData } from "@/extension/components/queue-item-card/types";
+
 interface QueueContentProps {
   queue: QueueItem[];
   filteredQueue: QueueItem[];
@@ -48,7 +50,7 @@ interface QueueContentProps {
   onRetryQueueItem: (id: string) => void;
   onDuplicateItem: (id: string) => void;
   onDuplicateWithAI: (id: string) => void;
-  onEditItem?: (id: string, newPrompt: string) => void;
+  onEditItem?: (id: string, data: QueueItemEditData) => void;
   onRunSingleItem?: (id: string) => void;
   onUpdateItemImages?: (id: string, images: string[]) => void;
   onReorderQueue: (newQueue: QueueItem[]) => void;
