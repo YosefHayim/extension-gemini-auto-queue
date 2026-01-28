@@ -17,6 +17,7 @@ export {
   submitPrompt,
 } from "@/extension/entrypoints/gemini.content/modules/promptInput/index";
 export {
+  detectGenerationError,
   isVideoGenerating,
   isVideoGenerationComplete,
   isCanvasGenerating,

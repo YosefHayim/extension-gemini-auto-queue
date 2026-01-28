@@ -181,12 +181,6 @@ export const QueueContent: React.FC<QueueContentProps> = ({
 
         <div className="flex items-center gap-2">
           <button
-            onClick={onSelectAll}
-            className="rounded bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/80"
-          >
-            Select
-          </button>
-          <button
             onClick={onShowBulkActions}
             disabled={pendingCount === 0}
             className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
@@ -312,6 +306,14 @@ export const QueueContent: React.FC<QueueContentProps> = ({
             <span className="text-sm font-medium text-primary-foreground">
               {selectedCount} selected
             </span>
+            {selectedCount < filteredQueue.length && (
+              <button
+                onClick={onSelectAll}
+                className="text-xs font-medium text-primary-foreground/70 underline underline-offset-2 transition-colors hover:text-primary-foreground"
+              >
+                Select all {filteredQueue.length}
+              </button>
+            )}
           </div>
 
           <button

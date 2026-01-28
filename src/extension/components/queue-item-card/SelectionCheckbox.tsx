@@ -17,7 +17,7 @@ export const SelectionCheckbox: React.FC<SelectionCheckboxProps> = ({ isSelected
       className={`flex h-4 w-4 items-center justify-center rounded border transition-all ${
         isSelected
           ? "border-primary bg-primary text-white"
-          : "border-muted-foreground/50 hover:border-muted-foreground"
+          : "border-muted-foreground/50 bg-background hover:border-primary hover:bg-primary/10"
       }`}
     >
       {isSelected && <Check size={10} strokeWidth={3} />}

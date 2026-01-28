@@ -3,6 +3,63 @@ import { sleep, logger } from "@/backend/utils";
 
 const log = logger.module("GenerationDetection");
 
+/**
+ * Check if Gemini is showing an error message that indicates generation was stopped/failed
+ */
+export function detectGenerationError(): string | null {
+  // Check for "stopped generating" message (Hebrew and English)
+  const errorPatterns = [
+    "הפסקת את יצירת התשובה",
+    "stopped generating",
+    "generation was stopped",
+    "couldn't generate",
+    "unable to generate",
+    "try again",
+    "something went wrong",
+    "an error occurred",
+    "rate limit",
+    "too many requests",
+  ];
+
+  // Look for error messages in response containers
+  const responseElements = document.querySelectorAll(
+    "model-response, response-element, .response-container, [data-message-id]"
+  );
+
+  for (const el of responseElements) {
+    const text = el.textContent?.toLowerCase() ?? "";
+    for (const pattern of errorPatterns) {
+      if (text.includes(pattern.toLowerCase())) {
+        log.warn("detectError", "Found error message in response", { pattern });
+        return pattern;
+      }
+    }
+  }
+
+  // Check for error toast/snackbar messages
+  const toastSelectors = [
+    ".mat-snack-bar-container",
+    "[role='alert']",
+    ".error-message",
+    ".toast-error",
+  ];
+
+  for (const selector of toastSelectors) {
+    const toasts = document.querySelectorAll(selector);
+    for (const toast of toasts) {
+      const text = toast.textContent?.toLowerCase() ?? "";
+      for (const pattern of errorPatterns) {
+        if (text.includes(pattern.toLowerCase())) {
+          log.warn("detectError", "Found error in toast", { pattern, selector });
+          return pattern;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 function isStillGenerating(): boolean {
   const loadingSelectors = [
     "lottie-animation",
@@ -104,7 +161,7 @@ export function isGeminiThinking(): boolean {
 export async function waitForGenerationComplete(
   tool: GeminiTool = GeminiTool.IMAGE,
   timeout = 180000
-): Promise<boolean> {
+): Promise<{ completed: boolean; error?: string }> {
   const actionKey = log.startAction("waitForGeneration");
   const startTime = Date.now();
   const initialResponseCount = countResponses();
@@ -124,7 +181,8 @@ export async function waitForGenerationComplete(
 
   if (!generationStarted) {
     log.warn("waitForGeneration", "Generation never started");
-    return true;
+    const errorMsg = detectGenerationError();
+    return { completed: true, error: errorMsg ?? undefined };
   }
 
   let consecutiveIdleChecks = 0;
@@ -132,13 +190,21 @@ export async function waitForGenerationComplete(
 
   while (Date.now() - startTime < timeout) {
     const stillGenerating = isStillGenerating();
+    const errorMsg = detectGenerationError();
+
+    if (errorMsg) {
+      log.warn("waitForGeneration", "Error detected during generation", { error: errorMsg });
+      log.endAction(actionKey, "waitForGeneration", "Error detected", false, { error: errorMsg });
+      return { completed: false, error: errorMsg };
+    }
 
     if (!stillGenerating) {
       consecutiveIdleChecks++;
       if (consecutiveIdleChecks >= requiredIdleChecks) {
         const elapsed = Date.now() - startTime;
+        const finalError = detectGenerationError();
         log.endAction(actionKey, "waitForGeneration", "Complete", true, { elapsed });
-        return true;
+        return { completed: true, error: finalError ?? undefined };
       }
     } else {
       consecutiveIdleChecks = 0;
@@ -148,5 +214,5 @@ export async function waitForGenerationComplete(
   }
 
   log.endAction(actionKey, "waitForGeneration", "Timeout", false, { timeout });
-  return true;
+  return { completed: true, error: "Generation timeout" };
 }

@@ -354,6 +354,38 @@ export function useBulkModifyActions({
     [queue, setQueueState]
   );
 
+  const handleBulkDeleteByPattern = useCallback(
+    async (pattern: string, selectedIds?: string[]) => {
+      if (!pattern.trim()) {
+        toast.info("Please enter a pattern to match");
+        return;
+      }
+
+      const targetIds = selectedIds ? new Set(selectedIds) : null;
+      const patternLower = pattern.toLowerCase();
+
+      const updatedQueue = queue.filter((item) => {
+        const isTarget = targetIds ? targetIds.has(item.id) : item.status === QueueStatus.Pending;
+        if (!isTarget) return true;
+        return !item.finalPrompt.toLowerCase().includes(patternLower);
+      });
+
+      const deletedCount = queue.length - updatedQueue.length;
+
+      if (deletedCount === 0) {
+        toast.info("No items match the pattern");
+        return;
+      }
+
+      setQueueState(updatedQueue);
+      await setQueue(updatedQueue);
+      toast.success(
+        `Deleted ${deletedCount} item${deletedCount !== 1 ? "s" : ""} matching pattern`
+      );
+    },
+    [queue, setQueueState]
+  );
+
   return {
     handleBulkAttachImages,
     handleBulkAIOptimize,
@@ -366,6 +398,7 @@ export function useBulkModifyActions({
     handleBulkChangeTool,
     handleBulkChangeMode,
     handleBulkDelete,
+    handleBulkDeleteByPattern,
   };
 }
 

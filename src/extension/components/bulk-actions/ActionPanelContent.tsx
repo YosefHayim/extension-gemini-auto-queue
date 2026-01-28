@@ -15,6 +15,8 @@ interface ActionPanelContentProps {
   modifyPosition: "prepend" | "append";
   selectedTool: GeminiTool | null;
   selectedMode: GeminiMode | null;
+  deletePatternText: string;
+  deletePatternMatchCount: number;
   isProcessing: boolean;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFileInputClick: () => void;
@@ -23,6 +25,7 @@ interface ActionPanelContentProps {
   setModifyPosition: (value: "prepend" | "append") => void;
   setSelectedTool: (value: GeminiTool) => void;
   setSelectedMode: (value: GeminiMode) => void;
+  setDeletePatternText: (value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
 }
@@ -162,6 +165,32 @@ const ChangeModePanel: React.FC<{
   </div>
 );
 
+const DeleteByPatternPanel: React.FC<{
+  value: string;
+  matchCount: number;
+  onChange: (value: string) => void;
+}> = ({ value, matchCount, onChange }) => (
+  <div className="space-y-3">
+    <p className="text-sm font-medium text-foreground">Delete prompts containing pattern</p>
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Paste text pattern to match (e.g., 'Status: processing | Type: image')..."
+      className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground placeholder:text-muted-foreground"
+      rows={3}
+    />
+    {value.trim() && (
+      <p
+        className={`text-sm ${matchCount > 0 ? "font-medium text-red-500" : "text-muted-foreground"}`}
+      >
+        {matchCount > 0
+          ? `${matchCount} prompt${matchCount !== 1 ? "s" : ""} will be deleted`
+          : "No prompts match this pattern"}
+      </p>
+    )}
+  </div>
+);
+
 export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
   activeAction,
   fileInputRef,
@@ -171,6 +200,8 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
   modifyPosition,
   selectedTool,
   selectedMode,
+  deletePatternText,
+  deletePatternMatchCount,
   isProcessing,
   onFileUpload,
   onFileInputClick,
@@ -179,6 +210,7 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
   setModifyPosition,
   setSelectedTool,
   setSelectedMode,
+  setDeletePatternText,
   onSubmit,
   onCancel,
 }) => {
@@ -213,6 +245,13 @@ export const ActionPanelContent: React.FC<ActionPanelContentProps> = ({
       )}
       {activeAction === "changeMode" && (
         <ChangeModePanel selectedMode={selectedMode} onSelect={setSelectedMode} />
+      )}
+      {activeAction === "deleteByPattern" && (
+        <DeleteByPatternPanel
+          value={deletePatternText}
+          matchCount={deletePatternMatchCount}
+          onChange={setDeletePatternText}
+        />
       )}
       <button
         onClick={onSubmit}

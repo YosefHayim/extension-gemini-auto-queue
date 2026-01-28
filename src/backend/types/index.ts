@@ -281,6 +281,7 @@ export interface AppSettings {
   position: SidebarPosition;
   primaryModel: GeminiModel;
   dripFeed: boolean;
+  dripFeedDelay: number;
   autoStopOnError: boolean;
   autoCaption: boolean;
   globalNegatives: string;

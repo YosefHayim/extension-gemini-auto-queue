@@ -40,6 +40,7 @@ export function useBulkActionsState({
   const [downloadMethod, setDownloadMethod] = useState<"native" | "direct">("native");
   const [selectedTool, setSelectedTool] = useState<GeminiTool | null>(null);
   const [selectedMode, setSelectedMode] = useState<GeminiMode | null>(null);
+  const [deletePatternText, setDeletePatternText] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resettableCount = completedCount + failedCount;
@@ -58,6 +59,13 @@ export function useBulkActionsState({
       item.finalPrompt.toLowerCase().includes(textToRemove.toLowerCase())
     ).length;
   }, [pendingItems, textToRemove]);
+
+  const deletePatternMatchCount = useMemo(() => {
+    if (!deletePatternText.trim()) return 0;
+    return pendingItems.filter((item) =>
+      item.finalPrompt.toLowerCase().includes(deletePatternText.toLowerCase())
+    ).length;
+  }, [pendingItems, deletePatternText]);
 
   useEffect(() => {
     const scanMedia = async () => {
@@ -89,6 +97,7 @@ export function useBulkActionsState({
     setDownloadMethod("native");
     setSelectedTool(null);
     setSelectedMode(null);
+    setDeletePatternText("");
   };
 
   return {
@@ -128,10 +137,13 @@ export function useBulkActionsState({
     resettableCount,
     allUniqueImages,
     textMatchCount,
+    deletePatternMatchCount,
     resetState,
     selectedTool,
     setSelectedTool,
     selectedMode,
     setSelectedMode,
+    deletePatternText,
+    setDeletePatternText,
   };
 }

@@ -16,6 +16,7 @@ export type BulkActionType =
   | "variations"
   | "stylePreset"
   | "saveTemplates"
+  | "deleteByPattern"
   | null;
 
 export interface ResetFilter {
@@ -67,6 +68,7 @@ export interface BulkActionsDialogProps {
   onBulkChangeTool?: (tool: GeminiTool) => void;
   onBulkChangeMode?: (mode: GeminiMode) => void;
   onBulkDelete?: () => void;
+  onBulkDeleteByPattern?: (pattern: string) => void;
 }
 
 export interface BasePanelProps {

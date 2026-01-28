@@ -65,7 +65,14 @@ export async function processPromptThroughUI(
     }
 
     log.debug("processPrompt", "Waiting for generation to complete");
-    await waitForGenerationComplete(tool);
+    const generationResult = await waitForGenerationComplete(tool);
+
+    if (generationResult.error) {
+      log.endAction(actionKey, "processPrompt", "Generation error detected", false, {
+        error: generationResult.error,
+      });
+      return { success: false, error: generationResult.error };
+    }
 
     log.endAction(actionKey, "processPrompt", "Generation complete", true);
     return { success: true };

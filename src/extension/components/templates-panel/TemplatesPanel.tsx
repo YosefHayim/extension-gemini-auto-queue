@@ -1,7 +1,6 @@
-import { Search, Folder, Plus } from "lucide-react";
+import { Search, Folder, Plus, Layers, Pencil, X } from "lucide-react";
 import React, { useMemo } from "react";
 
-import { FolderBar } from "@/extension/components/templates-panel/FolderBar";
 import { FolderCreateDialog } from "@/extension/components/templates-panel/FolderCreateDialog";
 import { ImproveFolderButton } from "@/extension/components/templates-panel/ImproveFolderButton";
 import { TemplateEditDialog } from "@/extension/components/templates-panel/TemplateEditDialog";
@@ -16,7 +15,6 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
   hasAIKey,
   onCreateFolder,
   onDeleteFolder,
-  onToggleFolder,
   onUseTemplate,
   onDeleteTemplate,
   onSaveTemplate,
@@ -91,25 +89,41 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
           />
         </div>
 
-        {filteredFolders.length > 0 && (
-          <div className="flex flex-col gap-3 py-4">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-foreground">Folders</h3>
-              <button
-                onClick={() => setIsCreatingFolder(true)}
-                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-              >
-                <Plus size={14} />
-                New Folder
-              </button>
-            </div>
+        <div className="flex flex-col gap-3 py-4">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-sm font-semibold text-foreground">Folders</h3>
+            <button
+              onClick={() => setIsCreatingFolder(true)}
+              className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Plus size={14} />
+              New Folder
+            </button>
+          </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {filteredFolders.slice(0, 4).map((folder) => (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setSelectedFolderId(null)}
+              className={`flex flex-col items-start gap-1.5 rounded-lg border p-3 transition-colors ${
+                selectedFolderId === null
+                  ? "border-zinc-400 bg-zinc-100 dark:border-zinc-500 dark:bg-zinc-800/50"
+                  : "border-border hover:border-muted-foreground/30"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Layers size={16} className="text-blue-500" />
+                <span className="text-sm font-medium text-foreground">All Templates</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {totalTemplateCount} template{totalTemplateCount !== 1 ? "s" : ""}
+              </span>
+            </button>
+
+            {filteredFolders.map((folder) => (
+              <div key={folder.id} className="group relative">
                 <button
-                  key={folder.id}
                   onClick={() => setSelectedFolderId(folder.id)}
-                  className={`flex flex-col items-start gap-1.5 rounded-lg border p-3 transition-colors ${
+                  className={`flex w-full flex-col items-start gap-1.5 rounded-lg border p-3 transition-colors ${
                     selectedFolderId === folder.id
                       ? "border-zinc-400 bg-zinc-100 dark:border-zinc-500 dark:bg-zinc-800/50"
                       : "border-border hover:border-muted-foreground/30"
@@ -117,17 +131,47 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     <Folder size={16} className="text-amber-500" />
-                    <span className="text-sm font-medium text-foreground">{folder.name}</span>
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {folder.name}
+                    </span>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {folder.templates.length} template
-                    {folder.templates.length !== 1 ? "s" : ""}
+                    {folder.templates.length} template{folder.templates.length !== 1 ? "s" : ""}
                   </span>
                 </button>
-              ))}
-            </div>
+                <div className="absolute right-1 top-1 flex gap-0.5 opacity-0 transition-all group-hover:opacity-100">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartTemplateEdit(folder.id);
+                    }}
+                    title="Add template"
+                    className="rounded-full bg-emerald-500 p-1 text-white shadow-sm transition-all hover:bg-emerald-600"
+                  >
+                    <Plus size={10} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditFolder(folder);
+                    }}
+                    title="Edit folder"
+                    className="rounded-full bg-blue-500 p-1 text-white shadow-sm transition-all hover:bg-blue-600"
+                  >
+                    <Pencil size={10} />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteFolder(folder.id, e)}
+                    title="Delete folder"
+                    className="rounded-full bg-red-500 p-1 text-white shadow-sm transition-all hover:bg-red-600"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {recentTemplates.length > 0 && (
           <div className="flex flex-col gap-3 py-4">
@@ -157,21 +201,6 @@ export const TemplatesPanel: React.FC<TemplatesPanelProps> = ({
             </div>
           </div>
         )}
-
-        <div className="my-2 h-px bg-border" />
-
-        <FolderBar
-          folders={folders}
-          selectedFolderId={selectedFolderId}
-          totalTemplateCount={totalTemplateCount}
-          isDark={isDark}
-          onCreateFolderClick={() => setIsCreatingFolder(true)}
-          onSelectFolder={setSelectedFolderId}
-          onToggleFolder={onToggleFolder}
-          onDeleteFolder={handleDeleteFolder}
-          onEditFolder={handleEditFolder}
-          onCreateTemplate={(folderId) => handleStartTemplateEdit(folderId)}
-        />
 
         {selectedFolder && selectedFolder.templates.length > 0 && hasAIKey && (
           <ImproveFolderButton

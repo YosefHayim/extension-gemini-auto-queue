@@ -72,6 +72,7 @@ export interface QueuePanelProps {
   onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;
   onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
   onBulkDelete?: (selectedIds?: string[]) => void;
+  onBulkDeleteByPattern?: (pattern: string, selectedIds?: string[]) => void;
 }
 
 export interface TextSelection {

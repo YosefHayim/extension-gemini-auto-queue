@@ -39,6 +39,7 @@ interface BulkActionsHandlerProps {
   onBulkChangeTool?: (tool: GeminiTool, selectedIds?: string[]) => void;
   onBulkChangeMode?: (mode: GeminiMode, selectedIds?: string[]) => void;
   onBulkDelete?: (selectedIds?: string[]) => void;
+  onBulkDeleteByPattern?: (pattern: string, selectedIds?: string[]) => void;
 }
 
 export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
@@ -69,6 +70,7 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
   onBulkChangeTool,
   onBulkChangeMode,
   onBulkDelete,
+  onBulkDeleteByPattern,
 }) => {
   const selectedPendingItems = selectedItems.filter((item) => item.status === QueueStatus.Pending);
   const selectedCount = selectedIds.size;
@@ -161,6 +163,11 @@ export const BulkActionsHandler: React.FC<BulkActionsHandlerProps> = ({
       }}
       onBulkDelete={() => {
         onBulkDelete?.(hasSelection ? Array.from(selectedIds) : undefined);
+        onClose();
+        onClearSelection();
+      }}
+      onBulkDeleteByPattern={(pattern) => {
+        onBulkDeleteByPattern?.(pattern, hasSelection ? Array.from(selectedIds) : undefined);
         onClose();
         onClearSelection();
       }}

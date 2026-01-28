@@ -108,16 +108,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <div className="ml-4 flex items-center justify-between">
             <div>
               <label className="text-sm font-normal text-foreground">Delay Duration</label>
-              <p className={descriptionClasses}>Time between each prompt</p>
+              <p className={descriptionClasses}>Base time between each prompt</p>
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 min={1}
                 max={120}
-                value={10}
-                className="w-16 rounded-md border border-border bg-background px-2 py-2 text-center text-sm text-foreground outline-none"
-                disabled
+                value={settings.dripFeedDelay}
+                onChange={(e) => {
+                  const value = Math.max(1, Math.min(120, Number(e.target.value) || 10));
+                  onUpdateSettings({ dripFeedDelay: value });
+                }}
+                className="w-16 rounded-md border border-border bg-background px-2 py-2 text-center text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
               />
               <span className="text-sm text-muted-foreground">seconds</span>
             </div>

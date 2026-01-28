@@ -31,6 +31,7 @@ const ACTION_ID_TO_TYPE: Record<string, BulkActionType> = {
   changeModel: "changeMode",
   exportCsv: null,
   saveTemplates: null,
+  deleteByPattern: "deleteByPattern",
 };
 
 export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
@@ -56,6 +57,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
   onBulkChangeTool,
   onBulkChangeMode,
   onBulkDelete,
+  onBulkDeleteByPattern,
 }) => {
   const state = useBulkActionsState({
     pendingItems,
@@ -112,6 +114,12 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
         onBulkChangeTool(state.selectedTool);
       } else if (activeAction === "changeMode" && state.selectedMode && onBulkChangeMode) {
         onBulkChangeMode(state.selectedMode);
+      } else if (
+        activeAction === "deleteByPattern" &&
+        state.deletePatternText.trim() &&
+        onBulkDeleteByPattern
+      ) {
+        onBulkDeleteByPattern(state.deletePatternText.trim());
       }
       handleClose();
     } finally {
@@ -198,6 +206,8 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           modifyPosition={state.modifyPosition}
           selectedTool={state.selectedTool}
           selectedMode={state.selectedMode}
+          deletePatternText={state.deletePatternText}
+          deletePatternMatchCount={state.deletePatternMatchCount}
           isProcessing={state.isProcessing}
           onFileUpload={handleFileUpload}
           onFileInputClick={() => state.fileInputRef.current?.click()}
@@ -206,6 +216,7 @@ export const BulkActionsDialog: React.FC<BulkActionsDialogProps> = ({
           setModifyPosition={state.setModifyPosition}
           setSelectedTool={state.setSelectedTool}
           setSelectedMode={state.setSelectedMode}
+          setDeletePatternText={state.setDeletePatternText}
           onSubmit={handleSubmit}
           onCancel={() => state.setActiveAction(null)}
         />

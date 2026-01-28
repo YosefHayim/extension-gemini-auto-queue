@@ -60,6 +60,7 @@ export async function startProcessing(): Promise<void> {
         break;
       }
 
+      const settings = await getSettings();
       const startTime = Date.now();
       await updateQueueItem(nextItem.id, {
         status: QueueStatus.Processing,
@@ -69,7 +70,6 @@ export async function startProcessing(): Promise<void> {
       broadcastMessage({ type: MessageType.UPDATE_QUEUE });
 
       try {
-        const settings = await getSettings();
         let tool = nextItem.tool ?? settings.defaultTool;
 
         if (settings.useToolSequence && settings.toolSequence.length > 0) {
@@ -126,13 +126,25 @@ export async function startProcessing(): Promise<void> {
           throw new Error(response.error ?? "Web automation failed");
         }
 
+        const baseDelayMs = settings.dripFeedDelay * 1000;
         const waitTime = settings.dripFeed
-          ? 8000 + Math.random() * 7000
-          : 1500 + Math.random() * 1500;
+          ? baseDelayMs + Math.random() * (baseDelayMs * 0.5)
+          : 2000 + Math.random() * 2000;
 
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       } catch (error) {
         await handleProcessingError(nextItem, error);
+
+        if (settings.autoStopOnError) {
+          log.info("process", "Auto-stopping due to error (autoStopOnError enabled)");
+          await setProcessingState({ isProcessing: false });
+          trackEvent(AnalyticsEvent.QUEUE_PROCESSING_STOPPED);
+          broadcastMessage({ type: MessageType.STOP_PROCESSING });
+          return;
+        }
+
+        const errorDelayMs = 5000 + Math.random() * 5000;
+        await new Promise((resolve) => setTimeout(resolve, errorDelayMs));
       }
 
       broadcastMessage({ type: MessageType.UPDATE_QUEUE });

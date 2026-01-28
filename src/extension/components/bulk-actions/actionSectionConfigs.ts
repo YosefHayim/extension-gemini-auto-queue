@@ -5,6 +5,7 @@ import {
   Copy,
   Cpu,
   FileSpreadsheet,
+  FilterX,
   ImageMinus,
   ImagePlus,
   Languages,
@@ -96,6 +97,9 @@ export const getActionSections = (): ActionSection[] => [
     title: "Danger Zone",
     titleColor: DESIGN.colors.dangerRed,
     isDanger: true,
-    actions: [{ id: "delete", icon: Trash2, label: "Delete Selected" }],
+    actions: [
+      { id: "delete", icon: Trash2, label: "Delete Selected" },
+      { id: "deleteByPattern", icon: FilterX, label: "Delete by Pattern", hasChevron: true },
+    ],
   },
 ];
