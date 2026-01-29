@@ -351,7 +351,7 @@ export const STORAGE_KEYS = {
   FOLDERS: "nano_flow_folders",
   ONBOARDING_COMPLETE: "nano_flow_onboarding_complete",
   EXTENSION_ENABLED: "nano_flow_extension_enabled",
-  AUTH_USER: "nano_flow_auth_user",
+  AUTH_USER: "promptqueue_auth_user",
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
@@ -359,7 +359,15 @@ export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 // Subscription Plans
 export enum SubscriptionPlan {
   FREE = "free",
+  TRIAL = "trial",
   PRO = "pro",
+}
+
+// Usage tracking
+export interface UserUsage {
+  dailyLimit: number;
+  promptsUsedToday: number;
+  promptsRemaining: number;
 }
 
 // Authentication Types
@@ -373,6 +381,11 @@ export interface AuthUser {
   refreshToken?: string;
   expiresAt: number;
   plan?: SubscriptionPlan;
+  trialEndsAt?: number;
+  usage?: UserUsage;
+  // Backend tokens (JWT)
+  backendAccessToken?: string;
+  backendRefreshToken?: string;
 }
 
 export interface AuthState {
