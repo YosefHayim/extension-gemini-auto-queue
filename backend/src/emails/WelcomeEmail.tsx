@@ -65,13 +65,16 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
           <Section style={upgradeSection}>
             <Text style={upgradeTitle}>Need more power?</Text>
             <Text style={upgradeText}>
-              Upgrade to <strong>Lifetime</strong> for a one-time payment of{" "}
-              <strong style={priceHighlight}>1$</strong> and get:
+              Start your <strong>14-day FREE trial</strong> - no credit card required! Then upgrade to{" "}
+              <strong>Lifetime</strong> for just <strong style={priceHighlight}>$1</strong>:
             </Text>
 
             <Section style={upgradeFeatures}>
               <Text style={upgradeFeatureItem}>
-                <span style={starIcon}>★</span> 100 prompts per day (10x more)
+                <span style={starIcon}>★</span> 14-day free trial, no strings attached
+              </Text>
+              <Text style={upgradeFeatureItem}>
+                <span style={starIcon}>★</span> Unlimited prompts per day
               </Text>
               <Text style={upgradeFeatureItem}>
                 <span style={starIcon}>★</span> Priority support
@@ -82,7 +85,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
             </Section>
 
             <Button style={ctaButton} href="https://yosefhayimsabag.com/prompt-queue/upgrade">
-              Upgrade to Lifetime - 1$
+              Start Free Trial
             </Button>
           </Section>
 
