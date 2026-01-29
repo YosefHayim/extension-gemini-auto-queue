@@ -38,9 +38,9 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
           </Text>
 
           <Section style={statsBox}>
-            <Text style={statsTitle}>Your Free Plan</Text>
-            <Text style={statsNumber}>10</Text>
-            <Text style={statsLabel}>prompts per day</Text>
+            <Text style={statsTitle}>Your 14-Day Free Trial</Text>
+            <Text style={statsNumber}>∞</Text>
+            <Text style={statsLabel}>unlimited access</Text>
           </Section>
 
           <Text style={paragraph}>Here&apos;s what you can do right now:</Text>
@@ -63,21 +63,21 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
           <Hr style={divider} />
 
           <Section style={upgradeSection}>
-            <Text style={upgradeTitle}>Need more power?</Text>
+            <Text style={upgradeTitle}>Love it? Go Pro for just $1!</Text>
             <Text style={upgradeText}>
-              Start your <strong>14-day FREE trial</strong> - no credit card required! Then upgrade to{" "}
-              <strong>Lifetime</strong> for just <strong style={priceHighlight}>$1</strong>:
+              After your trial, keep <strong>unlimited access forever</strong> with{" "}
+              <strong>Lifetime Pro</strong> for just <strong style={priceHighlight}>$1</strong>:
             </Text>
 
             <Section style={upgradeFeatures}>
               <Text style={upgradeFeatureItem}>
-                <span style={starIcon}>★</span> 14-day free trial, no strings attached
-              </Text>
-              <Text style={upgradeFeatureItem}>
-                <span style={starIcon}>★</span> Unlimited prompts per day
+                <span style={starIcon}>★</span> Unlimited generations forever
               </Text>
               <Text style={upgradeFeatureItem}>
                 <span style={starIcon}>★</span> Priority support
+              </Text>
+              <Text style={upgradeFeatureItem}>
+                <span style={starIcon}>★</span> All future updates included
               </Text>
               <Text style={upgradeFeatureItem}>
                 <span style={starIcon}>★</span> Pay once, use forever
@@ -85,7 +85,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
             </Section>
 
             <Button style={ctaButton} href="https://yosefhayimsabag.com/prompt-queue/upgrade">
-              Start Free Trial
+              Upgrade to Lifetime - $1
             </Button>
           </Section>
 

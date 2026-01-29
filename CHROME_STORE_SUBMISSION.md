@@ -74,13 +74,17 @@ KEY FEATURES:
 • Quick-access template library
 • 12 icon options + 6 color choices
 
-💎 Pro Features (Lifetime Plan - Only $1!)
-• 14-day FREE trial - no credit card required
-• Unlimited daily prompts (vs 10 on free)
+🎁 Start with 14-Day FREE Trial
+• No credit card required
+• Full access to all features
+• Generate unlimited images & videos
+• All 7 tools unlocked (Image, Video, Canvas, etc.)
+
+💎 Then Go Pro Lifetime - Only $1!
+• Unlimited generations forever
 • Priority support
-• All tools and features unlocked
 • One-time payment, lifetime access
-• Try before you buy - risk free!
+• No subscriptions, no recurring fees
 
 SUPPORTED PLATFORMS:
 • Google Gemini (gemini.google.com)
@@ -292,13 +296,12 @@ Test Account:
 
 | Plan | Price | Features |
 |------|-------|----------|
-| Free | $0 | 10 prompts/day, basic queue, all tools |
-| Pro Trial | FREE | 14-day trial, no credit card required, full Pro access |
-| Pro Lifetime | $1 | Unlimited prompts, priority support, lifetime access |
+| Free Trial | $0 | 14-day full access, no credit card required, all features |
+| Pro Lifetime | $1 | Unlimited generations, priority support, lifetime access |
 
 ### Promotional Offer
-🎉 **14-Day Free Trial** - Try all Pro features free, no credit card required!
-💰 **Lifetime Access for $1** - One-time payment, use forever. No subscriptions, no recurring fees.
+🎉 **14-Day Free Trial** - Full access to everything, no credit card required!
+💰 **Lifetime Access for $1** - Unlimited generations forever. One payment, no subscriptions.
 
 Payment processing: Lemon Squeezy (secure checkout)
 Checkout URL: https://yosefhayimsabag.com/prompt-queue/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce

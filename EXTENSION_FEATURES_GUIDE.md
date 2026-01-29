@@ -411,14 +411,14 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 **Thumbnail Set 3: "Pro Features"**
 ```
 ┌──────────────────────────────┐
-│ 👑 Pro Plan                  │
+│ 🎁 Start FREE                │
 │                              │
 │ ✓ 14-day FREE trial          │
 │ ✓ No credit card required    │
-│ ✓ Unlimited prompts          │
-│ ✓ Priority support           │
+│ ✓ Full access to everything  │
 │                              │
-│ Only $1 lifetime access!     │
+│ 👑 Then $1 lifetime!         │
+│ ✓ Unlimited forever          │
 └──────────────────────────────┘
 ```
 
@@ -491,9 +491,9 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 ## Key Statistics for Thumbnails
 
 - **12x faster** than manual generation
-- **14-day FREE trial** - no credit card required
-- **Unlimited prompts** with Pro plan
-- **Only $1 lifetime** access to all features
+- **14-day FREE trial** - no credit card required, full access
+- **Unlimited generations** with Pro Lifetime
+- **Only $1** for lifetime access to all features
 - **99.5% success rate** with auto-retry
 - **Supports 10+ languages** for translation
 - **Works with 3 AI providers** for optimization

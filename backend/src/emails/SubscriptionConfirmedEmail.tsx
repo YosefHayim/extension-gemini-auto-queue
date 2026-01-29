@@ -38,15 +38,15 @@ export function SubscriptionConfirmedEmail({ planName }: SubscriptionConfirmedEm
           </Text>
 
           <Section style={successBox}>
-            <Text style={successTitle}>Your new limits</Text>
-            <Text style={successNumber}>100</Text>
-            <Text style={successLabel}>prompts per day</Text>
+            <Text style={successTitle}>Your access</Text>
+            <Text style={successNumber}>∞</Text>
+            <Text style={successLabel}>unlimited forever</Text>
           </Section>
 
           <Section style={benefitsSection}>
             <Text style={benefitsTitle}>What you unlocked:</Text>
             <Text style={benefitItem}>
-              <span style={checkmark}>✓</span> 10x more daily prompts (100 vs 10)
+              <span style={checkmark}>✓</span> Unlimited generations forever
             </Text>
             <Text style={benefitItem}>
               <span style={checkmark}>✓</span> Priority email support

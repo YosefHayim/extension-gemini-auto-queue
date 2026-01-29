@@ -48,20 +48,20 @@ export function CreditsLowEmail({ creditsRemaining }: CreditsLowEmailProps) {
           <Hr style={divider} />
 
           <Section style={upgradeSection}>
-            <Text style={upgradeTitle}>Want unlimited prompts?</Text>
+            <Text style={upgradeTitle}>Want unlimited generations?</Text>
             <Text style={upgradeText}>
-              Start your <strong>14-day FREE trial</strong> - no credit card required! Then get{" "}
-              <strong>Lifetime</strong> access for just <strong>$1</strong>. One payment, use forever.
+              Get <strong>Lifetime Pro</strong> for just <strong>$1</strong> - unlimited access forever.
+              One payment, no subscriptions, no recurring fees.
             </Text>
 
             <Button style={ctaButton} href="https://yosefhayimsabag.com/prompt-queue/upgrade">
-              Start Free Trial
+              Upgrade to Lifetime - $1
             </Button>
           </Section>
 
           <Hr style={divider} />
 
-          <Text style={footerText}>Free users get 10 prompts per day. Lifetime users get 100.</Text>
+          <Text style={footerText}>Go Pro Lifetime for just $1 - unlimited access forever!</Text>
 
           <Section style={footerLinks}>
             <Link href="https://yosefhayimsabag.com/prompt-queue" style={footerLink}>
