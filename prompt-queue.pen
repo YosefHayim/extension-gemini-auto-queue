@@ -15395,7 +15395,6 @@
       "clip": true,
       "width": 1280,
       "height": 800,
-      "fill": "#FFFFFF",
       "layout": "vertical",
       "gap": 24,
       "justifyContent": "center",
