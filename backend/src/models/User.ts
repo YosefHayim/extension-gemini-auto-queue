@@ -8,6 +8,21 @@ export interface IUserMethods {
   consumePrompt(): Promise<void>;
   resetDailyUsage(): Promise<void>;
   checkAndResetDaily(): Promise<void>;
+  isTrialExpired(): boolean;
+  checkAndExpireTrial(): Promise<boolean>;
+  getEffectivePlan(): (typeof SUBSCRIPTION_PLANS)[keyof typeof SUBSCRIPTION_PLANS];
+}
+
+export interface IUserPreferences {
+  theme?: string;
+  primaryModel?: string;
+  defaultTool?: string;
+  dripFeed?: boolean;
+  dripFeedDelay?: number;
+  autoStopOnError?: boolean;
+  analyticsEnabled?: boolean;
+  sidebarWidth?: number;
+  preferredAIProvider?: string;
 }
 
 export interface IUser extends Document, IUserMethods {
@@ -19,6 +34,7 @@ export interface IUser extends Document, IUserMethods {
   isEmailVerified: boolean;
   plan: (typeof SUBSCRIPTION_PLANS)[keyof typeof SUBSCRIPTION_PLANS];
   status: (typeof SUBSCRIPTION_STATUS)[keyof typeof SUBSCRIPTION_STATUS];
+  trialEndsAt: Date | null;
   lemonSqueezyOrderId: string | null;
   lemonSqueezyCustomerId: string | null;
   purchasedAt: Date | null;
@@ -26,12 +42,18 @@ export interface IUser extends Document, IUserMethods {
     promptsToday: number;
     lastResetAt: Date;
   };
+  preferences: IUserPreferences;
   metadata: {
     lastLoginAt: Date | null;
     loginCount: number;
     createdFrom: "google" | "email";
     ipAddress: string | null;
     userAgent: string | null;
+    country: string | null;
+    timezone: string | null;
+    language: string | null;
+    platform: string | null;
+    extensionVersion: string | null;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -71,12 +93,16 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     plan: {
       type: String,
       enum: Object.values(SUBSCRIPTION_PLANS),
-      default: SUBSCRIPTION_PLANS.FREE,
+      default: SUBSCRIPTION_PLANS.TRIAL,
     },
     status: {
       type: String,
       enum: Object.values(SUBSCRIPTION_STATUS),
       default: SUBSCRIPTION_STATUS.ACTIVE,
+    },
+    trialEndsAt: {
+      type: Date,
+      default: null,
     },
     lemonSqueezyOrderId: {
       type: String,
@@ -104,6 +130,17 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         default: Date.now,
       },
     },
+    preferences: {
+      theme: { type: String, default: null },
+      primaryModel: { type: String, default: null },
+      defaultTool: { type: String, default: null },
+      dripFeed: { type: Boolean, default: null },
+      dripFeedDelay: { type: Number, default: null },
+      autoStopOnError: { type: Boolean, default: null },
+      analyticsEnabled: { type: Boolean, default: null },
+      sidebarWidth: { type: Number, default: null },
+      preferredAIProvider: { type: String, default: null },
+    },
     metadata: {
       lastLoginAt: {
         type: Date,
@@ -126,6 +163,26 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
         type: String,
         default: null,
       },
+      country: {
+        type: String,
+        default: null,
+      },
+      timezone: {
+        type: String,
+        default: null,
+      },
+      language: {
+        type: String,
+        default: null,
+      },
+      platform: {
+        type: String,
+        default: null,
+      },
+      extensionVersion: {
+        type: String,
+        default: null,
+      },
     },
   },
   {
@@ -139,8 +196,38 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   }
 );
 
+// Check if trial period has expired
+userSchema.methods.isTrialExpired = function (): boolean {
+  if (this.plan !== SUBSCRIPTION_PLANS.TRIAL) {
+    return false;
+  }
+  if (!this.trialEndsAt) {
+    return false;
+  }
+  return new Date() > new Date(this.trialEndsAt);
+};
+
+// Check and expire trial if needed, returns true if trial was expired
+userSchema.methods.checkAndExpireTrial = async function (): Promise<boolean> {
+  if (this.isTrialExpired()) {
+    this.plan = SUBSCRIPTION_PLANS.FREE;
+    await this.save();
+    return true;
+  }
+  return false;
+};
+
+// Get effective plan (checks trial expiration)
+userSchema.methods.getEffectivePlan = function (): (typeof SUBSCRIPTION_PLANS)[keyof typeof SUBSCRIPTION_PLANS] {
+  if (this.plan === SUBSCRIPTION_PLANS.TRIAL && this.isTrialExpired()) {
+    return SUBSCRIPTION_PLANS.FREE;
+  }
+  return this.plan;
+};
+
 userSchema.methods.getDailyLimit = function (): number {
-  return PLAN_LIMITS[this.plan].dailyPrompts;
+  const effectivePlan = this.getEffectivePlan();
+  return PLAN_LIMITS[effectivePlan].dailyPrompts;
 };
 
 userSchema.methods.getRemainingPrompts = function (): number {
@@ -176,6 +263,9 @@ userSchema.methods.checkAndResetDaily = async function (): Promise<void> {
     this.usage.promptsToday = 0;
     this.usage.lastResetAt = now;
   }
+
+  // Also check and expire trial if needed
+  await this.checkAndExpireTrial();
 };
 
 // Additional indexes (lemonSqueezyOrderId and lemonSqueezyCustomerId already have inline sparse indexes)

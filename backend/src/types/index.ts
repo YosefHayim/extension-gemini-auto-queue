@@ -97,12 +97,14 @@ export interface LemonSqueezySubscriptionAttributes {
 }
 
 export interface UserSubscriptionInfo {
-  plan: "free" | "lifetime";
+  plan: "free" | "trial" | "pro";
   status: string;
   dailyLimit: number;
   promptsUsedToday: number;
   promptsRemaining: number;
-  isLifetime: boolean;
+  isPro: boolean;
+  isTrial: boolean;
+  trialEndsAt: Date | null;
   purchasedAt: Date | null;
   lemonSqueezyOrderId: string | null;
 }

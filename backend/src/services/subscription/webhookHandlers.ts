@@ -38,19 +38,20 @@ export async function handleWebhookEvent(payload: LemonSqueezyWebhookPayload): P
 }
 
 async function handleOrderCreated(user: IUser, orderId: string, customerId: string): Promise<void> {
-  user.plan = SUBSCRIPTION_PLANS.LIFETIME;
+  user.plan = SUBSCRIPTION_PLANS.PRO;
   user.status = SUBSCRIPTION_STATUS.ACTIVE;
   user.lemonSqueezyOrderId = orderId;
   user.lemonSqueezyCustomerId = customerId;
   user.purchasedAt = new Date();
+  user.trialEndsAt = null; // Clear trial when purchasing Pro
 
   await user.save();
 
-  await trackSubscriptionEvent(user._id.toString(), "lifetime_purchased", {
+  await trackSubscriptionEvent(user._id.toString(), "pro_purchased", {
     orderId,
   });
 
-  await sendSubscriptionConfirmedEmail(user.email, "Lifetime");
+  await sendSubscriptionConfirmedEmail(user.email, "Pro");
 }
 
 async function handleOrderRefunded(user: IUser): Promise<void> {
@@ -61,5 +62,5 @@ async function handleOrderRefunded(user: IUser): Promise<void> {
 
   await user.save();
 
-  await trackSubscriptionEvent(user._id.toString(), "lifetime_refunded", {});
+  await trackSubscriptionEvent(user._id.toString(), "pro_refunded", {});
 }

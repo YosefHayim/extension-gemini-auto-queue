@@ -17,13 +17,17 @@ export async function getSubscriptionInfo(userId: string): Promise<UserSubscript
 
   await user.checkAndResetDaily();
 
+  const effectivePlan = user.getEffectivePlan();
+
   return {
-    plan: user.plan,
+    plan: effectivePlan,
     status: user.status,
     dailyLimit: user.getDailyLimit(),
     promptsUsedToday: user.usage.promptsToday,
     promptsRemaining: user.getRemainingPrompts(),
-    isLifetime: user.plan === SUBSCRIPTION_PLANS.LIFETIME,
+    isPro: effectivePlan === SUBSCRIPTION_PLANS.PRO,
+    isTrial: effectivePlan === SUBSCRIPTION_PLANS.TRIAL,
+    trialEndsAt: user.trialEndsAt,
     purchasedAt: user.purchasedAt,
     lemonSqueezyOrderId: user.lemonSqueezyOrderId,
   };
@@ -36,8 +40,8 @@ export async function getCheckoutUrl(userId: string): Promise<string> {
     throw new SubscriptionError(ERROR_MESSAGES.AUTH_USER_NOT_FOUND);
   }
 
-  if (user.plan === SUBSCRIPTION_PLANS.LIFETIME) {
-    throw new SubscriptionError("You already have a lifetime plan");
+  if (user.plan === SUBSCRIPTION_PLANS.PRO) {
+    throw new SubscriptionError("You already have a Pro plan");
   }
 
   const baseUrl = `https://app.lemonsqueezy.com/checkout/buy/${env.LEMON_SQUEEZY_LIFETIME_VARIANT_ID}`;

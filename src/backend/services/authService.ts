@@ -17,6 +17,7 @@ interface BackendAuthResponse {
       picture?: string;
       plan: string;
       status: string;
+      trialEndsAt?: string;
       usage: UserUsage;
     };
     tokens: {
@@ -147,6 +148,7 @@ export async function signIn(): Promise<{ success: boolean; user?: AuthUser; err
       accessToken: token,
       expiresAt: Date.now() + 60 * 60 * 1000,
       plan: backendUser.plan as SubscriptionPlan,
+      trialEndsAt: backendUser.trialEndsAt ? new Date(backendUser.trialEndsAt).getTime() : undefined,
       usage: backendUser.usage,
       backendAccessToken: tokens.accessToken,
       backendRefreshToken: tokens.refreshToken,

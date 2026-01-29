@@ -1,11 +1,20 @@
 import { User, type IUser } from "../../models/User.js";
-import { SUBSCRIPTION_PLANS, SUBSCRIPTION_STATUS, ERROR_CODES } from "../../constants/index.js";
+import { SUBSCRIPTION_PLANS, SUBSCRIPTION_STATUS, ERROR_CODES, TRIAL_DURATION_DAYS } from "../../constants/index.js";
 import { NotFoundError, ConflictError } from "../../utils/errors.js";
 import { ERROR_MESSAGES } from "../../constants/messages.js";
 import { normalizeEmail } from "../../utils/index.js";
 import { sendWelcomeEmail, sendCreditsLowEmail } from "../EmailService.js";
 import { trackUserEvent } from "../AnalyticsService.js";
 import { findUserByEmail, findUserByGoogleId } from "./queries.js";
+
+/**
+ * Calculate trial end date from now
+ */
+function calculateTrialEndDate(): Date {
+  const trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DURATION_DAYS);
+  return trialEnd;
+}
 
 interface CreateUserParams {
   email: string;
@@ -37,8 +46,9 @@ export async function createUser(params: CreateUserParams): Promise<IUser> {
     picture: params.picture ?? null,
     googleId: params.googleId ?? null,
     isEmailVerified: params.isEmailVerified ?? false,
-    plan: SUBSCRIPTION_PLANS.FREE,
+    plan: SUBSCRIPTION_PLANS.TRIAL,
     status: SUBSCRIPTION_STATUS.ACTIVE,
+    trialEndsAt: calculateTrialEndDate(),
     usage: {
       promptsToday: 0,
       lastResetAt: new Date(),

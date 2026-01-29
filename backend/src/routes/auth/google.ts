@@ -89,6 +89,9 @@ export async function googleRoutes(app: FastifyInstance): Promise<void> {
 
     await user.checkAndResetDaily();
 
+    // Get effective plan (considers trial expiration)
+    const effectivePlan = user.getEffectivePlan();
+
     return reply.send({
       success: true,
       data: {
@@ -97,8 +100,9 @@ export async function googleRoutes(app: FastifyInstance): Promise<void> {
           email: user.email,
           name: user.name,
           picture: user.picture,
-          plan: user.plan,
+          plan: effectivePlan,
           status: user.status,
+          trialEndsAt: user.trialEndsAt,
           usage: {
             dailyLimit: user.getDailyLimit(),
             promptsUsedToday: user.usage.promptsToday,
