@@ -1,7 +1,9 @@
 import { z } from "zod";
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config();
+// Load .env from project root (one level up from backend)
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
@@ -18,7 +20,7 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().transform((val) => val.split(",")),
 
   MONGODB_URI: z.string().url(),
-  MONGODB_DB_NAME: z.string().default("gqmini"),
+  MONGODB_DB_NAME: z.string().default("promptqueue"),
 
   REDIS_URL: z.string().url(),
 
@@ -28,7 +30,7 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string().email(),
-  EMAIL_FROM_NAME: z.string().default("Gqmini"),
+  EMAIL_FROM_NAME: z.string().default("PromptQueue"),
 
   SENTRY_DSN: z.string().optional(),
   POSTHOG_API_KEY: z.string().optional(),

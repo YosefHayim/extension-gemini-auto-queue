@@ -1,6 +1,6 @@
 {
-  "name": "gqmini",
-  "displayName": "Gqmini - Gemini Queue & Automation",
+  "name": "promptqueue",
+  "displayName": "PromptQueue - Gemini Queue & Automation",
   "version": "2.2.0",
   "private": true,
   "type": "module",

@@ -224,7 +224,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </div>
             {!isPro && (
               <a
-                href="https://gqmini.yosefhayimsabag.com/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce"
+                href="https://yosefhayimsabag.com/prompt-queue/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary/90"

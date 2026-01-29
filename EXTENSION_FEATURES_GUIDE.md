@@ -1,4 +1,4 @@
-# Gqmini - Gemini Queue & Automation
+# PromptQueue - Gemini Queue & Automation
 ## Comprehensive Feature Guide for Marketing & Design
 
 ---
@@ -6,7 +6,7 @@
 ## Brand Identity & Visual Guidance
 
 ### Core Concept
-**Gqmini** is the productivity powerhouse for anyone who wants to supercharge their Gemini AI workflow. It transforms Gemini from a single-prompt tool into a **batch processing machine** that handles dozens, hundreds, or thousands of prompts automatically.
+**PromptQueue** is the productivity powerhouse for anyone who wants to supercharge their Gemini AI workflow. It transforms Gemini from a single-prompt tool into a **batch processing machine** that handles dozens, hundreds, or thousands of prompts automatically.
 
 ### Visual Tone
 - **Modern & Professional** - Sleek, tech-forward aesthetic
@@ -26,32 +26,32 @@
 ## Core Features Breakdown
 
 ### 1. 🚀 QUEUE MANAGEMENT
-**The Heart of Gqmini**
+**The Heart of PromptQueue**
 
 #### What It Does
-Users can add unlimited prompts to a queue, then let Gqmini automatically submit them one by one to Gemini while they do other work.
+Users can add unlimited prompts to a queue, then let PromptQueue automatically submit them one by one to Gemini while they do other work.
 
 #### Use Cases & User Scenarios
 
 **Scenario 1: Content Creator Generating 50 Product Descriptions**
-- User opens Gqmini side panel
+- User opens PromptQueue side panel
 - Pastes or types 50 product prompts into the queue
 - Hits "Start" button
-- While Gqmini processes: user watches results come in, grabs coffee, answers emails
+- While PromptQueue processes: user watches results come in, grabs coffee, answers emails
 - By the time they return, all 50 descriptions are complete and auto-downloaded
 
 **Scenario 2: Designer Generating Multiple Image Variations**
 - Designer has 20 variations of a product photo prompt they want to generate
 - Adds them all to queue at once
 - Sets drip-feed mode to 10 seconds (realistic timing)
-- Watches as Gqmini submits each one, auto-downloads the images
-- Organizes and edits locally while Gqmini keeps processing
+- Watches as PromptQueue submits each one, auto-downloads the images
+- Organizes and edits locally while PromptQueue keeps processing
 
 **Scenario 3: Marketer Translating Campaigns to 10 Languages**
 - Marketer has marketing copy in English
 - Uses bulk translate feature to create 10 language variants
 - Adds all to queue
-- Gqmini generates all translations automatically
+- PromptQueue generates all translations automatically
 
 #### Visual Design Ideas for Thumbnails
 - **Thumbnail 1: "Queue in Action"**
@@ -87,7 +87,7 @@ Generate dozens or hundreds of images in one go. Users add image prompts to queu
 - E-commerce seller needs 100 product photos
 - Creates prompt templates: "Professional product photo of [product], white background, studio lighting, 4K"
 - Adds product names as variables
-- Gqmini expands and generates all 100 images
+- PromptQueue expands and generates all 100 images
 - Auto-downloads all to folder organized by product
 - Ready to upload to store
 
@@ -189,7 +189,7 @@ Translate prompts into multiple languages at once, or optimize prompts using dif
 **Set It and Forget It**
 
 #### What It Does
-Configure drip-feed timing, schedule queue processing for specific times, enable auto-retry on failures, and let Gqmini handle the rest while you work on other things.
+Configure drip-feed timing, schedule queue processing for specific times, enable auto-retry on failures, and let PromptQueue handle the rest while you work on other things.
 
 #### Use Cases & User Scenarios
 
@@ -202,21 +202,21 @@ Configure drip-feed timing, schedule queue processing for specific times, enable
 **Scenario 2: Realistic Timing**
 - User wants to generate images but doesn't want rate-limiting
 - Sets drip-feed to 15-second delays between submissions
-- Gqmini automatically waits between each prompt
+- PromptQueue automatically waits between each prompt
 - Avoids hitting rate limits while maximizing throughput
 
 **Scenario 3: Error Recovery**
 - User queues 50 prompts
 - Enables smart retry: 3 attempts, exponential backoff
 - 5 prompts fail initially
-- Gqmini automatically retries them
+- PromptQueue automatically retries them
 - User checks results later, 99% success rate
 
 #### Visual Design Ideas for Thumbnails
 - **Thumbnail 1: "Set & Forget"**
   - Calendar/clock icon showing scheduled time (e.g., "2:00 AM")
   - User asleep in bed in foreground
-  - Gqmini working in background (processing spinner animation)
+  - PromptQueue working in background (processing spinner animation)
   - Caption: "Schedule Processing. Wake to Results."
 
 - **Thumbnail 2: "Smart Retry"**
@@ -310,8 +310,8 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 - Can generate massive batches without worry
 - Scales their business
 
-**Scenario 2: Agency Using Gqmini for Clients**
-- Agency wants Gqmini as client deliverable feature
+**Scenario 2: Agency Using PromptQueue for Clients**
+- Agency wants PromptQueue as client deliverable feature
 - Pro plan enables unlimited processing for client work
 - Priority support helps with quick issue resolution
 - Advanced features unlock new service offerings
@@ -350,7 +350,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 
 #### Step 2: Onboarding (2-5 minutes)
 **Visual: Tutorial Queue**
-- Gqmini introduces by showing example prompt
+- PromptQueue introduces by showing example prompt
 - User adds more prompts
 - Explains queue concept with animation
 - Shows "Start" button
@@ -383,7 +383,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 
 ### Quick Win Thumbnails (for app store, social media)
 
-**Thumbnail Set 1: "What Gqmini Does"**
+**Thumbnail Set 1: "What PromptQueue Does"**
 ```
 ┌─────────────────────────┐
 │ 1 Prompt → ∞ Results    │
@@ -392,7 +392,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 │ → Auto generation       │
 │ → Download everything   │
 │                         │
-│ That's Gqmini           │
+│ That's PromptQueue           │
 └─────────────────────────┘
 ```
 
@@ -400,7 +400,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 ```
 ┌──────────────────────────────┐
 │ Manual: 1 hour              │
-│ Gqmini: 5 minutes           │
+│ PromptQueue: 5 minutes           │
 │                              │
 │ 12x faster productivity      │
 │                              │
@@ -429,7 +429,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 │ ⚙ Item 2 processing         │
 │ ⏳ Item 3 waiting            │
 │                              │
-│ Watch Gqmini work for you    │
+│ Watch PromptQueue work for you    │
 └──────────────────────────────┘
 ```
 
@@ -464,7 +464,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 ### Theme 1: "From Manual to Automatic"
 **Visual Metaphor**: Manual switch → Automatic toggle
 - Before: User clicking 50 times
-- After: User clicks once, Gqmini handles the rest
+- After: User clicks once, PromptQueue handles the rest
 - Emphasis: Automation, efficiency, freedom
 
 ### Theme 2: "Batch Power"
@@ -522,7 +522,7 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 
 ## Summary for Designer/AI Tool
 
-**Core Message**: Gqmini transforms Gemini from a single-prompt tool into an unstoppable automation machine. Users add unlimited prompts, then Gqmini handles everything while they work on other things.
+**Core Message**: PromptQueue transforms Gemini from a single-prompt tool into an unstoppable automation machine. Users add unlimited prompts, then PromptQueue handles everything while they work on other things.
 
 **Visual Essence**:
 - One → Many (1 prompt to infinite results)
@@ -546,4 +546,4 @@ Upgrade to Pro for unlimited prompts, priority support, and advanced features.
 
 ---
 
-**Ready for thumbnail creation!** Use these features, scenarios, and design directions to create compelling marketing visuals that showcase Gqmini's power.
+**Ready for thumbnail creation!** Use these features, scenarios, and design directions to create compelling marketing visuals that showcase PromptQueue's power.

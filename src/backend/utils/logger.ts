@@ -35,7 +35,7 @@ const DEFAULT_CONFIG: LoggerConfig = {
   consoleOutput: true,
 };
 
-const STORAGE_KEY = "GQMINI_DEV_LOGS";
+const STORAGE_KEY = "PROMPTQUEUE_DEV_LOGS";
 const LEVEL_NAMES: Record<LogLevel, string> = {
   [LogLevel.DEBUG]: "DEBUG",
   [LogLevel.INFO]: "INFO",

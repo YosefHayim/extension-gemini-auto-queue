@@ -1,7 +1,7 @@
 {
-  "name": "gqmini-backend",
+  "name": "promptqueue-backend",
   "version": "1.0.0",
-  "description": "Backend API for Gqmini Chrome Extension",
+  "description": "Backend API for PromptQueue Chrome Extension",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

@@ -78,7 +78,7 @@ export function initAnalytics(enabled = true): void {
 }
 
 function getOrCreateDistinctId(): string {
-  const storageKey = "gqmini_analytics_id";
+  const storageKey = "promptqueue_analytics_id";
   let distinctId = localStorage.getItem(storageKey);
 
   if (!distinctId) {

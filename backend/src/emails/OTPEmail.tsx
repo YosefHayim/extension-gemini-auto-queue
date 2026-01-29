@@ -22,12 +22,12 @@ export function OTPEmail({ otp }: OTPEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Gqmini</Text>
+            <Text style={logoText}>PromptQueue</Text>
           </Section>
 
           <Heading style={heading}>Verify your email</Heading>
 
-          <Text style={paragraph}>Enter this code to sign in to Gqmini:</Text>
+          <Text style={paragraph}>Enter this code to sign in to PromptQueue:</Text>
 
           <Section style={codeContainer}>
             <Text style={code}>{otp}</Text>
@@ -40,11 +40,11 @@ export function OTPEmail({ otp }: OTPEmailProps) {
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://gqmini.example.com" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/privacy" style={footerLink}>
               Privacy
             </Link>
           </Section>

@@ -19,11 +19,11 @@ export function SubscriptionConfirmedEmail({ planName }: SubscriptionConfirmedEm
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Gqmini {planName}! Your upgrade is complete.</Preview>
+      <Preview>Welcome to PromptQueue {planName}! Your upgrade is complete.</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Gqmini</Text>
+            <Text style={logoText}>PromptQueue</Text>
           </Section>
 
           <Section style={celebrationSection}>
@@ -71,21 +71,21 @@ export function SubscriptionConfirmedEmail({ planName }: SubscriptionConfirmedEm
           <Text style={footerText}>Questions about your purchase? Just reply to this email.</Text>
 
           <Text style={footerSignature}>
-            Thanks for supporting Gqmini!
+            Thanks for supporting PromptQueue!
             <br />
-            The Gqmini Team
+            The PromptQueue Team
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://gqmini.example.com" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/privacy" style={footerLink}>
               Privacy
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/terms" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/terms" style={footerLink}>
               Terms
             </Link>
           </Section>

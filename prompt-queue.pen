@@ -16706,6 +16706,58 @@
           "letterSpacing": 1
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "rhkJU",
+      "x": 550,
+      "y": 3151,
+      "name": "Logo/Extension-128x128",
+      "clip": true,
+      "width": 128,
+      "height": 128,
+      "fill": "#1A1A1D",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 6,
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "WAt59",
+          "name": "logoIcon",
+          "width": 52,
+          "height": 52,
+          "fill": "#FFFFFF",
+          "cornerRadius": 10,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "MMMBp",
+              "name": "logoText",
+              "fill": "#1A1A1D",
+              "content": "PQ",
+              "fontFamily": "Inter",
+              "fontSize": 22,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "XcpUh",
+          "name": "logoBrand",
+          "fill": "#FFFFFF",
+          "content": "PromptQueue",
+          "fontFamily": "Inter",
+          "fontSize": 11,
+          "fontWeight": "500",
+          "letterSpacing": 0.5
+        }
+      ]
     }
   ],
   "variables": {

@@ -1,6 +1,6 @@
 # Chrome Web Store Submission Guide
 
-This document contains all necessary information for submitting Gqmini to the Chrome Web Store.
+This document contains all necessary information for submitting PromptQueue to the Chrome Web Store.
 
 ## Extension Details
 
@@ -8,7 +8,7 @@ This document contains all necessary information for submitting Gqmini to the Ch
 
 | Field | Value |
 |-------|-------|
-| **Name** | Gqmini - Gemini Queue & Automation |
+| **Name** | PromptQueue - Gemini Queue & Automation |
 | **Version** | 2.2.0 |
 | **Category** | Productivity |
 | **Language** | English |
@@ -20,7 +20,7 @@ Queue unlimited prompts, bulk generate images, auto-download, translate & automa
 
 ### Detailed Description (16,000 characters max)
 ```
-Gqmini supercharges your Google Gemini experience with powerful queue management and automation features.
+PromptQueue supercharges your Google Gemini experience with powerful queue management and automation features.
 
 KEY FEATURES:
 
@@ -120,12 +120,12 @@ Perfect for creators, designers, marketers, and anyone who wants to maximize the
 
 ### Privacy Policy URL
 ```
-https://gqmini.yosefhayimsabag.com/privacy
+https://yosefhayimsabag.com/prompt-queue/privacy
 ```
 
 ### Terms of Service URL
 ```
-https://gqmini.yosefhayimsabag.com/terms
+https://yosefhayimsabag.com/prompt-queue/terms
 ```
 
 ---
@@ -208,7 +208,7 @@ Test Account:
 - Added bulk translation functionality
 - Implemented model selection dialog
 - Added delete by pattern feature
-- Project renamed from Groove to Gqmini
+- Project renamed from Groove to PromptQueue
 
 ### v2.0.0
 - Complete UI redesign
@@ -223,10 +223,10 @@ Test Account:
 
 | Resource | URL |
 |----------|-----|
-| Support Email | support@gqmini.yosefhayimsabag.com |
-| Documentation | https://gqmini.yosefhayimsabag.com/docs |
+| Support Email | support@yosefhayimsabag.com/prompt-queue |
+| Documentation | https://yosefhayimsabag.com/prompt-queue/docs |
 | Bug Reports | https://github.com/yosefhayim/extension-gemini-auto-queue/issues |
-| Website | https://gqmini.yosefhayimsabag.com |
+| Website | https://yosefhayimsabag.com/prompt-queue |
 
 ---
 
@@ -237,4 +237,4 @@ Test Account:
 | Free | $0 | Limited daily prompts, basic features |
 | Pro Lifetime | 1$ | Unlimited prompts, all features, lifetime access |
 
-Payment processing: Handled via secure checkout at gqmini.yosefhayimsabag.com
+Payment processing: Handled via secure checkout at yosefhayimsabag.com/prompt-queue

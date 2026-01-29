@@ -67,7 +67,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ user, onSignOut }) => {
             </div>
             {!isPro && (
               <a
-                href="https://gqmini.yosefhayimsabag.com/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce"
+                href="https://yosefhayimsabag.com/prompt-queue/checkout/buy/44bdfe85-5961-4caf-911b-9d5a059664ce"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-amber-600 transition-colors hover:bg-amber-500/10 dark:text-amber-400"

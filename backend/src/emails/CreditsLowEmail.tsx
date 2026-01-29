@@ -26,7 +26,7 @@ export function CreditsLowEmail({ creditsRemaining }: CreditsLowEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Gqmini</Text>
+            <Text style={logoText}>PromptQueue</Text>
           </Section>
 
           <Section style={alertBadge}>
@@ -54,7 +54,7 @@ export function CreditsLowEmail({ creditsRemaining }: CreditsLowEmailProps) {
               forever. One payment, no subscription.
             </Text>
 
-            <Button style={ctaButton} href="https://gqmini.example.com/upgrade">
+            <Button style={ctaButton} href="https://yosefhayimsabag.com/prompt-queue/upgrade">
               Get Lifetime for 0.99$
             </Button>
           </Section>
@@ -64,11 +64,11 @@ export function CreditsLowEmail({ creditsRemaining }: CreditsLowEmailProps) {
           <Text style={footerText}>Free users get 10 prompts per day. Lifetime users get 100.</Text>
 
           <Section style={footerLinks}>
-            <Link href="https://gqmini.example.com" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/privacy" style={footerLink}>
               Privacy
             </Link>
           </Section>

@@ -23,11 +23,11 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Gqmini - Automate your Gemini workflow</Preview>
+      <Preview>Welcome to PromptQueue - Automate your Gemini workflow</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logoSection}>
-            <Text style={logoText}>Gqmini</Text>
+            <Text style={logoText}>PromptQueue</Text>
           </Section>
 
           <Heading style={heading}>Welcome aboard, {displayName}!</Heading>
@@ -81,7 +81,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
               </Text>
             </Section>
 
-            <Button style={ctaButton} href="https://gqmini.example.com/upgrade">
+            <Button style={ctaButton} href="https://yosefhayimsabag.com/prompt-queue/upgrade">
               Upgrade to Lifetime - 1$
             </Button>
           </Section>
@@ -95,19 +95,19 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
           <Text style={footerSignature}>
             Happy prompting!
             <br />
-            The Gqmini Team
+            The PromptQueue Team
           </Text>
 
           <Section style={footerLinks}>
-            <Link href="https://gqmini.example.com" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue" style={footerLink}>
               Website
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/privacy" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/privacy" style={footerLink}>
               Privacy
             </Link>
             <Text style={footerLinkDivider}>•</Text>
-            <Link href="https://gqmini.example.com/terms" style={footerLink}>
+            <Link href="https://yosefhayimsabag.com/prompt-queue/terms" style={footerLink}>
               Terms
             </Link>
           </Section>
