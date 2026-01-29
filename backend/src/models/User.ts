@@ -178,7 +178,7 @@ userSchema.methods.checkAndResetDaily = async function (): Promise<void> {
   }
 };
 
-userSchema.index({ lemonSqueezyOrderId: 1 });
+// Additional indexes (lemonSqueezyOrderId and lemonSqueezyCustomerId already have inline sparse indexes)
 userSchema.index({ createdAt: 1 });
 userSchema.index({ "metadata.lastLoginAt": 1 });
 
